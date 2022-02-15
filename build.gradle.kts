@@ -25,6 +25,7 @@ android {
         viewBinding = true
     }
 
+    /*
     buildTypes {
         getByName(ConfigData.BuildType.RELEASE) {
             isMinifyEnabled = true
@@ -33,6 +34,7 @@ android {
             isMinifyEnabled = false
         }
     }
+     */
 
     compileOptions {
         sourceCompatibility = ConfigData.JAVA_VERSION
@@ -83,6 +85,8 @@ publishing {
             groupId = ConfigData.applicationId
             artifactId = ConfigData.artifactId
             version = ConfigData.versionName
+
+            from(components.findByName("java"))
         }
     }
 }
