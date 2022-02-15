@@ -5,6 +5,7 @@ object Dependencies {
         const val LIBRARY = "com.android.library"
         const val DETEKT = "io.gitlab.arturbosch.detekt"
         const val HILT = "dagger.hilt.android.plugin"
+        const val PUBLISH = "maven-publish"
     }
 
     object KotlinPlugins {

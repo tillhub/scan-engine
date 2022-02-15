@@ -1,12 +1,10 @@
-import kotlin.io.print
-
 plugins {
     kotlin(Dependencies.KotlinPlugins.ANDROID)
     kotlin(Dependencies.KotlinPlugins.KAPT)
     id(Dependencies.Plugins.LIBRARY)
     id(Dependencies.Plugins.DETEKT) version Versions.Plugins.DETEKT
     id(Dependencies.Plugins.HILT)
-    id("maven-publish")
+    id(Dependencies.Plugins.PUBLISH)
 }
 
 repositories {
@@ -27,17 +25,6 @@ android {
         viewBinding = true
     }
 
-    /*
-    buildTypes {
-        getByName(ConfigData.BuildType.RELEASE) {
-            isMinifyEnabled = true
-        }
-        getByName(ConfigData.BuildType.DEBUG) {
-            isMinifyEnabled = false
-        }
-    }
-     */
-
     compileOptions {
         sourceCompatibility = ConfigData.JAVA_VERSION
         targetCompatibility = ConfigData.JAVA_VERSION
@@ -45,6 +32,10 @@ android {
 
     hilt {
         enableExperimentalClasspathAggregation = true
+    }
+
+    tasks.withType<Test> {
+        useJUnitPlatform()
     }
 
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
@@ -84,7 +75,7 @@ dependencies {
 afterEvaluate {
     publishing {
         publications {
-            create<MavenPublication>("scan-engine") {
+            create<MavenPublication>(ConfigData.artifactId) {
                 groupId = ConfigData.applicationId
                 artifactId = ConfigData.artifactId
                 version = ConfigData.versionName
