@@ -21,10 +21,6 @@ object Versions {
         const val FRAGMENT = "1.4.0"
     }
 
-    object Firebase {
-        const val BOM = "29.0.0"
-    }
-
     object Google {
         const val MATERIAL = "1.4.0"
         const val HILT = "2.38.1"

@@ -5,6 +5,7 @@ object Dependencies {
         const val LIBRARY = "com.android.library"
         const val DETEKT = "io.gitlab.arturbosch.detekt"
         const val HILT = "dagger.hilt.android.plugin"
+        const val PUBLISH = "maven-publish"
     }
 
     object KotlinPlugins {
@@ -28,10 +29,6 @@ object Dependencies {
         const val CONSTRAINT_LAYOUT = "androidx.constraintlayout:constraintlayout:${Versions.AndroidX.CONSTRAINT_LAYOUT}"
 
         const val FRAGMENT_TESTING = "androidx.fragment:fragment-testing:${Versions.AndroidX.FRAGMENT}"
-    }
-
-    object Firebase {
-        const val BOM = "com.google.firebase:firebase-bom:${Versions.Firebase.BOM}"
     }
 
     object Google {
@@ -86,12 +83,6 @@ object Dependencies {
         val CORE_UI = arrayListOf<Dependency>().apply {
             add(Dependency.Implementation(AndroidX.APP_COMPAT))
             add(Dependency.Implementation(Google.MATERIAL))
-        }
-
-        val CAMERA = arrayListOf<Dependency>().apply {
-            add(Dependency.Implementation(CameraX.CAMERA2))
-            add(Dependency.Implementation(CameraX.CAMERA_LIFECYCLE))
-            add(Dependency.Implementation(CameraX.CAMERA_VIEW))
         }
 
         val TEST_LIBRARIES = arrayListOf<Dependency>().apply {

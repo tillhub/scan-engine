@@ -1,3 +1,7 @@
 rootProject.name = "Tillhub Scan Engine"
 
-include(":scan-engine")
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+    }
+}
