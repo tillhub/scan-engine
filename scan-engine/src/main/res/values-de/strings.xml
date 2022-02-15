@@ -1,0 +1,4 @@
+<resources>
+    <string name="error_permission_not_granted">Erlaubnis muss gegeben werden!</string>
+    <string name="request_camera_permission">Zugriff auf Kamera erlauben</string>
+</resources>
