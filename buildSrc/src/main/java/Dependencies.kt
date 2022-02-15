@@ -92,6 +92,7 @@ object Dependencies {
             add(Dependency.TestImplementation(Testing.KOTEST_RUNNER))
             add(Dependency.TestImplementation(Testing.KOTEST_ASSERTIONS))
             add(Dependency.TestImplementation(Testing.KOTEST_PROPERTY))
+            add(Dependency.TestImplementation(Kotlin.COROUTINES_TEST))
         }
 
         val TEST_ROBOLECTRIC = arrayListOf<Dependency>().apply {
