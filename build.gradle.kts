@@ -1,3 +1,5 @@
+import kotlin.io.print
+
 plugins {
     kotlin(Dependencies.KotlinPlugins.ANDROID)
     kotlin(Dependencies.KotlinPlugins.KAPT)
@@ -79,14 +81,16 @@ dependencies {
     implementDependencyGroup(Dependencies.Groups.ANDROID_TEST_LIBRARIES)
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("scan-engine") {
-            groupId = ConfigData.applicationId
-            artifactId = ConfigData.artifactId
-            version = ConfigData.versionName
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("scan-engine") {
+                groupId = ConfigData.applicationId
+                artifactId = ConfigData.artifactId
+                version = ConfigData.versionName
 
-            from(components.findByName("java"))
+                from(components.getByName("release"))
+            }
         }
     }
 }
