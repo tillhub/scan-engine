@@ -30,10 +30,6 @@ object Dependencies {
         const val FRAGMENT_TESTING = "androidx.fragment:fragment-testing:${Versions.AndroidX.FRAGMENT}"
     }
 
-    object Firebase {
-        const val BOM = "com.google.firebase:firebase-bom:${Versions.Firebase.BOM}"
-    }
-
     object Google {
         const val MATERIAL = "com.google.android.material:material:${Versions.Google.MATERIAL}"
         const val HILT = "com.google.dagger:hilt-android:${Versions.Google.HILT}"
@@ -86,12 +82,6 @@ object Dependencies {
         val CORE_UI = arrayListOf<Dependency>().apply {
             add(Dependency.Implementation(AndroidX.APP_COMPAT))
             add(Dependency.Implementation(Google.MATERIAL))
-        }
-
-        val CAMERA = arrayListOf<Dependency>().apply {
-            add(Dependency.Implementation(CameraX.CAMERA2))
-            add(Dependency.Implementation(CameraX.CAMERA_LIFECYCLE))
-            add(Dependency.Implementation(CameraX.CAMERA_VIEW))
         }
 
         val TEST_LIBRARIES = arrayListOf<Dependency>().apply {

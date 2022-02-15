@@ -7,20 +7,10 @@ plugins {
     id("maven-publish")
 }
 
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-        gradlePluginPortal()
-    }
-    dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.10")
-    }
-}
-
 repositories {
     google()
     mavenCentral()
+    gradlePluginPortal()
 }
 
 android {
@@ -38,10 +28,6 @@ android {
     buildTypes {
         getByName(ConfigData.BuildType.RELEASE) {
             isMinifyEnabled = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
         }
         getByName(ConfigData.BuildType.DEBUG) {
             isMinifyEnabled = false
@@ -74,30 +60,26 @@ dependencies {
     // Groups
     implementDependencyGroup(Dependencies.Groups.CORE)
     implementDependencyGroup(Dependencies.Groups.CORE_UI)
-    implementDependencyGroup(Dependencies.Groups.CAMERA)
-
-    // Firebase
-    implementation(platform(Dependencies.Firebase.BOM))
-
     // Timber
     implementation(Dependencies.Tools.TIMBER)
-
-    // ML Kit
-    implementation(Dependencies.Google.MLKIT_BARCODES)
-
     // Module Specific dependencies
     implementation(Dependencies.AndroidX.CONSTRAINT_LAYOUT)
 
+    // ML Kit
+    api(Dependencies.Google.MLKIT_BARCODES)
+    api(Dependencies.CameraX.CAMERA2)
+    api(Dependencies.CameraX.CAMERA_LIFECYCLE)
+    api(Dependencies.CameraX.CAMERA_VIEW)
+
     // Unit tests
     implementDependencyGroup(Dependencies.Groups.TEST_LIBRARIES)
-
     // Android tests
     implementDependencyGroup(Dependencies.Groups.ANDROID_TEST_LIBRARIES)
 }
 
 publishing {
     publications {
-        create<MavenPublication>("ScanEngine") {
+        create<MavenPublication>("scan-engine") {
             groupId = ConfigData.applicationId
             artifactId = ConfigData.artifactId
             version = ConfigData.versionName
