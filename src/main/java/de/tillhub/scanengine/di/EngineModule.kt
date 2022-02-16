@@ -20,15 +20,10 @@ object EngineModule {
 
     @Provides
     @Singleton
-    fun provideCoroutineScopeProvider(): CoroutineScopeProvider = CoroutineScopeProviderImpl()
-
-    @Provides
-    @Singleton
     fun provideScanner(
         @ApplicationContext appContext: Context,
-        coroutineScopeProvider: CoroutineScopeProvider,
     ): Scanner = when (ScannerManufacturer.get()) {
-        ScannerManufacturer.SUNMI -> SunmiScanner(coroutineScopeProvider)
+        ScannerManufacturer.SUNMI -> SunmiScanner()
         ScannerManufacturer.OTHER -> GoogleScanner(appContext)
     }
 }

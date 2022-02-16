@@ -15,6 +15,7 @@ import de.tillhub.scanengine.ScannedData
 import de.tillhub.scanengine.Scanner
 import de.tillhub.scanengine.ScannerConnection
 import de.tillhub.scanengine.common.CoroutineScopeProvider
+import de.tillhub.scanengine.common.CoroutineScopeProviderImpl
 import de.tillhub.scanengine.common.safeLet
 import kotlinx.coroutines.flow.Flow
 import timber.log.Timber
@@ -24,9 +25,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 @Singleton
-class SunmiScanner @Inject constructor(
-    private val coroutineScopeProvider: CoroutineScopeProvider,
-) : Scanner {
+class SunmiScanner @Inject constructor() : Scanner {
+
+    private val coroutineScopeProvider: CoroutineScopeProvider = CoroutineScopeProviderImpl()
 
     private val scanEventProvider = ScanEventProvider()
 
