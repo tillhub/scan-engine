@@ -9,7 +9,7 @@ import de.tillhub.scanengine.di.ScannerInjectionProvider
 
 @Module
 @DisableInstallInCheck
-object DaggerScannerModule {
+object ScannerDaggerModule {
 
     @Provides
     @ScannerScope

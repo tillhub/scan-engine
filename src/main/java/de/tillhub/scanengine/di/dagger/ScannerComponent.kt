@@ -6,7 +6,7 @@ import dagger.Component
 import de.tillhub.scanengine.Scanner
 
 @ScannerScope
-@Component(modules = [(DaggerScannerModule::class)])
+@Component(modules = [(ScannerDaggerModule::class)])
 interface ScannerComponent {
 
     @Component.Builder
