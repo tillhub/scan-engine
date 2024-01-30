@@ -6,6 +6,9 @@
     <uses-feature android:name="android.hardware.camera" />
 
     <application>
+        <meta-data
+            android:name="com.google.mlkit.vision.DEPENDENCIES"
+            android:value="barcode" />
         <activity
             android:name="de.tillhub.scanengine.google.ui.GoogleScanningActivity"
             android:exported="false"

@@ -3,18 +3,18 @@ package de.tillhub.scanengine.google.ui
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import androidx.lifecycle.ViewModel
-import com.google.mlkit.vision.barcode.Barcode
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
+import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import javax.inject.Inject
 
-@HiltViewModel
-class GoogleScanningViewModel @Inject constructor() : ViewModel() {
+class GoogleScanningViewModel : ViewModel() {
 
     private val scanner = BarcodeScanning.getClient(BarcodeScannerOptions.Builder()
         .setBarcodeFormats(Barcode.FORMAT_ALL_FORMATS)
@@ -25,9 +25,16 @@ class GoogleScanningViewModel @Inject constructor() : ViewModel() {
     val scanningState: StateFlow<ScanningState> = _scanningState
 
     val analyzer: ImageAnalysis.Analyzer = QRImageAnalyzer(scanner, _scanningState)
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                GoogleScanningViewModel()
+            }
+        }
+    }
 }
 
-private class QRImageAnalyzer constructor(
+private class QRImageAnalyzer(
     private val scanner: BarcodeScanner,
     private val scanningState: MutableStateFlow<ScanningState>
 ) : ImageAnalysis.Analyzer {

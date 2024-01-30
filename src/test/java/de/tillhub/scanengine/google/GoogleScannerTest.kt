@@ -71,7 +71,7 @@ class GoogleScannerTest : FunSpec({
 
         var event: ScanEvent = ScanEvent.Error()
         runTest(UnconfinedTestDispatcher()) {
-            val collectJob = googleScanner.scanResults()
+            val collectJob = googleScanner.observeScannerResults()
                 .onEach { event = it }
                 .launchIn(this)
 
@@ -89,8 +89,8 @@ class GoogleScannerTest : FunSpec({
         }
 
         googleScanner.activeScannerConnection = conn
-        googleScanner.scanCameraCode(false, "key")
+        googleScanner.scanCameraCode()
 
-        verify(exactly = 1) { conn.scanCameraCode("key") }
+        verify(exactly = 1) { conn.scanCameraCode(null) }
     }
 })

@@ -20,15 +20,13 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
-import dagger.hilt.android.AndroidEntryPoint
 import de.tillhub.scanengine.R
 import de.tillhub.scanengine.databinding.ActivityGoogleScanningBinding
 import java.util.concurrent.Executor
 
-@AndroidEntryPoint
 class GoogleScanningActivity : AppCompatActivity() {
 
-    private val viewModel by viewModels<GoogleScanningViewModel>()
+    private val viewModel: GoogleScanningViewModel by viewModels { GoogleScanningViewModel.Factory }
     private val binding by viewBinding(ActivityGoogleScanningBinding::inflate)
 
     private lateinit var camera: Camera
@@ -70,6 +68,7 @@ class GoogleScanningActivity : AppCompatActivity() {
                         )
                         finish()
                     }
+
                     ScanningState.Idle -> Unit
                 }
             }
@@ -84,6 +83,7 @@ class GoogleScanningActivity : AppCompatActivity() {
                 baseContext,
                 Manifest.permission.CAMERA
             ) -> bindCamera()
+
             else -> requestPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
     }

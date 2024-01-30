@@ -1,24 +1,14 @@
 plugins {
-    kotlin(Dependencies.KotlinPlugins.ANDROID)
-    kotlin(Dependencies.KotlinPlugins.KAPT)
-    id(Dependencies.Plugins.LIBRARY)
-    id(Dependencies.Plugins.DETEKT) version Versions.Plugins.DETEKT
-    id(Dependencies.Plugins.HILT)
-    id(Dependencies.Plugins.PUBLISH)
-}
-
-repositories {
-    google()
-    mavenCentral()
-    gradlePluginPortal()
+    id("kotlin-android")
+    id("com.android.library")
+    id("maven-publish")
+    id("io.gitlab.arturbosch.detekt")
 }
 
 android {
     compileSdk = ConfigData.targetSdkVersion
-
     defaultConfig {
         minSdk = ConfigData.minSdkVersion
-        targetSdk = ConfigData.targetSdkVersion
     }
 
     buildFeatures {
@@ -28,10 +18,6 @@ android {
     compileOptions {
         sourceCompatibility = ConfigData.JAVA_VERSION
         targetCompatibility = ConfigData.JAVA_VERSION
-    }
-
-    hilt {
-        enableExperimentalClasspathAggregation = true
     }
 
     tasks.withType<Test> {
@@ -49,27 +35,34 @@ android {
             isIncludeAndroidResources = true
         }
     }
+
+    namespace = "de.tillhub.scanengine"
 }
 
 dependencies {
     // Groups
-    implementDependencyGroup(Dependencies.Groups.CORE)
-    implementDependencyGroup(Dependencies.Groups.CORE_UI)
-    // Timber
-    implementation(Dependencies.Tools.TIMBER)
+    implementation(libs.bundles.core)
+    implementation(libs.bundles.ui)
+    implementation(libs.bundles.lifecycle)
+
+    // Utils
+    coreLibraryDesugaring(libs.android.desugarJdkLibs)
+    implementation(libs.timber)
+    detektPlugins(libs.detekt.formatting)
+
     // Module Specific dependencies
-    implementation(Dependencies.AndroidX.CONSTRAINT_LAYOUT)
+    implementation(libs.androidx.constraintlayout)
 
     // ML Kit
-    api(Dependencies.Google.MLKIT_BARCODES)
-    api(Dependencies.CameraX.CAMERA2)
-    api(Dependencies.CameraX.CAMERA_LIFECYCLE)
-    api(Dependencies.CameraX.CAMERA_VIEW)
+    api(libs.bundles.mlkit)
+
+    // Camera
+    api(libs.bundles.camera)
 
     // Unit tests
-    implementDependencyGroup(Dependencies.Groups.TEST_LIBRARIES)
+    testImplementation(libs.bundles.testing)
     // Android tests
-    implementDependencyGroup(Dependencies.Groups.ANDROID_TEST_LIBRARIES)
+    androidTestImplementation(libs.bundles.core)
 }
 
 afterEvaluate {
