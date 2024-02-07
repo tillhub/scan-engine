@@ -16,6 +16,7 @@ import de.tillhub.scanengine.ScanEventProvider
 import de.tillhub.scanengine.ScannedData
 import de.tillhub.scanengine.Scanner
 import de.tillhub.scanengine.common.safeLet
+import de.tillhub.scanengine.google.DefaultScanner.Companion.CAMERA_SCANNER_KEY
 import kotlinx.coroutines.flow.Flow
 import timber.log.Timber
 import java.lang.ref.WeakReference
@@ -28,12 +29,7 @@ class SunmiScanner(
 
     private var scanKey: String? = null
 
-    private val cameraScannerResult: ActivityResultLauncher<Intent> = activity.get()
-        ?.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            result.data?.extras?.let {
-                evaluateScanResult(it)
-            }
-        } ?: throw IllegalStateException("SunmiScanner: Activity is null")
+    private lateinit var cameraScannerResult: ActivityResultLauncher<Intent>
 
     private val broadcastReceiver = SunmiBarcodeScannerBroadcastReceiver(scanEventProvider)
 
@@ -43,6 +39,16 @@ class SunmiScanner(
 
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)
+        cameraScannerResult = activity.get()?.activityResultRegistry?.register(
+            CAMERA_SCANNER_KEY,
+            owner,
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            result.data?.extras?.let {
+                evaluateScanResult(it)
+            }
+        } ?: throw IllegalStateException("SunmiScanner: Activity is null")
+
         activity.get()?.let {
             ContextCompat.registerReceiver(
                 it,
@@ -56,13 +62,14 @@ class SunmiScanner(
     override fun onDestroy(owner: LifecycleOwner) {
         super.onDestroy(owner)
         scanKey = null
+        cameraScannerResult.unregister()
         activity.get()?.lifecycle?.removeObserver(this)
         activity.get()?.unregisterReceiver(broadcastReceiver)
         activity.clear()
     }
 
     override fun observeScannerResults(): Flow<ScanEvent> = scanEventProvider.scanEvents
-    override fun scanCameraCode(scanKey: String?) {
+    override fun startCameraScanner(scanKey: String?) {
         this.scanKey = scanKey
         cameraScannerResult.launch(scanIntent())
     }

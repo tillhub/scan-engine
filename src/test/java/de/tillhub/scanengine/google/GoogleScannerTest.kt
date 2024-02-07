@@ -89,7 +89,7 @@ class GoogleScannerTest : FunSpec({
         }
 
         googleScanner.activeScannerConnection = conn
-        googleScanner.scanCameraCode()
+        googleScanner.startCameraScan()
 
         verify(exactly = 1) { conn.scanCameraCode(null) }
     }

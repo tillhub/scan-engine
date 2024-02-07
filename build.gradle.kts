@@ -54,10 +54,10 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
 
     // ML Kit
-    api(libs.bundles.mlkit)
+    implementation(libs.bundles.mlkit)
 
     // Camera
-    api(libs.bundles.camera)
+    implementation(libs.bundles.camera)
 
     // Unit tests
     testImplementation(libs.bundles.testing)
