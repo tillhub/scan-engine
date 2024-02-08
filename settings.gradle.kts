@@ -15,3 +15,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
+include(":sample")
+include(":scan-engine")

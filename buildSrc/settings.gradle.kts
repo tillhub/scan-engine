@@ -1,4 +1,4 @@
-
+@Suppress("UnstableApiUsage")
 dependencyResolutionManagement {
     repositories {
         google()
