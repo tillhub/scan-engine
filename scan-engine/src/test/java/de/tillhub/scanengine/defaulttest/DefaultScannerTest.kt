@@ -5,7 +5,6 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContract
 import de.tillhub.scanengine.ScanEvent
-import de.tillhub.scanengine.ScannedDataResult
 import de.tillhub.scanengine.default.DefaultScanner
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -35,7 +34,7 @@ class DefaultScannerTest : FunSpec({
                 register(
                     any(),
                     any(),
-                    any<ActivityResultContract<String, ScannedDataResult>>(),
+                    any<ActivityResultContract<String, ScanEvent>>(),
                 ) {}
             } returns activityResultLauncher
         }
@@ -48,9 +47,9 @@ class DefaultScannerTest : FunSpec({
     }
 
     test("test scanResults()") {
-        val data = ScannedDataResult.ScannedData("value", "key")
+        val data = ScanEvent.Success("value", "key")
 
-        var event: ScanEvent = ScanEvent.Error()
+        var event: ScanEvent = ScanEvent.Canceled
         runTest(UnconfinedTestDispatcher()) {
             val collectJob = defaultScanner.observeScannerResults()
                 .onEach { event = it }
@@ -61,6 +60,6 @@ class DefaultScannerTest : FunSpec({
         }
 
         event.shouldBeInstanceOf<ScanEvent.Success>()
-        (event as ScanEvent.Success).content shouldBe data
+        (event as ScanEvent.Success).value shouldBe data
     }
 })

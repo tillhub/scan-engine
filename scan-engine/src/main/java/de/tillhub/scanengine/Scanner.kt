@@ -1,12 +1,13 @@
 package de.tillhub.scanengine
 
 import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.savedstate.SavedStateRegistry
 import kotlinx.coroutines.flow.Flow
 
 /**
  * Used for connecting and disconnecting a scanner, issue scan commands and observing scanned codes.
  */
-interface Scanner : DefaultLifecycleObserver {
+interface Scanner : DefaultLifecycleObserver, SavedStateRegistry.SavedStateProvider {
 
     /**
      * Can be used to observe any scanned code.

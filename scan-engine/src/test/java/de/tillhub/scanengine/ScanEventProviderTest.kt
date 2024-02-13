@@ -14,14 +14,14 @@ class ScanEventProviderTest : FunSpec({
 
     lateinit var scanEventProvider: ScanEventProvider
 
-    val data = ScannedDataResult.ScannedData("value", "key")
+    val data = ScanEvent.Success("value", "key")
 
     beforeTest {
         scanEventProvider = ScanEventProvider()
     }
 
     test("addScanResult") {
-        var event: ScanEvent = ScanEvent.Error()
+        var event: ScanEvent = ScanEvent.Canceled
         runTest(UnconfinedTestDispatcher()) {
             val collectJob = scanEventProvider.scanEvents
                     .onEach { event = it }
@@ -32,6 +32,6 @@ class ScanEventProviderTest : FunSpec({
         }
 
         event.shouldBeInstanceOf<ScanEvent.Success>()
-        (event as ScanEvent.Success).content shouldBe data
+        (event as ScanEvent.Success).value shouldBe data
     }
 })

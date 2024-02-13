@@ -11,7 +11,7 @@ class ScanEventProvider {
     private val mutableScanEvents = MutableSharedFlow<ScanEvent>(extraBufferCapacity = 1)
     val scanEvents: Flow<ScanEvent> = mutableScanEvents
 
-    fun addScanResult(content: ScannedDataResult) {
-        mutableScanEvents.tryEmit(ScanEvent.Success(content))
+    fun addScanResult(content: ScanEvent) {
+        mutableScanEvents.tryEmit(content)
     }
 }

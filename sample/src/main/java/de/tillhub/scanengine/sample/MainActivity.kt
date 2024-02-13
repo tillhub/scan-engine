@@ -22,7 +22,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import de.tillhub.scanengine.ScanEngine
 import de.tillhub.scanengine.ScanEvent
-import de.tillhub.scanengine.ScannedDataResult
 import de.tillhub.scanengine.sample.ui.theme.TillhubScanEngineTheme
 import kotlinx.coroutines.launch
 
@@ -37,9 +36,7 @@ class MainActivity : ComponentActivity() {
             lifecycle.repeatOnLifecycle(Lifecycle.State.CREATED) {
                 scanner.scanner.observeScannerResults()
                     .collect {
-                        scanCode.value = ((it as? ScanEvent.Success)
-                            ?.content as? ScannedDataResult.ScannedData)
-                            ?.value.orEmpty()
+                        scanCode.value = (it as? ScanEvent.Success)?.value.orEmpty()
                     }
             }
         }
