@@ -23,7 +23,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewbinding.ViewBinding
 import de.tillhub.scanengine.R
-import de.tillhub.scanengine.Scanner.Companion.SCAN_KEY
 import de.tillhub.scanengine.databinding.ActivityGoogleScanningBinding
 import kotlinx.coroutines.launch
 import java.util.concurrent.Executor
@@ -69,7 +68,6 @@ class GoogleScanningActivity : AppCompatActivity() {
                                 RESULT_OK,
                                 Intent().apply {
                                     putExtra(DATA_KEY, state.barcode)
-                                    putExtra(SCAN_KEY, intent.extras?.getString(SCAN_KEY).orEmpty())
                                 }
                             )
                             finish()

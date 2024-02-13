@@ -7,11 +7,10 @@ import de.tillhub.scanengine.sunmi.SunmiScanner
 
 class ScanEngine private constructor(activity: ComponentActivity) {
 
-
     val scanner: Scanner by lazy {
         when (ScannerManufacturer.get()) {
             ScannerManufacturer.SUNMI -> SunmiScanner(activity)
-            ScannerManufacturer.OTHER -> DefaultScanner(activity.activityResultRegistry)
+            ScannerManufacturer.OTHER -> DefaultScanner(activity)
         }
     }
     init {

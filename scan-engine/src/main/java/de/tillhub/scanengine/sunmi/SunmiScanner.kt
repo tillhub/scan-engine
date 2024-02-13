@@ -9,22 +9,17 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.savedstate.SavedStateRegistry
 import de.tillhub.scanengine.ScanEvent
 import de.tillhub.scanengine.ScanEventProvider
-import de.tillhub.scanengine.ScannedDataResult
 import de.tillhub.scanengine.Scanner
 import de.tillhub.scanengine.Scanner.Companion.CAMERA_SCANNER_KEY
-import de.tillhub.scanengine.Scanner.Companion.SCAN_KEY
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharedFlow
 import timber.log.Timber
 
 class SunmiScanner(
     private val activity: ComponentActivity
-) : Scanner, SavedStateRegistry.SavedStateProvider {
+) : Scanner {
 
     private val scanEventProvider = ScanEventProvider()
 
@@ -32,21 +27,15 @@ class SunmiScanner(
 
     private val broadcastReceiver = SunmiBarcodeScannerBroadcastReceiver(scanEventProvider)
 
-    var scanKey: String? = null
-
-    init {
-        activity.lifecycle.addObserver(LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_CREATE) {
-                val registry = activity.savedStateRegistry
-                registry.registerSavedStateProvider(PROVIDER, this)
-                val state = registry.consumeRestoredStateForKey(PROVIDER)
-                scanKey = state?.getString(SCAN_KEY)
-            }
-        })
-    }
+    private var scanKey: String? = null
 
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)
+        with(activity.savedStateRegistry) {
+            registerSavedStateProvider(PROVIDER, this@SunmiScanner)
+            scanKey = consumeRestoredStateForKey(PROVIDER)?.getString(SCAN_KEY)
+        }
+
         sunmiScannerLauncher =
             activity.activityResultRegistry.register(
                 CAMERA_SCANNER_KEY,
@@ -55,8 +44,8 @@ class SunmiScanner(
             ) { result ->
                 result.map {
                     when (it) {
-                        ScannedDataResult.Canceled -> scanEventProvider.addScanResult(it)
-                        is ScannedDataResult.ScannedData -> scanEventProvider.addScanResult(
+                        ScanEvent.Canceled -> scanEventProvider.addScanResult(it)
+                        is ScanEvent.Success -> scanEventProvider.addScanResult(
                             it.copy(scanKey = scanKey)
                         )
                     }
@@ -79,7 +68,7 @@ class SunmiScanner(
         return bundleOf(SCAN_KEY to scanKey)
     }
 
-    override fun observeScannerResults(): Flow<ScanEvent> = scanEventProvider.scanEvents
+    override fun observeScannerResults(): SharedFlow<ScanEvent> = scanEventProvider.scanEvents
 
     override fun startCameraScanner(scanKey: String?) {
         this.scanKey = scanKey
@@ -102,13 +91,14 @@ class SunmiScanner(
             val code = intent.getStringExtra(DATA)
             if (!code.isNullOrEmpty()) {
                 Timber.v("scanned code: %s", code)
-                scanEventProvider.addScanResult(ScannedDataResult.ScannedData(code, scanKey))
+                scanEventProvider.addScanResult(ScanEvent.Success(code, scanKey))
             }
         }
     }
 
     companion object {
         private const val PROVIDER = "sunmi_scanner"
+        private const val SCAN_KEY = "scan_key"
         const val RESPONSE_TYPE = "TYPE"
         const val RESPONSE_VALUE = "VALUE"
         const val DATA = "data"

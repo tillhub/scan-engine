@@ -22,24 +22,21 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import de.tillhub.scanengine.ScanEngine
 import de.tillhub.scanengine.ScanEvent
-import de.tillhub.scanengine.ScannedDataResult
 import de.tillhub.scanengine.sample.ui.theme.TillhubScanEngineTheme
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
-    private val scanner by lazy { ScanEngine.getInstance(this) }
+    private val scanner by lazy { ScanEngine.getInstance(this).scanner }
     private val scanCode = mutableStateOf("")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.CREATED) {
-                scanner.scanner.observeScannerResults()
+                scanner.observeScannerResults()
                     .collect {
-                        scanCode.value = ((it as? ScanEvent.Success)
-                            ?.content as? ScannedDataResult.ScannedData)
-                            ?.value.orEmpty()
+                        scanCode.value = (it as? ScanEvent.Success)?.value.orEmpty()
                     }
             }
         }
@@ -51,7 +48,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     Greeting(scanCode.value) {
-                        ScanEngine.getInstance(this).scanner.startCameraScanner("key")
+                        scanner.startCameraScanner("key")
                     }
                 }
             }

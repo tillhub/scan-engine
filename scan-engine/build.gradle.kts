@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinAndroid)
+    alias(libs.plugins.detekt)
+    id("maven-publish")
 }
 
 android {
@@ -57,7 +59,7 @@ dependencies {
     // Utils
     coreLibraryDesugaring(libs.android.desugarJdkLibs)
     implementation(libs.timber)
-    //detektPlugins(libs.detekt.formatting)
+    detektPlugins(libs.detekt.formatting)
 
     // Module Specific dependencies
     implementation(libs.androidx.constraintlayout)
@@ -72,16 +74,16 @@ dependencies {
     testImplementation(libs.bundles.testing)
 }
 
-//afterEvaluate {
-//    publishing {
-//        publications {
-//            create<MavenPublication>("scan-engine") {
-//                groupId = "de.tillhub.scanengine"
-//                artifactId = "scan-engine"
-//                version = "1.4.0"
-//
-//                from(components.getByName("release"))
-//            }
-//        }
-//    }
-//}
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("scan-engine") {
+                groupId = "scan-engine"
+                artifactId = "de.tillhub.scanengine"
+                version = "1.4.0"
+
+                from(components.getByName("release"))
+            }
+        }
+    }
+}

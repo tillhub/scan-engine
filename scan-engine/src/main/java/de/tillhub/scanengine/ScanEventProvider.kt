@@ -1,7 +1,7 @@
 package de.tillhub.scanengine
 
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 
 /**
  * Utility class for converting single scan results into a stream of data which can be observed everywhere.
@@ -9,9 +9,9 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 class ScanEventProvider {
 
     private val mutableScanEvents = MutableSharedFlow<ScanEvent>(extraBufferCapacity = 1)
-    val scanEvents: Flow<ScanEvent> = mutableScanEvents
+    val scanEvents: SharedFlow<ScanEvent> = mutableScanEvents
 
-    fun addScanResult(content: ScannedDataResult) {
-        mutableScanEvents.tryEmit(ScanEvent.Success(content))
+    fun addScanResult(content: ScanEvent) {
+        mutableScanEvents.tryEmit(content)
     }
 }

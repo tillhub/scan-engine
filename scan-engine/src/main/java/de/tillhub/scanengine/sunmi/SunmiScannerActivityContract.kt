@@ -5,22 +5,22 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContract
-import de.tillhub.scanengine.ScannedDataResult
+import de.tillhub.scanengine.ScanEvent
 import de.tillhub.scanengine.common.safeLet
+import de.tillhub.scanengine.helper.serializable
 
-class SunmiScannerActivityContract : ActivityResultContract<Intent, List<ScannedDataResult>>() {
+class SunmiScannerActivityContract : ActivityResultContract<Intent, List<ScanEvent>>() {
 
     override fun createIntent(context: Context, input: Intent) = input
 
-    override fun parseResult(resultCode: Int, intent: Intent?): List<ScannedDataResult> =
+    override fun parseResult(resultCode: Int, intent: Intent?): List<ScanEvent> =
         intent.takeIf { resultCode == Activity.RESULT_OK }?.extras?.let {
             evaluateScanResult(it)
-        } ?: listOf(ScannedDataResult.Canceled)
+        } ?: listOf(ScanEvent.Canceled)
 
+    private fun evaluateScanResult(extras: Bundle): List<ScanEvent> {
+        val rawCodes: List<Map<String, String>> = extras.serializable(SunmiScanner.DATA) ?: emptyList()
 
-    private fun evaluateScanResult(extras: Bundle): List<ScannedDataResult> {
-        @Suppress("UNCHECKED_CAST")
-        val rawCodes = extras.getSerializable(SunmiScanner.DATA) as List<Map<String, String>>
         return rawCodes.mapNotNull {
             safeLet(
                 it[SunmiScanner.RESPONSE_TYPE],
@@ -32,7 +32,7 @@ class SunmiScannerActivityContract : ActivityResultContract<Intent, List<Scanned
                 )
             }
         }.map {
-            ScannedDataResult.ScannedData(it.content)
+            ScanEvent.Success(it.content)
         }
     }
 

@@ -1,17 +1,18 @@
 package de.tillhub.scanengine
 
 import androidx.lifecycle.DefaultLifecycleObserver
-import kotlinx.coroutines.flow.Flow
+import androidx.savedstate.SavedStateRegistry
+import kotlinx.coroutines.flow.SharedFlow
 
 /**
  * Used for connecting and disconnecting a scanner, issue scan commands and observing scanned codes.
  */
-interface Scanner: DefaultLifecycleObserver {
+interface Scanner : DefaultLifecycleObserver, SavedStateRegistry.SavedStateProvider {
 
     /**
      * Can be used to observe any scanned code.
      */
-    fun observeScannerResults(): Flow<ScanEvent>
+    fun observeScannerResults(): SharedFlow<ScanEvent>
 
     /**
      * Start the camera based scanner.
@@ -25,6 +26,5 @@ interface Scanner: DefaultLifecycleObserver {
 
     companion object {
         const val CAMERA_SCANNER_KEY = "CAMERA_SCANNER_KEY"
-        const val SCAN_KEY = "scan_key"
     }
 }

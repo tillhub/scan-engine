@@ -1,14 +1,10 @@
 package de.tillhub.scanengine
 
-/**
- * Represents a scan result which can be either a valid scan or an error.
- */
 sealed class ScanEvent {
-    class Success(val content: ScannedDataResult) : ScanEvent() {
-        override fun toString(): String = "ScanEvent.Success(content='$content')"
-    }
+    data class Success(
+        val value: String,
+        val scanKey: String? = null
+    ) : ScanEvent()
 
-    class Error(val error: Exception? = null) : ScanEvent() {
-        override fun toString(): String = "ScanEvent.Error(error=$error)"
-    }
+    data object Canceled : ScanEvent()
 }
