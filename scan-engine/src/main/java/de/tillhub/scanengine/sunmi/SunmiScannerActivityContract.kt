@@ -16,8 +16,6 @@ class SunmiScannerActivityContract : ActivityResultContract<Intent, List<Scanned
         intent.takeIf { resultCode == Activity.RESULT_OK }?.extras?.let {
             evaluateScanResult(it)
         } ?: listOf(ScannedDataResult.Canceled)
-
-
     private fun evaluateScanResult(extras: Bundle): List<ScannedDataResult> {
         @Suppress("UNCHECKED_CAST")
         val rawCodes = extras.getSerializable(SunmiScanner.DATA) as List<Map<String, String>>

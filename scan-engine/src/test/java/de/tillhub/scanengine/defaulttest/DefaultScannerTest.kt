@@ -1,6 +1,5 @@
 package de.tillhub.scanengine.defaulttest
 
-
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.ActivityResultRegistry

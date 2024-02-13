@@ -8,4 +8,3 @@ sealed class ScannedDataResult {
 
     data object Canceled : ScannedDataResult()
 }
-

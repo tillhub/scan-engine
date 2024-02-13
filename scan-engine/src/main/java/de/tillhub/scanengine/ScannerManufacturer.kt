@@ -9,6 +9,8 @@ enum class ScannerManufacturer {
         fun get(): ScannerManufacturer =
             if (android.os.Build.MANUFACTURER.compareTo(SUNMI_MANUFACTURER_NAME) == 0) {
                 SUNMI
-            } else OTHER
+            } else {
+                OTHER
+            }
     }
 }

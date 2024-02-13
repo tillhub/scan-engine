@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 /**
  * Used for connecting and disconnecting a scanner, issue scan commands and observing scanned codes.
  */
-interface Scanner: DefaultLifecycleObserver {
+interface Scanner : DefaultLifecycleObserver {
 
     /**
      * Can be used to observe any scanned code.
