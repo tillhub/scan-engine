@@ -1,8 +1,8 @@
 [versions]
 # Define the dependency versions
+agp = "8.2.2"
 kotlin = "1.9.22"
 kotlinCoroutines = "1.7.3"
-androidGradlePlugin = "8.1.4"
 core = "1.12.0"
 appcompat = "1.6.1"
 constraintlayout = "2.1.4"
@@ -65,10 +65,12 @@ kotest-assertions = { group = "io.kotest", name = "kotest-assertions-core-jvm", 
 kotest-property = { group = "io.kotest", name = "kotest-property-jvm", version.ref = "kotest" }
 
 # Dependencies of the included build-logic
-gradlePlugin-android = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
-gradlePlugin-kotlin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
-gradlePlugin-detekt = { group = "io.gitlab.arturbosch.detekt", name = "detekt-gradle-plugin", version.ref = "detekt" }
 detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt" }
+
+[plugins]
+androidApplication = { id = "com.android.application", version.ref = "agp" }
+kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+androidLibrary = { id = "com.android.library", version.ref = "agp" }
 
 [bundles]
 core = [

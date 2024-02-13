@@ -1,17 +1,17 @@
 plugins {
-    id("com.android.application")
-    id("kotlin-android")
+    alias(libs.plugins.androidApplication)
+    alias(libs.plugins.kotlinAndroid)
 }
 
 android {
     namespace = "de.tillhub.scanengine.sample"
 
-    compileSdk = ConfigData.targetSdkVersion
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "de.tillhub.scanengine.sample"
-        minSdk = ConfigData.minSdkVersion
-        targetSdk = ConfigData.targetSdkVersion
+        minSdk = 21
+        targetSdk = 34
 
         vectorDrawables {
             useSupportLibrary = true
@@ -19,8 +19,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = ConfigData.JAVA_VERSION
-        targetCompatibility = ConfigData.JAVA_VERSION
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     tasks.withType<Test> {
         useJUnitPlatform()
@@ -28,7 +28,7 @@ android {
 
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         kotlinOptions {
-            jvmTarget = ConfigData.JVM_TARGET
+            jvmTarget = JavaVersion.VERSION_17.toString()
         }
     }
     buildFeatures {

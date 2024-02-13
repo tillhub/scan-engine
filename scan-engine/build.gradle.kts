@@ -1,16 +1,14 @@
 plugins {
-    id("com.android.library")
-    id("org.jetbrains.kotlin.android")
-    id("maven-publish")
-    id("io.gitlab.arturbosch.detekt")
+    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.kotlinAndroid)
 }
 
 android {
-    namespace = ConfigData.applicationId
-    compileSdk = ConfigData.targetSdkVersion
+    namespace = "de.tillhub.scanengine"
+    compileSdk = 34
 
     defaultConfig {
-        minSdk = ConfigData.minSdkVersion
+        minSdk = 21
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
@@ -30,8 +28,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = ConfigData.JAVA_VERSION
-        targetCompatibility = ConfigData.JAVA_VERSION
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     tasks.withType<Test> {
@@ -40,7 +38,7 @@ android {
 
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         kotlinOptions {
-            jvmTarget = ConfigData.JVM_TARGET
+            jvmTarget = JavaVersion.VERSION_17.toString()
         }
     }
 }
@@ -59,7 +57,7 @@ dependencies {
     // Utils
     coreLibraryDesugaring(libs.android.desugarJdkLibs)
     implementation(libs.timber)
-    detektPlugins(libs.detekt.formatting)
+    //detektPlugins(libs.detekt.formatting)
 
     // Module Specific dependencies
     implementation(libs.androidx.constraintlayout)
@@ -74,16 +72,16 @@ dependencies {
     testImplementation(libs.bundles.testing)
 }
 
-afterEvaluate {
-    publishing {
-        publications {
-            create<MavenPublication>(ConfigData.artifactId) {
-                groupId = ConfigData.applicationId
-                artifactId = ConfigData.artifactId
-                version = ConfigData.versionName
-
-                from(components.getByName("release"))
-            }
-        }
-    }
-}
+//afterEvaluate {
+//    publishing {
+//        publications {
+//            create<MavenPublication>("scan-engine") {
+//                groupId = "de.tillhub.scanengine"
+//                artifactId = "scan-engine"
+//                version = "1.4.0"
+//
+//                from(components.getByName("release"))
+//            }
+//        }
+//    }
+//}
