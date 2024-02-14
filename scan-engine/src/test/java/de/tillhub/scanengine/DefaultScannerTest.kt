@@ -43,7 +43,7 @@ class DefaultScannerTest : FunSpec({
             every { activityResultRegistry } returns registry
         }
 
-        defaultScanner = DefaultScanner(componentActivity.activityResultRegistry)
+        defaultScanner = DefaultScanner(componentActivity)
     }
 
     test("test scanResults()") {

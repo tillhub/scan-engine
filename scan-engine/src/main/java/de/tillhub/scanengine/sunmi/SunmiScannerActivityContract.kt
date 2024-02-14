@@ -7,6 +7,8 @@ import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContract
 import de.tillhub.scanengine.ScanEvent
 import de.tillhub.scanengine.common.safeLet
+import de.tillhub.scanengine.helper.serializable
+
 
 class SunmiScannerActivityContract : ActivityResultContract<Intent, List<ScanEvent>>() {
 
@@ -16,10 +18,9 @@ class SunmiScannerActivityContract : ActivityResultContract<Intent, List<ScanEve
         intent.takeIf { resultCode == Activity.RESULT_OK }?.extras?.let {
             evaluateScanResult(it)
         } ?: listOf(ScanEvent.Canceled)
+
     private fun evaluateScanResult(extras: Bundle): List<ScanEvent> {
-        @Suppress("UNCHECKED_CAST")
-        val rawCodes = extras.getSerializable(SunmiScanner.DATA) as List<Map<String, String>>
-        // val rawCodes = extras.serializable<List<Map<String, String>>>(SunmiScanner.DATA)
+        val rawCodes: List<Map<String, String>>  = extras.serializable(SunmiScanner.DATA) ?: emptyList()
         return rawCodes.mapNotNull {
             safeLet(
                 it[SunmiScanner.RESPONSE_TYPE],
