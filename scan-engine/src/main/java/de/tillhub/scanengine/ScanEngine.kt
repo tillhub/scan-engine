@@ -1,8 +1,8 @@
 package de.tillhub.scanengine
 
+import SingletonHolder
 import androidx.activity.ComponentActivity
 import de.tillhub.scanengine.default.DefaultScanner
-import de.tillhub.scanengine.helper.SingletonHolder
 import de.tillhub.scanengine.sunmi.SunmiScanner
 
 class ScanEngine private constructor(activity: ComponentActivity) {

@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "de.tillhub.scanengine.sample"
-        minSdk = 21
+        minSdk = 24
         targetSdk = 34
 
         vectorDrawables {

@@ -18,10 +18,9 @@ import kotlinx.coroutines.flow.SharedFlow
 import timber.log.Timber
 
 class SunmiScanner(
-    private val activity: ComponentActivity
+    private val activity: ComponentActivity,
+    private val scanEventProvider: ScanEventProvider = ScanEventProvider(),
 ) : Scanner {
-
-    private val scanEventProvider = ScanEventProvider()
 
     private lateinit var sunmiScannerLauncher: ActivityResultLauncher<Intent>
 
