@@ -78,9 +78,9 @@ afterEvaluate {
     publishing {
         publications {
             create<MavenPublication>("scan-engine") {
-                groupId = "scan-engine"
-                artifactId = "de.tillhub.scanengine"
-                version = "1.4.0"
+                groupId = "de.tillhub.scanengine"
+                artifactId = "scan-engine"
+                version = "1.4.1"
 
                 from(components.getByName("release"))
             }
