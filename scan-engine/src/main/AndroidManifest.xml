@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="de.tillhub.scanengine">
+
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" />
+
+    <application>
+        <meta-data
+            android:name="com.google.mlkit.vision.DEPENDENCIES"
+            android:value="barcode" />
+        <activity
+            android:name="de.tillhub.scanengine.default.ui.GoogleScanningActivity"
+            android:exported="false"
+            />
+    </application>
+
+</manifest>
