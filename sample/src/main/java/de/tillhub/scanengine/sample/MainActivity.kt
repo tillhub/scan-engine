@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
-    private val scanner by lazy { ScanEngine.getInstance(this).scanner }
+    private val scanner by lazy { ScanEngine.getInstance(this).attach(this.lifecycle) }
     private val scanCode = mutableStateOf("")
 
     override fun onCreate(savedInstanceState: Bundle?) {
