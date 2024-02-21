@@ -12,7 +12,6 @@
         <activity
             android:name="de.tillhub.scanengine.default.ui.GoogleScanningActivity"
             android:exported="false"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             />
     </application>
 

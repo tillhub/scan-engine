@@ -15,6 +15,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.test.TestScope
@@ -29,7 +30,7 @@ class DefaultScannerTest : FunSpec({
     lateinit var activityResultLauncher: ActivityResultLauncher<String>
     lateinit var resultRegistry: ActivityResultRegistry
     lateinit var savedRegistry: SavedStateRegistry
-    val scanProvider = ScanEventProvider()
+    val mutableScanEvents = MutableSharedFlow<ScanEvent>(extraBufferCapacity = 1)
 
     beforeTest {
         activityResultLauncher = mockk {
@@ -39,6 +40,7 @@ class DefaultScannerTest : FunSpec({
             every { registerSavedStateProvider(any(), any()) } just Runs
             every { consumeRestoredStateForKey(any()) } returns bundleOf()
             every { consumeRestoredStateForKey(any())?.getString(any()) } returns "scan-key"
+            every { getSavedStateProvider(any()) } returns null
         }
         resultRegistry = mockk {
             every {
@@ -56,7 +58,11 @@ class DefaultScannerTest : FunSpec({
             every { savedStateRegistry } returns savedRegistry
         }
 
-        defaultScanner = DefaultScanner(componentActivity, scanProvider)
+        defaultScanner = DefaultScanner(
+            componentActivity.activityResultRegistry,
+            componentActivity.savedStateRegistry,
+            mutableScanEvents
+        )
     }
 
     test("test scanResults()").config(coroutineTestScope = true) {
@@ -66,7 +72,7 @@ class DefaultScannerTest : FunSpec({
         val collectJob = defaultScanner.observeScannerResults()
             .onEach { event = it }
             .launchIn(TestScope(UnconfinedTestDispatcher()))
-        scanProvider.addScanResult(data)
+        mutableScanEvents.tryEmit(data)
         collectJob.cancel()
 
         event shouldBe data
