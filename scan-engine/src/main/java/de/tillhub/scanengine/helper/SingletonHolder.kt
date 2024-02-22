@@ -1,7 +1,7 @@
 import androidx.annotation.Keep
 import java.lang.ref.WeakReference
 
-open class SingletonHolder<out T : Any, in A>(val creator: (A) -> T) {
+open class SingletonHolder<out T : Any, in A>(private val creator: (A) -> T) {
     private var currentActivity: WeakReference<A>? = null
 
     @Volatile
