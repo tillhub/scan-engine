@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 class DefaultScanner(
     private val activityResultRegistry: ActivityResultRegistry,
     savedStateRegistry: SavedStateRegistry,
-    private val mutableScanEvents: MutableSharedFlow<ScanEvent>,
+    mutableScanEvents: MutableSharedFlow<ScanEvent>,
 ) : ScannerImpl(savedStateRegistry, mutableScanEvents) {
 
     private lateinit var scannerLauncher: ActivityResultLauncher<String>

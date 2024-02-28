@@ -10,8 +10,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import timber.log.Timber
 
 class SunmiBarcodeScanner(
-    private val context: Context,
-    private val mutableScanEvents: MutableSharedFlow<ScanEvent>
+    context: Context,
+    mutableScanEvents: MutableSharedFlow<ScanEvent>
 ) : BarcodeScannerImpl(mutableScanEvents) {
 
     private val broadcastReceiver = SunmiBarcodeScannerBroadcastReceiver()
@@ -23,10 +23,6 @@ class SunmiBarcodeScanner(
             createIntentFilter(),
             ContextCompat.RECEIVER_EXPORTED
         )
-    }
-
-    override fun unregisterBroadcastReceiver() {
-        context.unregisterReceiver(broadcastReceiver)
     }
 
     private fun createIntentFilter(): IntentFilter = IntentFilter().apply {

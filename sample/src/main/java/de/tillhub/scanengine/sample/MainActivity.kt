@@ -55,7 +55,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        scanEngine.scannerBroadcastReceiver.scanWithKey("key")
+        scanEngine.barcodeScanner.scanWithKey("key")
 
         lifecycleScope.launch {
             scanEngine.observeScannerResults().collect {

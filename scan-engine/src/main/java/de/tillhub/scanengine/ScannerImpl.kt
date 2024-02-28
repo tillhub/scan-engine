@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.SharedFlow
 
 abstract class ScannerImpl(
     private val savedStateRegistry: SavedStateRegistry,
-    private val mutableScanEvents: MutableSharedFlow<ScanEvent>
+    protected val mutableScanEvents: MutableSharedFlow<ScanEvent>
 ) : Scanner {
 
     protected var scanKey: String? = null

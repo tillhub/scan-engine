@@ -4,7 +4,7 @@ import de.tillhub.scanengine.ScanEvent
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 
-abstract class BarcodeScannerImpl(private val mutableScanEvents: MutableSharedFlow<ScanEvent>) : BarcodeScanner {
+abstract class BarcodeScannerImpl(protected val mutableScanEvents: MutableSharedFlow<ScanEvent>) : BarcodeScanner {
 
     protected var scanKey: String? = null
 

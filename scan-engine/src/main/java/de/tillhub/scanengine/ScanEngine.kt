@@ -5,6 +5,7 @@ import android.content.Context
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.Lifecycle
 import de.tillhub.scanengine.barcode.BarcodeScanner
+import de.tillhub.scanengine.barcode.DefaultBarcodeScanner
 import de.tillhub.scanengine.barcode.SunmiBarcodeScanner
 import de.tillhub.scanengine.default.DefaultScanner
 import de.tillhub.scanengine.helper.ManagerBuilder
@@ -37,12 +38,11 @@ class ScanEngine private constructor(context: Context) {
         }
     }
 
-    val scannerBroadcastReceiver: BarcodeScanner by lazy {
+    val barcodeScanner: BarcodeScanner by lazy {
         when (ScannerManufacturer.get()) {
             ScannerManufacturer.SUNMI -> SunmiBarcodeScanner(context, mutableScanEvents)
             ScannerManufacturer.OTHER -> {
-                // TODO : Implement other scanners
-                SunmiBarcodeScanner(context, mutableScanEvents)
+                DefaultBarcodeScanner(context, mutableScanEvents)
             }
         }
     }
