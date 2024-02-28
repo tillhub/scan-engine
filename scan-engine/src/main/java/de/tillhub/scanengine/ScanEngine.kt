@@ -14,8 +14,10 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 
 class ScanEngine private constructor(context: Context) {
+
     private val mutableScanEvents = MutableSharedFlow<ScanEvent>(extraBufferCapacity = 1)
     fun observeScannerResults(): SharedFlow<ScanEvent> = mutableScanEvents
+
     fun newCameraScanner(activity: ComponentActivity): ManagerBuilder<Scanner> {
         return object : ManagerBuilder<Scanner> {
             override fun build(lifecycle: Lifecycle): Scanner {
@@ -41,9 +43,7 @@ class ScanEngine private constructor(context: Context) {
     val barcodeScanner: BarcodeScanner by lazy {
         when (ScannerManufacturer.get()) {
             ScannerManufacturer.SUNMI -> SunmiBarcodeScanner(context, mutableScanEvents)
-            ScannerManufacturer.OTHER -> {
-                DefaultBarcodeScanner(context, mutableScanEvents)
-            }
+            ScannerManufacturer.OTHER -> DefaultBarcodeScanner(context, mutableScanEvents)
         }
     }
 
