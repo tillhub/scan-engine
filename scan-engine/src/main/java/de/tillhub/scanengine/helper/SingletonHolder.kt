@@ -1,26 +1,24 @@
 import androidx.annotation.Keep
-import java.lang.ref.WeakReference
 
-open class SingletonHolder<out T : Any, in A>(private val creator: (A) -> T) {
-    private var currentActivity: WeakReference<A>? = null
-
-    @Volatile
-    private var instance: T? = null
+open class SingletonHolder<out T : Any, in A>(creator: (A) -> T) {
+    private var creator: ((A) -> T)? = creator
+    @Volatile private var instance: T? = null
 
     @Keep
     fun getInstance(arg: A): T {
         val checkInstance = instance
-        if (checkInstance != null && currentActivity?.get() == arg) {
+        if (checkInstance != null) {
             return checkInstance
         }
+
         return synchronized(this) {
             val checkInstanceAgain = instance
-            if (checkInstanceAgain != null && currentActivity?.get() == arg) {
+            if (checkInstanceAgain != null) {
                 checkInstanceAgain
             } else {
-                currentActivity = WeakReference(arg)
-                val created = creator(arg)
+                val created = creator!!(arg)
                 instance = created
+                creator = null
                 created
             }
         }
