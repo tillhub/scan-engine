@@ -1,66 +1,41 @@
 package de.tillhub.scanengine.default
 
 import DefaultScannerActivityContract
-import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
-import androidx.annotation.VisibleForTesting
-import androidx.core.os.bundleOf
+import androidx.activity.result.ActivityResultRegistry
 import androidx.lifecycle.LifecycleOwner
+import androidx.savedstate.SavedStateRegistry
 import de.tillhub.scanengine.ScanEvent
-import de.tillhub.scanengine.ScanEventProvider
 import de.tillhub.scanengine.Scanner
-import de.tillhub.scanengine.Scanner.Companion.CAMERA_SCANNER_KEY
-import kotlinx.coroutines.flow.SharedFlow
+import de.tillhub.scanengine.ScannerImpl
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 class DefaultScanner(
-    private val activity: ComponentActivity,
-    private val scanEventProvider: ScanEventProvider = ScanEventProvider(),
-) : Scanner {
+    private val activityResultRegistry: ActivityResultRegistry,
+    savedStateRegistry: SavedStateRegistry,
+    mutableScanEvents: MutableSharedFlow<ScanEvent>,
+) : ScannerImpl(savedStateRegistry, mutableScanEvents) {
 
-    @VisibleForTesting
-    lateinit var defaultScannerLauncher: ActivityResultLauncher<String>
-
-    private var scanKey: String? = null
+    private lateinit var scannerLauncher: ActivityResultLauncher<String>
 
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)
-        with(activity.savedStateRegistry) {
-            registerSavedStateProvider(PROVIDER, this@DefaultScanner)
-            scanKey = consumeRestoredStateForKey(PROVIDER)?.getString(SCAN_KEY)
-        }
-
-        defaultScannerLauncher =
-            activity.activityResultRegistry.register(
-                CAMERA_SCANNER_KEY,
-                owner,
-                DefaultScannerActivityContract()
-            ) {
-                when (it) {
-                    ScanEvent.Canceled -> scanEventProvider.addScanResult(it)
-                    is ScanEvent.Success -> scanEventProvider.addScanResult(
-                        it.copy(scanKey = scanKey)
-                    )
-                }
+        scannerLauncher = activityResultRegistry.register(
+            Scanner.CAMERA_SCANNER_KEY,
+            owner,
+            DefaultScannerActivityContract()
+        ) {
+            when (it) {
+                ScanEvent.Canceled -> mutableScanEvents.tryEmit(it)
+                is ScanEvent.Success -> mutableScanEvents.tryEmit(
+                    it.copy(scanKey = scanKey)
+                )
             }
+        }
     }
-
-    override fun saveState(): Bundle {
-        return bundleOf(SCAN_KEY to scanKey)
-    }
-    override fun observeScannerResults(): SharedFlow<ScanEvent> = scanEventProvider.scanEvents
 
     override fun startCameraScanner(scanKey: String?) {
         this.scanKey = scanKey
-        defaultScannerLauncher.launch(scanKey)
-    }
-
-    override fun scanNextWithKey(scanKey: String?) {
-        this.scanKey = scanKey
-    }
-
-    companion object {
-        private const val PROVIDER = "default_scanner"
-        private const val SCAN_KEY = "scan_key"
+        scannerLauncher.launch(scanKey)
     }
 }
