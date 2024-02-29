@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.SharedFlow
 class ScanEngine private constructor(context: Context) {
 
     private val mutableScanEvents = MutableSharedFlow<ScanEvent>(extraBufferCapacity = 1)
+
     fun observeScannerResults(): SharedFlow<ScanEvent> = mutableScanEvents
 
     fun newCameraScanner(activity: ComponentActivity): ManagerBuilder<Scanner> {

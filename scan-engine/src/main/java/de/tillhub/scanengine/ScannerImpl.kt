@@ -19,10 +19,9 @@ abstract class ScannerImpl(
         super.onCreate(owner)
         if (savedStateRegistry.getSavedStateProvider(PROVIDER) == null) {
             savedStateRegistry.registerSavedStateProvider(PROVIDER, this)
-        } else {
-            scanKey = savedStateRegistry.consumeRestoredStateForKey(PROVIDER)
-                ?.getString(SCAN_KEY)
         }
+        scanKey = savedStateRegistry.consumeRestoredStateForKey(PROVIDER)
+            ?.getString(SCAN_KEY)
     }
 
     override fun saveState(): Bundle {

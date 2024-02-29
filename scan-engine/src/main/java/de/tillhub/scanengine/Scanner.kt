@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.SharedFlow
 
 interface Scanner : DefaultLifecycleObserver, SavedStateRegistry.SavedStateProvider {
     fun observeScannerResults(): SharedFlow<ScanEvent>
+
     fun startCameraScanner(scanKey: String? = null)
 
     companion object {
