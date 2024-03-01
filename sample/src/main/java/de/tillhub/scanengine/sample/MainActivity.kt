@@ -30,7 +30,7 @@ class MainActivity : ComponentActivity() {
     private var scanCode = mutableStateOf("")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        scanner = scanEngine.newCameraScanner(this).build(this.lifecycle)
+        scanner = scanEngine.newCameraScanner(this).build(this.lifecycle, this.savedStateRegistry)
         setContent {
             TillhubScanEngineTheme {
                 Surface(
