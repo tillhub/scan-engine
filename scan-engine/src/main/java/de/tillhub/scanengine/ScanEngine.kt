@@ -4,6 +4,7 @@ import SingletonHolder
 import android.content.Context
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.Lifecycle
+import androidx.savedstate.SavedStateRegistry
 import de.tillhub.scanengine.barcode.BarcodeScanner
 import de.tillhub.scanengine.barcode.DefaultBarcodeScanner
 import de.tillhub.scanengine.barcode.SunmiBarcodeScanner
@@ -16,21 +17,22 @@ import kotlinx.coroutines.flow.SharedFlow
 class ScanEngine private constructor(context: Context) {
 
     private val mutableScanEvents = MutableSharedFlow<ScanEvent>(extraBufferCapacity = 1)
+
     fun observeScannerResults(): SharedFlow<ScanEvent> = mutableScanEvents
 
     fun newCameraScanner(activity: ComponentActivity): ManagerBuilder<Scanner> {
         return object : ManagerBuilder<Scanner> {
-            override fun build(lifecycle: Lifecycle): Scanner {
+            override fun build(lifecycle: Lifecycle, savedStateRegistry: SavedStateRegistry): Scanner {
                 return when (ScannerManufacturer.get()) {
                     ScannerManufacturer.SUNMI -> SunmiScanner(
                         activity.activityResultRegistry,
-                        activity.savedStateRegistry,
+                        savedStateRegistry,
                         mutableScanEvents
                     )
 
                     ScannerManufacturer.OTHER -> DefaultScanner(
                         activity.activityResultRegistry,
-                        activity.savedStateRegistry,
+                        savedStateRegistry,
                         mutableScanEvents
                     )
                 }.also {

@@ -29,12 +29,14 @@ class SunmiScanner(
                 when (it) {
                     ScanEvent.Canceled -> mutableScanEvents.tryEmit(it)
                     is ScanEvent.Success -> mutableScanEvents.tryEmit(it.copy(scanKey = scanKey))
+                    ScanEvent.InProgress -> Unit
                 }
             }
         }
     }
 
     override fun startCameraScanner(scanKey: String?) {
+        mutableScanEvents.tryEmit(ScanEvent.InProgress)
         this.scanKey = scanKey
         scannerLauncher.launch(scanIntent())
     }
