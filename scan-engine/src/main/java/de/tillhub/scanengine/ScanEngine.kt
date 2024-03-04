@@ -2,43 +2,34 @@ package de.tillhub.scanengine
 
 import SingletonHolder
 import android.content.Context
-import androidx.activity.ComponentActivity
-import androidx.lifecycle.Lifecycle
-import androidx.savedstate.SavedStateRegistry
+import androidx.activity.result.ActivityResultCaller
 import de.tillhub.scanengine.barcode.BarcodeScanner
 import de.tillhub.scanengine.barcode.DefaultBarcodeScanner
 import de.tillhub.scanengine.barcode.SunmiBarcodeScanner
 import de.tillhub.scanengine.default.DefaultScanner
-import de.tillhub.scanengine.helper.ManagerBuilder
 import de.tillhub.scanengine.sunmi.SunmiScanner
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.drop
 
 class ScanEngine private constructor(context: Context) {
 
-    private val mutableScanEvents = MutableSharedFlow<ScanEvent>(extraBufferCapacity = 1)
+    private val mutableScanEvents = MutableStateFlow<ScanEvent>(ScanEvent.Idle)
+    fun observeScannerResults(): Flow<ScanEvent> = mutableScanEvents.drop(1)
 
-    fun observeScannerResults(): SharedFlow<ScanEvent> = mutableScanEvents
+    fun newCameraScanner(
+        resultCaller: ActivityResultCaller,
+    ): Scanner {
+        return when (ScannerManufacturer.get()) {
+            ScannerManufacturer.SUNMI -> SunmiScanner(
+                resultCaller,
+                mutableScanEvents
+            )
 
-    fun newCameraScanner(activity: ComponentActivity): ManagerBuilder<Scanner> {
-        return object : ManagerBuilder<Scanner> {
-            override fun build(lifecycle: Lifecycle, savedStateRegistry: SavedStateRegistry): Scanner {
-                return when (ScannerManufacturer.get()) {
-                    ScannerManufacturer.SUNMI -> SunmiScanner(
-                        activity.activityResultRegistry,
-                        savedStateRegistry,
-                        mutableScanEvents
-                    )
-
-                    ScannerManufacturer.OTHER -> DefaultScanner(
-                        activity.activityResultRegistry,
-                        savedStateRegistry,
-                        mutableScanEvents
-                    )
-                }.also {
-                    lifecycle.addObserver(it)
-                }
-            }
+            ScannerManufacturer.OTHER -> DefaultScanner(
+                resultCaller,
+                mutableScanEvents
+            )
         }
     }
 
@@ -48,6 +39,5 @@ class ScanEngine private constructor(context: Context) {
             ScannerManufacturer.OTHER -> DefaultBarcodeScanner(context, mutableScanEvents)
         }
     }
-
     companion object : SingletonHolder<ScanEngine, Context>(::ScanEngine)
 }

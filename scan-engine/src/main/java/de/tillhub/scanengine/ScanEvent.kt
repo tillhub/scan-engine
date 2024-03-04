@@ -6,7 +6,9 @@ sealed class ScanEvent {
         val scanKey: String? = null
     ) : ScanEvent()
 
-    data object InProgress : ScanEvent()
+    data class InProgress(val scanKey: String?) : ScanEvent()
 
     data object Canceled : ScanEvent()
+
+    data object Idle : ScanEvent()
 }
