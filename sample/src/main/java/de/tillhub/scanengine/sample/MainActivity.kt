@@ -28,9 +28,10 @@ class MainActivity : ComponentActivity() {
     private val scanEngine by lazy { ScanEngine.getInstance(applicationContext) }
     private lateinit var scanner: Scanner
     private var scanCode = mutableStateOf("")
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        scanner = scanEngine.newCameraScanner(this).build(this.lifecycle, this.savedStateRegistry)
+        scanner = scanEngine.newCameraScanner(this)
         setContent {
             TillhubScanEngineTheme {
                 Surface(

@@ -1,45 +1,40 @@
 package de.tillhub.scanengine.sunmi
 
 import android.content.Intent
+import androidx.activity.result.ActivityResultCaller
 import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.ActivityResultRegistry
-import androidx.lifecycle.LifecycleOwner
-import androidx.savedstate.SavedStateRegistry
 import de.tillhub.scanengine.ScanEvent
-import de.tillhub.scanengine.Scanner.Companion.CAMERA_SCANNER_KEY
-import de.tillhub.scanengine.ScannerImpl
-import kotlinx.coroutines.flow.MutableSharedFlow
+import de.tillhub.scanengine.Scanner
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 
 class SunmiScanner(
-    private val activityResultRegistry: ActivityResultRegistry,
-    savedStateRegistry: SavedStateRegistry,
-    mutableScanEvents: MutableSharedFlow<ScanEvent>,
-) : ScannerImpl(savedStateRegistry, mutableScanEvents) {
+    resultCaller: ActivityResultCaller,
+    private val mutableScanEvents: MutableStateFlow<ScanEvent>,
+) : Scanner {
 
-    private lateinit var scannerLauncher: ActivityResultLauncher<Intent>
+    private val scannerLauncher: ActivityResultLauncher<Intent> =
+        resultCaller.registerForActivityResult(SunmiScannerActivityContract()) { result ->
+            result.map { event ->
+                when (event) {
+                    ScanEvent.Canceled -> mutableScanEvents.tryEmit(event)
+                    is ScanEvent.Success -> {
+                        val scanKey = (mutableScanEvents.value as? ScanEvent.InProgress)?.scanKey
+                        mutableScanEvents.tryEmit(event.copy(scanKey = scanKey))
+                    }
 
-    override fun onCreate(owner: LifecycleOwner) {
-        super.onCreate(owner)
-        scannerLauncher = activityResultRegistry.register(
-            CAMERA_SCANNER_KEY,
-            owner,
-            SunmiScannerActivityContract()
-        ) { result ->
-            result.map {
-                when (it) {
-                    ScanEvent.Canceled -> mutableScanEvents.tryEmit(it)
-                    is ScanEvent.Success -> mutableScanEvents.tryEmit(it.copy(scanKey = scanKey))
-                    ScanEvent.InProgress -> Unit
+                    is ScanEvent.InProgress,
+                    ScanEvent.Idle -> Unit
                 }
             }
         }
-    }
 
     override fun startCameraScanner(scanKey: String?) {
-        mutableScanEvents.tryEmit(ScanEvent.InProgress)
-        this.scanKey = scanKey
+        mutableScanEvents.tryEmit(ScanEvent.InProgress(scanKey))
         scannerLauncher.launch(scanIntent())
     }
+
+    override fun observeScannerResults(): SharedFlow<ScanEvent> = mutableScanEvents
 
     sealed class ScanCodeType {
         data class Type(val code: String) : ScanCodeType()
