@@ -1,9 +1,10 @@
 package de.tillhub.scanengine
 
-import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+
 
 interface Scanner {
-    fun observeScannerResults(): SharedFlow<ScanEvent>
+    fun observeScannerResults(): StateFlow<ScanEvent>
 
     fun startCameraScanner(scanKey: String? = null)
 }

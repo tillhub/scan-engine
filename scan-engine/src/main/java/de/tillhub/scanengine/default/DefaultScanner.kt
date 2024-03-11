@@ -6,7 +6,7 @@ import androidx.activity.result.ActivityResultLauncher
 import de.tillhub.scanengine.ScanEvent
 import de.tillhub.scanengine.Scanner
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 
 class DefaultScanner(
     resultCaller: ActivityResultCaller,
@@ -32,5 +32,5 @@ class DefaultScanner(
         scannerLauncher.launch(scanKey)
     }
 
-    override fun observeScannerResults(): SharedFlow<ScanEvent> = mutableScanEvents
+    override fun observeScannerResults(): StateFlow<ScanEvent> = mutableScanEvents
 }

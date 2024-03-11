@@ -27,55 +27,57 @@ dependencies {
 ```
 # Usage
 
-There are two ways you can use scan SDK:
-* `Camera scanner` : Manually register an activity or fragment result callback for the camera scanner.
-* `Barcode scanner` : Register a BroadcastReceiver with the barcode scanner.
+This SDK offers two ways to scan products conveniently:
+* `Camera scanner(SunmiScanner/DefaultScanner)` : Manually register an activity or fragment result callback.
+* `Barcode scanner(BarcodeScannerImpl)` : Register a BroadcastReceiver with the barcode scanner.
 
-### 1. Camera Scanner (Activity/Fragment):
+### 1. Camera Scanner :
 
-*  `Singleton Access`: Use `@Inject lateinit var scanEngine: ScanEngine` to obtain a singleton reference to the Scan Engine instance.
-*  `Initialization`: Create a per Activity or Fragment Scanner instance using `scanEngine.newCameraScanner(this)`. This method automatically selects the appropriate scanner based on the device manufacturer (SunmiScanner or DefaultScanner).
+*  `Singleton Access`: Obtain a singleton reference to the `ScanEngine` instance.
+*  `Initialization`: Create a per Activity or Fragment Scanner instance. SDK will automatically selects the appropriate scanner based on the device manufacturer (SunmiScanner or DefaultScanner).
 *  `Initiate Scan`: Call `scanner.startCameraScanner()` to initiate scanning. Pass appropriate scan key if needed, by default its null.
 *  `Handle Scan Results`: Subscribe to the `scanEngine.observeScannerResults()` flow to receive ScanEvent objects containing scan data.
 
 ```kotlin
 
-@Inject lateinit var scanEngine: ScanEngine
-
 override fun onCreate(savedInstanceState: Bundle?) {
     // ...
-
+    
+    val scanEngine =  ScanEngine.getInstance(context)
     val scanner = scanEngine.newCameraScanner(this)
     
     scannerButton.setOnClickListener {
         scanner.startCameraScanner()
     }
 
-    // Observing scan result with scanEngine or scanner
+    // Observing scan result with scanEngine
     scanEngine.observeScannerResults().collect { scanEvent ->
          // Handle scanEvent result
-    }
-    // OR
-    scanner.observeScannerResults().collect { scanEvent ->
-        // Handle scanEvent result
     }
 }
 ```
 
-### 2. Barcode Scanner (BroadcastReceiver):
-
-*  `Singleton Access`: Use `@Inject lateinit var scanEngine: ScanEngine` to obtain a singleton reference to the Scan Engine instance.
-*  `Initiate Scan`: Call `scanEngine.barcodeScanner.scanWithKey()` to trigger a background scan using the system's broadcast mechanism. Pass appropriate scan key if needed, by default its null.
-*  `Handle Scan Results`: Subscribe to `scanEngine.observeScannerResults()` for ScanEvent objects.
+Here's example of `Scanner` interface:
 
 ```kotlin
-@Inject lateinit var scanEngine: ScanEngine
+interface Scanner {
+    fun observeScannerResults(): StateFlow<ScanEvent>
+    fun startCameraScanner(scanKey: String? = null)
+}
+```
+
+### 2. Barcode Scanner :
+
+*  `Singleton Access`: Obtain a singleton reference to the `ScanEngine` instance. This will trigger a background scan using the system's broadcast mechanism.
+*  `Handle Scan Results`: Subscribe to `scanEngine.observeScannerResults()` for ScanEvent objects  containing scan data.
+
+```kotlin
 
 override fun onCreate(savedInstanceState: Bundle?) {
     // ...
-
-    scanEngine.barcodeScanner.scanWithKey()
-
+    
+    val scanEngine =  ScanEngine.getInstance(context)
+    
     // Observing scan result with scanEngine
     scanEngine.observeScannerResults().collect { scanEvent ->
         // Handle scanEvent result
@@ -84,13 +86,12 @@ override fun onCreate(savedInstanceState: Bundle?) {
 }
 ```
 
-Here's example of `Scanner` interface and what it provides:
+Here's example of `BarcodeScanner` interface:
 
 ```kotlin
-interface Scanner {
-    fun observeScannerResults(): SharedFlow<ScanEvent>
-
-    fun startCameraScanner(scanKey: String? = null)
+interface BarcodeScanner {
+    fun observeScannerResults(): Flow<ScanEvent>
+    fun scanWithKey(scanKey: String? = null)
 }
 ```
 

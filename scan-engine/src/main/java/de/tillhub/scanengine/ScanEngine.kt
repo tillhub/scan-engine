@@ -33,11 +33,10 @@ class ScanEngine private constructor(context: Context) {
         }
     }
 
-    val barcodeScanner: BarcodeScanner by lazy {
-        when (ScannerManufacturer.get()) {
-            ScannerManufacturer.SUNMI -> SunmiBarcodeScanner(context, mutableScanEvents)
-            ScannerManufacturer.OTHER -> DefaultBarcodeScanner(context, mutableScanEvents)
-        }
+    val barcodeScanner: BarcodeScanner = when (ScannerManufacturer.get()) {
+        ScannerManufacturer.SUNMI -> SunmiBarcodeScanner(context, mutableScanEvents)
+        ScannerManufacturer.OTHER -> DefaultBarcodeScanner(context, mutableScanEvents)
     }
+
     companion object : SingletonHolder<ScanEngine, Context>(::ScanEngine)
 }
