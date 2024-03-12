@@ -6,7 +6,7 @@ import androidx.activity.result.ActivityResultLauncher
 import de.tillhub.scanengine.ScanEvent
 import de.tillhub.scanengine.Scanner
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 
 class SunmiScanner(
     resultCaller: ActivityResultCaller,
@@ -34,7 +34,7 @@ class SunmiScanner(
         scannerLauncher.launch(scanIntent())
     }
 
-    override fun observeScannerResults(): SharedFlow<ScanEvent> = mutableScanEvents
+    override fun observeScannerResults(): StateFlow<ScanEvent> = mutableScanEvents
 
     sealed class ScanCodeType {
         data class Type(val code: String) : ScanCodeType()
