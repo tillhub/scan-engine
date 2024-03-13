@@ -13,7 +13,7 @@ class DefaultScanner(
     private val mutableScanEvents: MutableStateFlow<ScanEvent>,
 ) : Scanner {
 
-    private val scannerLauncher: ActivityResultLauncher<String> =
+    private val scannerLauncher: ActivityResultLauncher<Unit> =
         resultCaller.registerForActivityResult(DefaultScannerActivityContract()) { result ->
             when (result) {
                 ScanEvent.Canceled -> mutableScanEvents.tryEmit(result)
@@ -29,7 +29,7 @@ class DefaultScanner(
 
     override fun startCameraScanner(scanKey: String?) {
         mutableScanEvents.tryEmit(ScanEvent.InProgress(scanKey))
-        scannerLauncher.launch(scanKey)
+        scannerLauncher.launch(Unit)
     }
 
     override fun observeScannerResults(): StateFlow<ScanEvent> = mutableScanEvents

@@ -5,12 +5,15 @@ import androidx.activity.result.contract.ActivityResultContract
 import de.tillhub.scanengine.ScanEvent
 import de.tillhub.scanengine.default.ui.GoogleScanningActivity
 
-class DefaultScannerActivityContract : ActivityResultContract<String, ScanEvent>() {
+class DefaultScannerActivityContract : ActivityResultContract<Unit, ScanEvent>() {
 
-    override fun createIntent(context: Context, input: String) =
+    override fun createIntent(context: Context, input: Unit) =
         Intent(context, GoogleScanningActivity::class.java)
+
     override fun parseResult(resultCode: Int, intent: Intent?): ScanEvent =
         intent.takeIf { resultCode == Activity.RESULT_OK }?.let {
-            ScanEvent.Success(value = it.getStringExtra(GoogleScanningActivity.DATA_KEY).orEmpty())
+            ScanEvent.Success(
+                value = it.getStringExtra(GoogleScanningActivity.DATA_KEY).orEmpty()
+            )
         } ?: ScanEvent.Canceled
 }
