@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import de.tillhub.scanengine.ScanEngine
-import de.tillhub.scanengine.ScanEvent
+import de.tillhub.scanengine.data.ScanEvent
 import de.tillhub.scanengine.Scanner
 import de.tillhub.scanengine.sample.ui.theme.TillhubScanEngineTheme
 import kotlinx.coroutines.launch

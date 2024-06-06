@@ -21,8 +21,11 @@ android {
     }
 
     buildTypes {
-        release {
+        debug {
             isMinifyEnabled = false
+        }
+        release {
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -45,6 +48,12 @@ android {
     }
 }
 
+detekt {
+    buildUponDefaultConfig = true // preconfigure defaults
+    allRules = false // activate all available (even unstable) rules.
+    config.setFrom("$projectDir/config/detekt.yml")
+}
+
 dependencies {
 
     implementation(libs.androidx.core)
@@ -60,6 +69,7 @@ dependencies {
     coreLibraryDesugaring(libs.android.desugarJdkLibs)
     implementation(libs.timber)
     detektPlugins(libs.detekt.formatting)
+    detektPlugins(libs.detekt.libraries)
 
     // Module Specific dependencies
     implementation(libs.androidx.constraintlayout)

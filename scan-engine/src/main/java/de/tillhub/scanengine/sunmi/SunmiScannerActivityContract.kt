@@ -5,11 +5,11 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContract
-import de.tillhub.scanengine.ScanEvent
+import androidx.core.os.BundleCompat
 import de.tillhub.scanengine.common.safeLet
-import de.tillhub.scanengine.helper.serializable
+import de.tillhub.scanengine.data.ScanEvent
 
-class SunmiScannerActivityContract : ActivityResultContract<Unit, List<ScanEvent>>() {
+internal class SunmiScannerActivityContract : ActivityResultContract<Unit, List<ScanEvent>>() {
 
     override fun createIntent(context: Context, input: Unit) = Intent("com.summi.scan").apply {
         setPackage("com.sunmi.sunmiqrcodescanner")
@@ -44,7 +44,12 @@ class SunmiScannerActivityContract : ActivityResultContract<Unit, List<ScanEvent
         } ?: listOf(ScanEvent.Canceled)
 
     private fun evaluateScanResult(extras: Bundle): List<ScanEvent> {
-        val rawCodes: List<Map<String, String>> = extras.serializable(SunmiScanner.DATA) ?: emptyList()
+        val rawCodes: List<Map<String, String>> =
+            BundleCompat.getParcelableArrayList(
+                extras,
+                SunmiScanner.DATA,
+                mapOf<String, String>()::class.java
+            ) ?: emptyList()
 
         return rawCodes.mapNotNull {
             safeLet(

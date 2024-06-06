@@ -1,4 +1,4 @@
-package de.tillhub.scanengine
+package de.tillhub.scanengine.data
 
 enum class ScannerManufacturer {
     SUNMI,

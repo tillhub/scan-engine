@@ -14,17 +14,17 @@ import com.google.mlkit.vision.common.InputImage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-class GoogleScanningViewModel : ViewModel() {
+internal class GoogleScanningViewModel : ViewModel() {
 
-    private val scanner = BarcodeScanning.getClient(BarcodeScannerOptions.Builder()
-        .setBarcodeFormats(Barcode.FORMAT_ALL_FORMATS)
-        .build())
+    private val scanner = BarcodeScanning.getClient(
+        BarcodeScannerOptions.Builder().setBarcodeFormats(Barcode.FORMAT_ALL_FORMATS).build()
+    )
 
-    private val _scanningState: MutableStateFlow<ScanningState> =
-        MutableStateFlow(ScanningState.Idle)
+    private val _scanningState: MutableStateFlow<ScanningState> = MutableStateFlow(ScanningState.Idle)
     val scanningState: StateFlow<ScanningState> = _scanningState
 
     val analyzer: ImageAnalysis.Analyzer = QRImageAnalyzer(scanner, _scanningState)
+
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
@@ -45,21 +45,19 @@ private class QRImageAnalyzer(
         if (mediaImage != null) {
             val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
 
-            scanner.process(image)
-                .addOnSuccessListener { list ->
-                    if (list.size > 0 && list[0].rawValue != null) {
-                        scanningState.value = ScanningState.CodeScanned(list[0].rawValue!!)
-                        scanner.close()
-                    }
+            scanner.process(image).addOnSuccessListener { list ->
+                if (list.size > 0 && list[0].rawValue != null) {
+                    scanningState.value = ScanningState.CodeScanned(list[0].rawValue!!)
+                    scanner.close()
                 }
-                .addOnCompleteListener {
-                    imageProxy.close()
-                }
+            }.addOnCompleteListener {
+                imageProxy.close()
+            }
         }
     }
 }
 
-sealed class ScanningState {
-    object Idle : ScanningState()
+internal sealed class ScanningState {
+    data object Idle : ScanningState()
     data class CodeScanned(val barcode: String) : ScanningState()
 }

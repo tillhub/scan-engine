@@ -1,11 +1,13 @@
+package de.tillhub.scanengine.default
+
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import androidx.activity.result.contract.ActivityResultContract
-import de.tillhub.scanengine.ScanEvent
+import de.tillhub.scanengine.data.ScanEvent
 import de.tillhub.scanengine.default.ui.GoogleScanningActivity
 
-class DefaultScannerActivityContract : ActivityResultContract<Unit, ScanEvent>() {
+internal class DefaultScannerActivityContract : ActivityResultContract<Unit, ScanEvent>() {
 
     override fun createIntent(context: Context, input: Unit) =
         Intent(context, GoogleScanningActivity::class.java)

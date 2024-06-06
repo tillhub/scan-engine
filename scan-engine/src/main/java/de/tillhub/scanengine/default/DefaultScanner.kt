@@ -1,14 +1,13 @@
 package de.tillhub.scanengine.default
 
-import DefaultScannerActivityContract
 import androidx.activity.result.ActivityResultCaller
 import androidx.activity.result.ActivityResultLauncher
-import de.tillhub.scanengine.ScanEvent
+import de.tillhub.scanengine.data.ScanEvent
 import de.tillhub.scanengine.Scanner
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-class DefaultScanner(
+internal class DefaultScanner(
     resultCaller: ActivityResultCaller,
     private val mutableScanEvents: MutableStateFlow<ScanEvent>,
 ) : Scanner {

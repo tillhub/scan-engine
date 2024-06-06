@@ -19,3 +19,19 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-keeppackagenames de.tillhub.scanengine.**
+
+-keep class de.tillhub.scanengine.Scanner { *; }
+-keep class de.tillhub.scanengine.ScanEngine { *; }
+-keep class de.tillhub.scanengine.ScanEngine$Companion { *; }
+-keep class de.tillhub.scanengine.helper.SingletonHolder { *; }
+
+-keep class de.tillhub.scanengine.data.ScanEvent { *; }
+-keep class de.tillhub.scanengine.data.ScanEvent* { *; }
+-keep class de.tillhub.scanengine.data.ScannerManufacturer { *; }
+-keep class de.tillhub.scanengine.barcode.BarcodeScanner {  *; }
+
+# Breaking changes with AGP 8.0
+# R8 upgrade documentation
+-dontwarn java.lang.invoke.StringConcatFactory
