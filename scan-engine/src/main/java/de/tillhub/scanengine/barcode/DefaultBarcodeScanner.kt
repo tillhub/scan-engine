@@ -1,10 +1,8 @@
 package de.tillhub.scanengine.barcode
 
-import android.content.Context
-import de.tillhub.scanengine.ScanEvent
+import de.tillhub.scanengine.data.ScanEvent
 import kotlinx.coroutines.flow.MutableSharedFlow
 
-class DefaultBarcodeScanner(
-    context: Context,
+internal class DefaultBarcodeScanner(
     mutableScanEvents: MutableSharedFlow<ScanEvent>
 ) : BarcodeScannerImpl(mutableScanEvents)

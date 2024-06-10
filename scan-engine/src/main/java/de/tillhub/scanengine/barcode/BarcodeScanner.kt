@@ -1,6 +1,6 @@
 package de.tillhub.scanengine.barcode
 
-import de.tillhub.scanengine.ScanEvent
+import de.tillhub.scanengine.data.ScanEvent
 import kotlinx.coroutines.flow.Flow
 
 interface BarcodeScanner {
