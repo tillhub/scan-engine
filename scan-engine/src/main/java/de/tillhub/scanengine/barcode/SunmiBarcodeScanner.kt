@@ -5,11 +5,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import androidx.core.content.ContextCompat
-import de.tillhub.scanengine.ScanEvent
+import de.tillhub.scanengine.data.ScanEvent
 import kotlinx.coroutines.flow.MutableSharedFlow
 import timber.log.Timber
 
-class SunmiBarcodeScanner(
+internal class SunmiBarcodeScanner(
     context: Context,
     mutableScanEvents: MutableSharedFlow<ScanEvent>
 ) : BarcodeScannerImpl(mutableScanEvents) {

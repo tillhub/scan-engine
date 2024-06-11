@@ -3,7 +3,7 @@
 agp = "8.2.2"
 kotlin = "1.9.22"
 kotlinCoroutines = "1.7.3"
-core = "1.12.0"
+core = "1.13.1"
 appcompat = "1.6.1"
 constraintlayout = "2.1.4"
 fragment = "1.6.2"
@@ -20,7 +20,7 @@ compose-bom = "2024.02.00"
 
 timber = "5.0.1"
 androidDesugarJdkLibs = "2.0.4"
-detekt = "1.23.3"
+detekt = "1.23.6"
 
 junit = "4.13.2"
 mockk = "1.13.8"
@@ -66,7 +66,7 @@ kotest-property = { group = "io.kotest", name = "kotest-property-jvm", version.r
 
 # Dependencies of the included build-logic
 detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt" }
-
+detekt-libraries = { group = "io.gitlab.arturbosch.detekt", name = "detekt-rules-libraries", version.ref = "detekt" }
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

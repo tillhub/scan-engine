@@ -27,7 +27,7 @@ import de.tillhub.scanengine.databinding.ActivityGoogleScanningBinding
 import kotlinx.coroutines.launch
 import java.util.concurrent.Executor
 
-class GoogleScanningActivity : AppCompatActivity() {
+internal class GoogleScanningActivity : AppCompatActivity() {
 
     private val viewModel: GoogleScanningViewModel by viewModels { GoogleScanningViewModel.Factory }
     private val binding by viewBinding(ActivityGoogleScanningBinding::inflate)
@@ -139,6 +139,6 @@ class GoogleScanningActivity : AppCompatActivity() {
     }
 }
 
-inline fun <T : ViewBinding> AppCompatActivity.viewBinding(
+internal inline fun <T : ViewBinding> AppCompatActivity.viewBinding(
     crossinline bindingInflater: (LayoutInflater) -> T,
 ) = lazy(LazyThreadSafetyMode.NONE) { bindingInflater.invoke(layoutInflater) }

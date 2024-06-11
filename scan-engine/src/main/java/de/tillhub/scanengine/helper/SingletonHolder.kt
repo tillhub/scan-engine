@@ -1,3 +1,5 @@
+package de.tillhub.scanengine.helper
+
 import androidx.annotation.Keep
 
 open class SingletonHolder<out T : Any, in A>(creator: (A) -> T) {
