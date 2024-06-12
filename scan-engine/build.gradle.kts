@@ -46,6 +46,12 @@ android {
             jvmTarget = JavaVersion.VERSION_17.toString()
         }
     }
+    buildFeatures {
+        compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.9"
+    }
 }
 
 detekt {
@@ -55,15 +61,21 @@ detekt {
 }
 
 dependencies {
-
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)
     implementation(libs.google.material)
+
+    //compose
+    implementation(libs.bundles.compose)
 
     // Groups
     implementation(libs.bundles.core)
     implementation(libs.bundles.ui)
     implementation(libs.bundles.lifecycle)
+    implementation(fileTree(mapOf(
+        "dir" to "zebrascannerandroid",
+        "include" to listOf("*.aar", "*.jar"),
+    )))
 
     // Utils
     coreLibraryDesugaring(libs.android.desugarJdkLibs)

@@ -43,4 +43,6 @@ internal class SunmiBarcodeScanner(
         private const val ACTION_DATA_CODE_RECEIVED = "com.sunmi.scanner.ACTION_DATA_CODE_RECEIVED"
         private const val DATA = "data"
     }
+
+    override fun initScanner() = Unit
 }
