@@ -1,4 +1,4 @@
-package de.tillhub.scanengine.default
+package de.tillhub.scanengine.google
 
 import androidx.activity.result.ActivityResultCaller
 import androidx.activity.result.ActivityResultLauncher

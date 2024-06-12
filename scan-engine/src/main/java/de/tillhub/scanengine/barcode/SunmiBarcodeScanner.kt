@@ -41,6 +41,6 @@ internal class SunmiBarcodeScanner(
 
     companion object {
         private const val ACTION_DATA_CODE_RECEIVED = "com.sunmi.scanner.ACTION_DATA_CODE_RECEIVED"
-        const val DATA = "data"
+        private const val DATA = "data"
     }
 }

@@ -1,11 +1,11 @@
-package de.tillhub.scanengine.default
+package de.tillhub.scanengine.google
 
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import androidx.activity.result.contract.ActivityResultContract
 import de.tillhub.scanengine.data.ScanEvent
-import de.tillhub.scanengine.default.ui.GoogleScanningActivity
+import de.tillhub.scanengine.google.ui.GoogleScanningActivity
 
 internal class DefaultScannerActivityContract : ActivityResultContract<Unit, ScanEvent>() {
 

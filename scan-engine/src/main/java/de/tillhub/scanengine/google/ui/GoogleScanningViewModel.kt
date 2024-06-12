@@ -1,5 +1,6 @@
-package de.tillhub.scanengine.default.ui
+package de.tillhub.scanengine.google.ui
 
+import android.media.Image
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import androidx.lifecycle.ViewModel
@@ -14,16 +15,17 @@ import com.google.mlkit.vision.common.InputImage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-internal class GoogleScanningViewModel : ViewModel() {
-
-    private val scanner = BarcodeScanning.getClient(
+internal class GoogleScanningViewModel(
+    scanner: BarcodeScanner = BarcodeScanning.getClient(
         BarcodeScannerOptions.Builder().setBarcodeFormats(Barcode.FORMAT_ALL_FORMATS).build()
-    )
+    ),
+    inputImageGenerator: InputImageGenerator = InputImageGenerator()
+) : ViewModel() {
 
     private val _scanningState: MutableStateFlow<ScanningState> = MutableStateFlow(ScanningState.Idle)
     val scanningState: StateFlow<ScanningState> = _scanningState
 
-    val analyzer: ImageAnalysis.Analyzer = QRImageAnalyzer(scanner, _scanningState)
+    val analyzer: ImageAnalysis.Analyzer = QRImageAnalyzer(scanner, _scanningState, inputImageGenerator)
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
@@ -34,16 +36,17 @@ internal class GoogleScanningViewModel : ViewModel() {
     }
 }
 
-private class QRImageAnalyzer(
+internal class QRImageAnalyzer(
     private val scanner: BarcodeScanner,
-    private val scanningState: MutableStateFlow<ScanningState>
+    private val scanningState: MutableStateFlow<ScanningState>,
+    private val inputImageGenerator: InputImageGenerator
 ) : ImageAnalysis.Analyzer {
 
     @androidx.camera.core.ExperimentalGetImage
     override fun analyze(imageProxy: ImageProxy) {
         val mediaImage = imageProxy.image
         if (mediaImage != null) {
-            val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
+            val image = inputImageGenerator.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
 
             scanner.process(image).addOnSuccessListener { list ->
                 if (list.size > 0 && list[0].rawValue != null) {
@@ -54,6 +57,12 @@ private class QRImageAnalyzer(
                 imageProxy.close()
             }
         }
+    }
+}
+
+internal class InputImageGenerator {
+    fun fromMediaImage(mediaImage: Image, rotationDegrees: Int): InputImage {
+        return InputImage.fromMediaImage(mediaImage, rotationDegrees)
     }
 }
 
