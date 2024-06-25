@@ -7,7 +7,7 @@ import de.tillhub.scanengine.barcode.DefaultBarcodeScanner
 import de.tillhub.scanengine.barcode.SunmiBarcodeScanner
 import de.tillhub.scanengine.data.ScanEvent
 import de.tillhub.scanengine.data.ScannerManufacturer
-import de.tillhub.scanengine.default.DefaultScanner
+import de.tillhub.scanengine.google.DefaultScanner
 import de.tillhub.scanengine.helper.SingletonHolder
 import de.tillhub.scanengine.sunmi.SunmiScanner
 import kotlinx.coroutines.flow.Flow
@@ -28,7 +28,7 @@ class ScanEngine private constructor(context: Context) {
                 mutableScanEvents
             )
 
-            ScannerManufacturer.OTHER -> DefaultScanner(
+            ScannerManufacturer.NOT_SUNMI -> DefaultScanner(
                 resultCaller,
                 mutableScanEvents
             )
@@ -37,7 +37,7 @@ class ScanEngine private constructor(context: Context) {
 
     val barcodeScanner: BarcodeScanner = when (ScannerManufacturer.get()) {
         ScannerManufacturer.SUNMI -> SunmiBarcodeScanner(context, mutableScanEvents)
-        ScannerManufacturer.OTHER -> DefaultBarcodeScanner(mutableScanEvents)
+        ScannerManufacturer.NOT_SUNMI -> DefaultBarcodeScanner(mutableScanEvents)
     }
 
     companion object : SingletonHolder<ScanEngine, Context>(::ScanEngine)

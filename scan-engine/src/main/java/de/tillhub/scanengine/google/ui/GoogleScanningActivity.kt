@@ -1,13 +1,13 @@
-package de.tillhub.scanengine.default.ui
+package de.tillhub.scanengine.google.ui
 
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
@@ -22,6 +22,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewbinding.ViewBinding
+import com.google.android.material.snackbar.Snackbar
 import de.tillhub.scanengine.R
 import de.tillhub.scanengine.databinding.ActivityGoogleScanningBinding
 import kotlinx.coroutines.launch
@@ -34,18 +35,20 @@ internal class GoogleScanningActivity : AppCompatActivity() {
 
     private lateinit var camera: Camera
 
-    private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (isGranted) {
-            bindCamera()
-        } else {
-            Toast.makeText(
-                baseContext,
-                R.string.error_permission_not_granted,
-                Toast.LENGTH_SHORT
-            ).show()
-            binding.requestPermission.isVisible = true
+    @VisibleForTesting
+    val isCameraInitialized get() = this::camera.isInitialized
+
+    private val requestPermissionLauncher by lazy {
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission(),
+            activityResultRegistry
+        ) { isGranted ->
+            if (isGranted) {
+                bindCamera()
+            } else {
+                Snackbar.make(binding.root, R.string.error_permission_not_granted, Snackbar.LENGTH_SHORT).show()
+                binding.requestPermission.isVisible = true
+            }
         }
     }
 
@@ -53,6 +56,8 @@ internal class GoogleScanningActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContentView(binding.root)
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
 
         binding.requestPermission.setOnClickListener {
             binding.requestPermission.isGone = true
@@ -80,6 +85,11 @@ internal class GoogleScanningActivity : AppCompatActivity() {
         }
 
         checkPermission()
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressedDispatcher.onBackPressed()
+        return true
     }
 
     private fun checkPermission() {
