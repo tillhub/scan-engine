@@ -1,5 +1,8 @@
 package de.tillhub.scanengine.data
 sealed class ScanEvent {
+    data object NotConnected : ScanEvent()
+    data object Connected : ScanEvent()
+    class InProgress(val scanKey: String?) : ScanEvent()
     class Success(
         val value: String,
         val scanKey: String? = null
@@ -9,9 +12,5 @@ sealed class ScanEvent {
             scanKey: String? = this.scanKey
         ) = Success(value, scanKey)
     }
-    class InProgress(val scanKey: String?) : ScanEvent()
-
     data object Canceled : ScanEvent()
-
-    data object Idle : ScanEvent()
 }

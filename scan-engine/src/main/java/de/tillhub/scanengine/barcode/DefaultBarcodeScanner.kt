@@ -5,4 +5,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 
 internal class DefaultBarcodeScanner(
     mutableScanEvents: MutableSharedFlow<ScanEvent>
-) : BarcodeScannerImpl(mutableScanEvents)
+) : BarcodeScannerImpl(mutableScanEvents) {
+    override fun initScanner() = Unit
+}

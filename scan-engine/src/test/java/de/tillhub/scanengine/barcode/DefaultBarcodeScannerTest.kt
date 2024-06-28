@@ -29,7 +29,7 @@ class DefaultBarcodeScannerTest : FunSpec({
                 testResults.add(it)
             }
         }
-        mutableScanEvents.tryEmit(ScanEvent.Idle)
-        testResults.first() shouldBe ScanEvent.Idle
+        mutableScanEvents.tryEmit(ScanEvent.NotConnected)
+        testResults.first() shouldBe ScanEvent.NotConnected
     }
 })

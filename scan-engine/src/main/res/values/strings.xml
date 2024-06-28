@@ -1,6 +1,13 @@
 <resources>
     <string name="error_permission_not_granted">Permission must be granted!</string>
-
     <string name="request_camera_permission">Request camera permission</string>
+    <string name="cancel">Cancel</string>
+    <string name="permission_required">Permission required</string>
+    <string name="permissions_required_desc">Some permissions are need to be allowed to use this app without any problems.</string>
+    <string name="settings">Settings</string>
+    <string name="enable_bluetooth">Enable Bluetooth</string>
+    <string name="enable_bluetooth_desc">Bluetooth is off. Please enable Bluetooth to continue.</string>
+    <string name="enable">Enable</string>
+    <string name="loading">Loading</string>
 
 </resources>

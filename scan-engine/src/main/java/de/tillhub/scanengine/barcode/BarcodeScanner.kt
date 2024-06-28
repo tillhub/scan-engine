@@ -4,6 +4,7 @@ import de.tillhub.scanengine.data.ScanEvent
 import kotlinx.coroutines.flow.Flow
 
 interface BarcodeScanner {
+    fun initScanner()
     fun observeScannerResults(): Flow<ScanEvent>
     fun scanWithKey(scanKey: String? = null)
 }
