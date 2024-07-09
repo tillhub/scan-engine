@@ -20,12 +20,15 @@ import androidx.lifecycle.lifecycleScope
 import de.tillhub.scanengine.ScanEngine
 import de.tillhub.scanengine.CameraScanner
 import de.tillhub.scanengine.data.ScanEvent
+import de.tillhub.scanengine.data.ScannerType
 import de.tillhub.scanengine.sample.ui.theme.TillhubScanEngineTheme
 import kotlinx.coroutines.launch
 
-class MainActivity : ComponentActivity(){
+class MainActivity : ComponentActivity() {
 
-    private val scanEngine by lazy { ScanEngine.getInstance(applicationContext) }
+    private val scanEngine by lazy {
+        ScanEngine.getInstance(applicationContext).initBarcodeScanners(ScannerType.ZEBRA)
+    }
     private lateinit var cameraScanner: CameraScanner
     private var scanCode = mutableStateOf("")
 
@@ -56,7 +59,7 @@ class MainActivity : ComponentActivity(){
                         Spacer(modifier = Modifier.height(36.dp))
                         Button(
                             onClick = {
-                                scanEngine.startZebraPairBarcodeActivity()
+                                scanEngine.barcodeScanner.startPairingScreen(ScannerType.ZEBRA)
                             }
                         ) {
                             Text(text = "Start zebra scanner")

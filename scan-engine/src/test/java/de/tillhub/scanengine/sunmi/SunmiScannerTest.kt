@@ -3,7 +3,7 @@ import androidx.activity.result.ActivityResultCaller
 import androidx.activity.result.ActivityResultLauncher
 import de.tillhub.scanengine.CameraScanner
 import de.tillhub.scanengine.data.ScanEvent
-import de.tillhub.scanengine.scanner.sunmi.SunmiCameraScanner
+import de.tillhub.scanengine.sunmi.camera.SunmiCameraScanner
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf

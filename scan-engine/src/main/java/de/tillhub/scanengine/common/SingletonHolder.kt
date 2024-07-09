@@ -1,4 +1,4 @@
-package de.tillhub.scanengine.helper
+package de.tillhub.scanengine.common
 
 import androidx.annotation.Keep
 

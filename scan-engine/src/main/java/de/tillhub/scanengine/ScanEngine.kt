@@ -1,16 +1,13 @@
 package de.tillhub.scanengine
 
 import android.content.Context
-import android.content.Intent
 import androidx.activity.result.ActivityResultCaller
-import de.tillhub.scanengine.barcode.BarcodeScanner
 import de.tillhub.scanengine.barcode.BarcodeScannerContainer
-import de.tillhub.scanengine.barcode.zebra.ZebraPairBarcodeActivity
 import de.tillhub.scanengine.data.ScanEvent
-import de.tillhub.scanengine.data.ScannerManufacturer
+import de.tillhub.scanengine.data.ScannerType
 import de.tillhub.scanengine.google.DefaultCameraScanner
-import de.tillhub.scanengine.helper.SingletonHolder
-import de.tillhub.scanengine.scanner.sunmi.SunmiCameraScanner
+import de.tillhub.scanengine.common.SingletonHolder
+import de.tillhub.scanengine.sunmi.camera.SunmiCameraScanner
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.drop
@@ -24,27 +21,20 @@ class ScanEngine private constructor(private val context: Context) {
     fun newCameraScanner(
         resultCaller: ActivityResultCaller,
     ): CameraScanner {
-        return when (ScannerManufacturer.get()) {
-            ScannerManufacturer.SUNMI -> SunmiCameraScanner(
-                resultCaller,
-                mutableScanEvents
-            )
-
-            ScannerManufacturer.NOT_SUNMI -> DefaultCameraScanner(
-                resultCaller,
-                mutableScanEvents
-            )
+        return when (ScannerType.get()) {
+            ScannerType.SUNMI -> SunmiCameraScanner(resultCaller, mutableScanEvents)
+            else -> DefaultCameraScanner(resultCaller, mutableScanEvents)
         }
     }
 
-    val barcodeScanner: BarcodeScanner = BarcodeScannerContainer(context, mutableScanEvents)
+    private var externalScanners: List<ScannerType> = emptyList()
+    fun initBarcodeScanners(vararg externalScanners: ScannerType): ScanEngine {
+        this.externalScanners = externalScanners.asList()
+        return this
+    }
 
-    fun startZebraPairBarcodeActivity() {
-        context.startActivity(
-            Intent(context, ZebraPairBarcodeActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            }
-        )
+    val barcodeScanner: BarcodeScanner by lazy {
+        BarcodeScannerContainer(context, mutableScanEvents, externalScanners)
     }
 
     companion object : SingletonHolder<ScanEngine, Context>(::ScanEngine)

@@ -763,9 +763,9 @@ libraries:
         includes:
             - '**/main/**'
         excludes:
-            - '**/main/java/de/tillhub/scanengine/Scanner.kt'
+            - '**/main/java/de/tillhub/scanengine/CameraScanner.kt'
             - '**/main/java/de/tillhub/scanengine/ScanEngine.kt'
-            - '**/main/java/de/tillhub/scanengine/helper/SingletonHolder.kt'
+            - '**/main/java/de/tillhub/scanengine/common/SingletonHolder.kt'
             - '**/main/java/de/tillhub/scanengine/data/ScanEvent.kt'
-            - '**/main/java/de/tillhub/scanengine/data/ScannerManufacturer.kt'
-            - '**/main/java/de/tillhub/scanengine/barcode/BarcodeScanner.kt'
+            - '**/main/java/de/tillhub/scanengine/data/ScannerType.kt'
+            - '**/main/java/de/tillhub/scanengine/BarcodeScanner.kt'

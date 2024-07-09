@@ -1,4 +1,4 @@
-package de.tillhub.scanengine.barcode.zebra
+package de.tillhub.scanengine.zebra
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
@@ -10,35 +10,47 @@ import com.zebra.scannercontrol.IDcsSdkApi
 import de.tillhub.scanengine.ScanEngine
 import de.tillhub.scanengine.barcode.BarcodeScannerContainer
 import de.tillhub.scanengine.data.ScanEvent
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 internal class ZebraPairBarcodeViewModel(scanEngine: ScanEngine) : ViewModel() {
+
+    private val uiState: MutableStateFlow<State> = MutableStateFlow(State.Loading)
+    val uiStateFlow: StateFlow<State> get() = uiState
 
     private val zebraBarcodeScanner =
         (scanEngine.barcodeScanner as BarcodeScannerContainer).getScannersByType(
             ZebraBarcodeScanner::class.java
         ) as ZebraBarcodeScanner
 
-    val isConnected: StateFlow<Boolean> = scanEngine.observeScannerResults().map { it is ScanEvent.Connected }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.Eagerly,
-        initialValue = false
-    )
+    init {
+        viewModelScope.launch {
+            scanEngine.observeScannerResults().collect { event ->
+                if (event is ScanEvent.Connected) {
+                    uiState.value = State.Connected
+                }
+            }
+        }
+    }
 
     fun initScanner() {
+        uiState.value = State.Pairing
         zebraBarcodeScanner.initScanner()
     }
 
     fun getSdkHandler(): IDcsSdkApi = zebraBarcodeScanner.sdkHandler
 
+    sealed class State {
+        data object Loading : State()
+        data object Pairing : State()
+        data object Connected : State()
+    }
+
     companion object {
         fun factory(context: Context): ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                val scanEngine by lazy { ScanEngine.getInstance(context) }
-                ZebraPairBarcodeViewModel(scanEngine)
+                ZebraPairBarcodeViewModel(ScanEngine.getInstance(context))
             }
         }
     }

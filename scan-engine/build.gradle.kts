@@ -61,21 +61,19 @@ detekt {
 }
 
 dependencies {
+    // Core
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)
     implementation(libs.google.material)
 
-    //compose
+    // Compose
     implementation(libs.bundles.compose)
 
     // Groups
     implementation(libs.bundles.core)
     implementation(libs.bundles.ui)
     implementation(libs.bundles.lifecycle)
-    implementation(fileTree(mapOf(
-        "dir" to "zebrascannerandroid",
-        "include" to listOf("*.aar", "*.jar"),
-    )))
 
     // Utils
     coreLibraryDesugaring(libs.android.desugarJdkLibs)

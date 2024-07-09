@@ -1,11 +1,13 @@
-package de.tillhub.scanengine.barcode
+package de.tillhub.scanengine.sunmi.barcode
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import androidx.core.content.ContextCompat
+import de.tillhub.scanengine.barcode.BarcodeScannerImpl
 import de.tillhub.scanengine.data.ScanEvent
+import de.tillhub.scanengine.data.ScannerType
 import kotlinx.coroutines.flow.MutableSharedFlow
 import timber.log.Timber
 
@@ -44,5 +46,5 @@ internal class SunmiBarcodeScanner(
         private const val DATA = "data"
     }
 
-    override fun initScanner() = Unit
+    override fun startPairingScreen(scanner: ScannerType) = Unit
 }

@@ -6,6 +6,7 @@ import android.content.Intent
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.tillhub.scanengine.data.ScanEvent
+import de.tillhub.scanengine.sunmi.barcode.SunmiBarcodeScanner
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch

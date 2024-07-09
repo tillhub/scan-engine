@@ -10,11 +10,11 @@ internal class ScannerManufacturerTest : FunSpec({
 
     test("SUNMI device") {
         ShadowBuild.setManufacturer("SUNMI")
-        ScannerManufacturer.get() shouldBe ScannerManufacturer.SUNMI
+        ScannerType.get() shouldBe ScannerType.SUNMI
     }
 
-    test("NOT_SUNMI device") {
-        ShadowBuild.setManufacturer("NOT_SUNMI")
-        ScannerManufacturer.get() shouldBe ScannerManufacturer.NOT_SUNMI
+    test("UNKNOWN device") {
+        ShadowBuild.setManufacturer("UNKNOWN")
+        ScannerType.get() shouldBe ScannerType.UNKNOWN
     }
 })

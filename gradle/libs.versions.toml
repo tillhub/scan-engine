@@ -81,7 +81,6 @@ kotest-property = { group = "io.kotest", name = "kotest-property-jvm", version.r
 androidx-test-core = { group = "androidx.test", name = "core-ktx", version.ref = "androidxCoreTest" }
 androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxRunner" }
 androidx-test-rules = { group = "androidx.test", name = "rules", version.ref = "androidxRules" }
-androidx-test-ext = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "androidxRules" }
 androidx-test-junit = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "androidxJunit" }
 androidx-test-truth = { group = "androidx.test.ext", name = "truth", version.ref = "androidxTruth" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso" }

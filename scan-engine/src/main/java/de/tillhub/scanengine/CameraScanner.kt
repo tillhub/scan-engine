@@ -5,6 +5,5 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface CameraScanner {
     fun observeScannerResults(): StateFlow<ScanEvent>
-
     fun startCameraScanner(scanKey: String? = null)
 }

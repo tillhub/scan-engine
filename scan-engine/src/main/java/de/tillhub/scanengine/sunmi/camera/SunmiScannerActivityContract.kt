@@ -1,4 +1,4 @@
-package de.tillhub.scanengine.scanner.sunmi
+package de.tillhub.scanengine.sunmi.camera
 
 import android.app.Activity
 import android.content.Context
