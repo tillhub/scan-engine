@@ -62,6 +62,17 @@ internal class ZebraBarcodeScanner(
         }
     }
 
+    override fun startPairingScreen(scanner: ScannerType) {
+        require(scanner == ScannerType.ZEBRA) {
+            "startPairingScreen: Scanner type must be Zebra but it is: ${scanner.value}"
+        }
+        val intent = Intent(context, ZebraPairBarcodeActivity::class.java)
+        if (context !is Activity) {
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        context.startActivity(intent)
+    }
+
     override fun dcssdkEventCommunicationSessionEstablished(scanner: DCSScannerInfo?) {
         if (scanner == null) return
         sdkHandler.dcssdkEnableAutomaticSessionReestablishment(true, scanner.scannerID)
@@ -74,11 +85,7 @@ internal class ZebraBarcodeScanner(
 
     override fun dcssdkEventCommunicationSessionTerminated(scannerId: Int) = Unit
 
-    override fun dcssdkEventBarcode(
-        barcodeData: ByteArray?,
-        barcodeType: Int,
-        scannerId: Int
-    ) {
+    override fun dcssdkEventBarcode(barcodeData: ByteArray?, barcodeType: Int, scannerId: Int) {
         barcodeData?.let {
             mutableScanEvents.tryEmit(ScanEvent.Success(String(it, Charsets.ISO_8859_1)))
         }
@@ -92,6 +99,10 @@ internal class ZebraBarcodeScanner(
     override fun dcssdkEventFirmwareUpdate(p0: FirmwareUpdateEvent?) = Unit
     override fun dcssdkEventAuxScannerAppeared(p0: DCSScannerInfo?, p1: DCSScannerInfo?) = Unit
     override fun dcssdkEventConfigurationUpdate(p0: ConfigurationUpdateEvent?) = Unit
+
+    override fun onLastConnectedScannerDetect(device: BluetoothDevice?): Boolean = true
+    override fun onConnectingToLastConnectedScanner(device: BluetoothDevice?) = Unit
+    override fun onScannerDisconnect() = Unit
 
     private fun hasPermissions(): Boolean {
         return BLUETOOTH_PERMISSIONS
@@ -118,22 +129,5 @@ internal class ZebraBarcodeScanner(
                 Manifest.permission.ACCESS_FINE_LOCATION,
             )
         }
-    }
-
-    override fun onLastConnectedScannerDetect(device: BluetoothDevice?): Boolean {
-        return true
-    }
-
-    override fun onConnectingToLastConnectedScanner(device: BluetoothDevice?) = Unit
-    override fun onScannerDisconnect() = Unit
-    override fun startPairingScreen(scanner: ScannerType) {
-        require(scanner == ScannerType.ZEBRA) {
-            "startPairingScreen: Scanner type must be Zebra but it is: ${scanner.value}"
-        }
-        val intent = Intent(context, ZebraPairBarcodeActivity::class.java)
-        if (context !is Activity) {
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        }
-        context.startActivity(intent)
     }
 }

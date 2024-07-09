@@ -1,6 +1,6 @@
 [versions]
 # Define the dependency versions
-agp = "8.2.2"
+agp = "8.5.0"
 kotlin = "1.9.22"
 kotlinCoroutines = "1.7.3"
 core = "1.13.1"
