@@ -3,6 +3,7 @@ package de.tillhub.scanengine.zebra
 import android.Manifest
 import android.app.Activity
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -23,6 +24,10 @@ internal class ZebraBarcodeScanner(
     private val context: Context,
     events: MutableStateFlow<ScanEvent>
 ) : BarcodeScannerImpl(events), IDcsSdkApiDelegate, IDcsScannerEventsOnReLaunch {
+
+    private val bluetoothManager: BluetoothManager by lazy {
+        context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+    }
 
     val sdkHandler: SDKHandler by lazy {
         SDKHandler(context, true).apply {
@@ -56,9 +61,20 @@ internal class ZebraBarcodeScanner(
         initScanner()
     }
 
-    fun initScanner() {
-        if (hasPermissions()) {
-            sdkHandler
+    fun initScanner(): Result<SDKHandler> {
+        val btEnabled = bluetoothManager.adapter.isEnabled
+        return if (hasPermissions() && btEnabled) {
+            try {
+                Result.success(sdkHandler)
+            } catch (e: SecurityException) {
+                Result.failure(e)
+            }
+        } else {
+            Result.failure(
+                IllegalStateException(
+                    "SDKHandler initialization failed. Has permissions: ${hasPermissions()}, BT enabled: $btEnabled"
+                )
+            )
         }
     }
 

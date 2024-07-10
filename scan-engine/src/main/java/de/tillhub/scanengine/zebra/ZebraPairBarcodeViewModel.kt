@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.zebra.scannercontrol.IDcsSdkApi
+import com.zebra.scannercontrol.SDKHandler
 import de.tillhub.scanengine.ScanEngine
 import de.tillhub.scanengine.barcode.BarcodeScannerContainer
 import de.tillhub.scanengine.data.ScanEvent
@@ -35,15 +35,12 @@ internal class ZebraPairBarcodeViewModel(scanEngine: ScanEngine) : ViewModel() {
     }
 
     fun initScanner() {
-        uiState.value = State.Pairing
-        zebraBarcodeScanner.initScanner()
+        uiState.value = State.Pairing(zebraBarcodeScanner.initScanner())
     }
-
-    fun getSdkHandler(): IDcsSdkApi = zebraBarcodeScanner.sdkHandler
 
     sealed class State {
         data object Loading : State()
-        data object Pairing : State()
+        data class Pairing(val result: Result<SDKHandler>) : State()
         data object Connected : State()
     }
 

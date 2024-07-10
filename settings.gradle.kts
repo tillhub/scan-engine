@@ -23,4 +23,3 @@ dependencyResolutionManagement {
 rootProject.name = "Tillhub Scan Engine"
 include(":sample")
 include(":scan-engine")
-include(":zebrascannerandroid")

@@ -1,4 +1,3 @@
 <resources>
     <string name="permission_required_title">Erlaubnis muss gegeben werden!</string>
-    <string name="request_camera_permission">Zugriff auf Kamera erlauben</string>
 </resources>
