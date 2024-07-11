@@ -38,10 +38,16 @@ internal class ZebraPairBarcodeViewModel(scanEngine: ScanEngine) : ViewModel() {
         uiState.value = State.Pairing(zebraBarcodeScanner.initScanner())
     }
 
+    fun connectDiscoverableMode() {
+        val result = zebraBarcodeScanner.connectDiscoverableMode()
+        uiState.value = if (result) State.DiscoverableBarcodeConnected else State.Loading
+    }
+
     sealed class State {
         data object Loading : State()
         data class Pairing(val result: Result<SDKHandler>) : State()
         data object Connected : State()
+        data object DiscoverableBarcodeConnected : State()
     }
 
     companion object {

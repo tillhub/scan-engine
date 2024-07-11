@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log
 import com.zebra.barcode.sdk.sms.ConfigurationUpdateEvent
 import com.zebra.scannercontrol.DCSSDKDefs
 import com.zebra.scannercontrol.DCSScannerInfo
@@ -25,11 +26,12 @@ internal class ZebraBarcodeScanner(
     events: MutableStateFlow<ScanEvent>
 ) : BarcodeScannerImpl(events), IDcsSdkApiDelegate, IDcsScannerEventsOnReLaunch {
 
+    private var scannerID: Int? = null
     private val bluetoothManager: BluetoothManager by lazy {
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     }
 
-    val sdkHandler: SDKHandler by lazy {
+    private val sdkHandler: SDKHandler by lazy {
         SDKHandler(context, true).apply {
 
             dcssdkSetDelegate(this@ZebraBarcodeScanner)
@@ -65,7 +67,9 @@ internal class ZebraBarcodeScanner(
         val btEnabled = bluetoothManager.adapter.isEnabled
         return if (hasPermissions() && btEnabled) {
             try {
-                Result.success(sdkHandler)
+                Result.success(sdkHandler).also {
+                    printAvailableScanners()
+                }
             } catch (e: SecurityException) {
                 Result.failure(e)
             }
@@ -75,6 +79,15 @@ internal class ZebraBarcodeScanner(
                     "SDKHandler initialization failed. Has permissions: ${hasPermissions()}, BT enabled: $btEnabled"
                 )
             )
+        }
+    }
+
+    private fun printAvailableScanners() {
+        val scannerTreeList = arrayListOf<DCSScannerInfo>()
+        sdkHandler.dcssdkGetAvailableScannersList(scannerTreeList)
+        sdkHandler.dcssdkGetActiveScannersList(scannerTreeList)
+        scannerTreeList.onEach {
+            Log.d("=========", "===========${it.scannerID}")
         }
     }
 
@@ -91,11 +104,9 @@ internal class ZebraBarcodeScanner(
 
     override fun dcssdkEventCommunicationSessionEstablished(scanner: DCSScannerInfo?) {
         if (scanner == null) return
-        sdkHandler.dcssdkEnableAutomaticSessionReestablishment(true, scanner.scannerID)
-        context.getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE).edit().apply {
-            putString(HW_SERIAL_NUMBER, scanner.scannerHWSerialNumber)
-            apply()
-        }
+        scannerID = scanner.scannerID
+        sdkHandler.dcssdkTerminateCommunicationSession(scanner.scannerID)
+        printAvailableScanners()
         mutableScanEvents.tryEmit(ScanEvent.Connected)
     }
 
@@ -126,6 +137,15 @@ internal class ZebraBarcodeScanner(
             .all { it }
     }
 
+    fun connectDiscoverableMode(): Boolean {
+      printAvailableScanners()
+        return scannerID?.let {
+            sdkHandler.dcssdkEstablishCommunicationSession(it)
+            val result = sdkHandler.dcssdkEstablishCommunicationSession(it)
+            result == DCSSDKDefs.DCSSDK_RESULT.DCSSDK_RESULT_SUCCESS
+        } ?: false
+    }
+
     companion object {
         private const val HW_SERIAL_NUMBER: String = "hwSerialNumber"
         private const val PREFERENCES_FILE: String = "Prefs"
@@ -135,11 +155,13 @@ internal class ZebraBarcodeScanner(
                 Manifest.permission.BLUETOOTH_CONNECT,
                 Manifest.permission.BLUETOOTH_ADVERTISE
             )
+
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> listOf(
                 Manifest.permission.BLUETOOTH_SCAN,
                 Manifest.permission.BLUETOOTH_CONNECT,
                 Manifest.permission.BLUETOOTH_ADVERTISE
             )
+
             else -> listOf(
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.ACCESS_FINE_LOCATION,
