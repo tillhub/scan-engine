@@ -21,7 +21,7 @@ import org.junit.runner.RunWith
 
 @ExperimentalCoroutinesApi
 @RunWith(AndroidJUnit4::class)
-class SunmiBarcodeScannerTest {
+class SunmiBarcodeCameraScannerTest {
 
     private lateinit var mutableScanEvents: MutableSharedFlow<ScanEvent>
     private lateinit var context: Context

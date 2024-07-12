@@ -22,15 +22,15 @@
 
 -keeppackagenames de.tillhub.scanengine.**
 
--keep class de.tillhub.scanengine.Scanner { *; }
+-keep class de.tillhub.scanengine.CameraScanner { *; }
 -keep class de.tillhub.scanengine.ScanEngine { *; }
 -keep class de.tillhub.scanengine.ScanEngine$Companion { *; }
--keep class de.tillhub.scanengine.helper.SingletonHolder { *; }
+-keep class de.tillhub.scanengine.common.SingletonHolder { *; }
 
 -keep class de.tillhub.scanengine.data.ScanEvent { *; }
 -keep class de.tillhub.scanengine.data.ScanEvent* { *; }
 -keep class de.tillhub.scanengine.data.ScannerManufacturer { *; }
--keep class de.tillhub.scanengine.barcode.BarcodeScanner {  *; }
+-keep class de.tillhub.scanengine.BarcodeScanner {  *; }
 
 # Breaking changes with AGP 8.0
 # R8 upgrade documentation

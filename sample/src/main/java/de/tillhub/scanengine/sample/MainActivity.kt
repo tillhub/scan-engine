@@ -18,20 +18,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import de.tillhub.scanengine.ScanEngine
+import de.tillhub.scanengine.CameraScanner
 import de.tillhub.scanengine.data.ScanEvent
-import de.tillhub.scanengine.Scanner
+import de.tillhub.scanengine.data.ScannerType
 import de.tillhub.scanengine.sample.ui.theme.TillhubScanEngineTheme
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
-    private val scanEngine by lazy { ScanEngine.getInstance(applicationContext) }
-    private lateinit var scanner: Scanner
+    private val scanEngine by lazy {
+        ScanEngine.getInstance(applicationContext).initBarcodeScanners(ScannerType.ZEBRA)
+    }
+    private lateinit var cameraScanner: CameraScanner
     private var scanCode = mutableStateOf("")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        scanner = scanEngine.newCameraScanner(this)
+        cameraScanner = scanEngine.newCameraScanner(this)
+
         setContent {
             TillhubScanEngineTheme {
                 Surface(
@@ -47,10 +51,18 @@ class MainActivity : ComponentActivity() {
                         Spacer(modifier = Modifier.height(36.dp))
                         Button(
                             onClick = {
-                                scanner.startCameraScanner("key")
+                                cameraScanner.startCameraScanner("key")
                             }
                         ) {
                             Text(text = "Start camera scanner")
+                        }
+                        Spacer(modifier = Modifier.height(36.dp))
+                        Button(
+                            onClick = {
+                                scanEngine.barcodeScanner.startPairingScreen(ScannerType.ZEBRA)
+                            }
+                        ) {
+                            Text(text = "Start zebra scanner")
                         }
                     }
                 }

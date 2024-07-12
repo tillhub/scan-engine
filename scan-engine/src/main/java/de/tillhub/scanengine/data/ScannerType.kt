@@ -1,13 +1,14 @@
 package de.tillhub.scanengine.data
 
-enum class ScannerManufacturer(val value: String) {
+enum class ScannerType(val value: String) {
     SUNMI("SUNMI"),
-    NOT_SUNMI("OTHER");
+    ZEBRA("ZEBRA"),
+    UNKNOWN("UNKNOWN");
 
     companion object {
-        fun get(): ScannerManufacturer =
+        fun get(): ScannerType =
             entries.firstOrNull {
                 it.value == android.os.Build.MANUFACTURER
-            } ?: NOT_SUNMI
+            } ?: UNKNOWN
     }
 }

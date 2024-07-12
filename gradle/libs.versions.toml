@@ -1,6 +1,6 @@
 [versions]
 # Define the dependency versions
-agp = "8.2.2"
+agp = "8.5.0"
 kotlin = "1.9.22"
 kotlinCoroutines = "1.7.3"
 core = "1.13.1"
@@ -54,6 +54,9 @@ activity-compose = { group = "androidx.activity", name = "activity-compose", ver
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
 compose-ui = { group = "androidx.compose.ui", name = "ui" }
 compose-material3 = { group = "androidx.compose.material3", name = "material3",version.ref = "material3" }
+compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+compose-ui-tooling = { group = "androidx.compose.ui" , name = "ui-tooling"}
+compose-ui-tooling-preview = { group = "androidx.compose.ui" , name = "ui-tooling-preview"}
 
 androidx-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "cameraX" }
 androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "cameraX" }
@@ -81,7 +84,6 @@ kotest-property = { group = "io.kotest", name = "kotest-property-jvm", version.r
 androidx-test-core = { group = "androidx.test", name = "core-ktx", version.ref = "androidxCoreTest" }
 androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxRunner" }
 androidx-test-rules = { group = "androidx.test", name = "rules", version.ref = "androidxRules" }
-androidx-test-ext = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "androidxRules" }
 androidx-test-junit = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "androidxJunit" }
 androidx-test-truth = { group = "androidx.test.ext", name = "truth", version.ref = "androidxTruth" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso" }
@@ -106,6 +108,9 @@ compose = [
     "compose-bom",
     "compose-ui",
     "compose-material3",
+    "compose-ui-graphics",
+    "compose-ui-tooling",
+    "compose-ui-tooling-preview",
 ]
 ui = [
     "androidx-core",

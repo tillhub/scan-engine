@@ -1,16 +1,16 @@
-package de.tillhub.scanengine.sunmi
+package de.tillhub.scanengine.sunmi.camera
 
 import androidx.activity.result.ActivityResultCaller
 import androidx.activity.result.ActivityResultLauncher
 import de.tillhub.scanengine.data.ScanEvent
-import de.tillhub.scanengine.Scanner
+import de.tillhub.scanengine.CameraScanner
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-internal class SunmiScanner(
+internal class SunmiCameraScanner(
     resultCaller: ActivityResultCaller,
     private val mutableScanEvents: MutableStateFlow<ScanEvent>,
-) : Scanner {
+) : CameraScanner {
 
     private val scannerLauncher: ActivityResultLauncher<Unit> =
         resultCaller.registerForActivityResult(SunmiScannerActivityContract()) { result ->
@@ -23,7 +23,8 @@ internal class SunmiScanner(
                     }
 
                     is ScanEvent.InProgress,
-                    ScanEvent.Idle -> Unit
+                    ScanEvent.NotConnected,
+                    ScanEvent.Connected -> Unit
                 }
             }
         }

@@ -46,7 +46,7 @@ internal class GoogleScanningActivity : AppCompatActivity() {
             if (isGranted) {
                 bindCamera()
             } else {
-                Snackbar.make(binding.root, R.string.error_permission_not_granted, Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(binding.root, R.string.permission_required_title, Snackbar.LENGTH_SHORT).show()
                 binding.requestPermission.isVisible = true
             }
         }

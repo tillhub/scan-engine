@@ -1,4 +1,4 @@
-package de.tillhub.scanengine.sunmi
+package de.tillhub.scanengine.sunmi.camera
 
 import android.app.Activity
 import android.content.Context
@@ -47,14 +47,14 @@ internal class SunmiScannerActivityContract : ActivityResultContract<Unit, List<
         val rawCodes: List<Map<String, String>> =
             BundleCompat.getParcelableArrayList(
                 extras,
-                SunmiScanner.DATA,
+                SunmiCameraScanner.DATA,
                 mapOf<String, String>()::class.java
             ) ?: emptyList()
 
         return rawCodes.mapNotNull {
             safeLet(
-                it[SunmiScanner.RESPONSE_TYPE],
-                it[SunmiScanner.RESPONSE_VALUE]
+                it[SunmiCameraScanner.RESPONSE_TYPE],
+                it[SunmiCameraScanner.RESPONSE_VALUE]
             ) { type, value ->
                 ScanCode(
                     type.toScanCodeType(),
@@ -67,12 +67,12 @@ internal class SunmiScannerActivityContract : ActivityResultContract<Unit, List<
     }
 
     private fun String?.toScanCodeType() = when (this) {
-        null -> SunmiScanner.ScanCodeType.Unknown
-        else -> SunmiScanner.ScanCodeType.Type(this)
+        null -> SunmiCameraScanner.ScanCodeType.Unknown
+        else -> SunmiCameraScanner.ScanCodeType.Type(this)
     }
 
     private data class ScanCode(
-        val codeType: SunmiScanner.ScanCodeType,
+        val codeType: SunmiCameraScanner.ScanCodeType,
         val content: String,
     )
 }
