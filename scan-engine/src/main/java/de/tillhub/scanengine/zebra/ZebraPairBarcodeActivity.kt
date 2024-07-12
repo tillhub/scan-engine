@@ -13,18 +13,17 @@ import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -37,14 +36,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import com.zebra.scannercontrol.DCSSDKDefs
 import com.zebra.scannercontrol.IDcsSdkApi
 import de.tillhub.scanengine.R
-import de.tillhub.scanengine.ScanEngineTheme
-import de.tillhub.scanengine.Toolbar
+import de.tillhub.scanengine.extensions.getModifierBasedOnDeviceType
+import de.tillhub.scanengine.theme.ScanEngineTheme
+import de.tillhub.scanengine.theme.TabletScaffoldModifier
+import de.tillhub.scanengine.theme.Toolbar
 import de.tillhub.scanengine.zebra.ZebraBarcodeScanner.Companion.BLUETOOTH_PERMISSIONS
 
 internal class ZebraPairBarcodeActivity : ComponentActivity() {
@@ -86,6 +88,10 @@ internal class ZebraPairBarcodeActivity : ComponentActivity() {
             val state by viewModel.uiStateFlow.collectAsState()
             ScanEngineTheme {
                 Scaffold(
+                    modifier = getModifierBasedOnDeviceType(
+                        isTablet = TabletScaffoldModifier,
+                        isMobile = Modifier
+                    ),
                     topBar = {
                         Toolbar(title = stringResource(id = R.string.pairing_title)) {
                             finish()
@@ -235,9 +241,7 @@ private fun ZebraPairBarcodeActivityContent(
             }
             is ZebraPairBarcodeViewModel.State.Pairing -> {
                 state.result.onSuccess {
-                    PairingDialog(sdkHandler = it) {
-                        activity.finish()
-                    }
+                    PairingDialog(sdkHandler = it)
                 }
                 state.result.onFailure {
                     Toast.makeText(activity, it.message, Toast.LENGTH_SHORT).show()
@@ -249,21 +253,16 @@ private fun ZebraPairBarcodeActivityContent(
 }
 
 @Composable
-private fun PairingDialog(
-    sdkHandler: IDcsSdkApi,
-    hideDialog: () -> Unit
-) {
-    Column {
-        AndroidView(
-            factory = {
-                sdkHandler.dcssdkGetPairingBarcode(
-                    DCSSDKDefs.DCSSDK_BT_PROTOCOL.SSI_BT_LE,
-                    DCSSDKDefs.DCSSDK_BT_SCANNER_CONFIG.SET_FACTORY_DEFAULTS
-                )
-            }
-        )
-        Button(modifier = Modifier.fillMaxWidth(), onClick = hideDialog) {
-            Text(stringResource(R.string.cancel))
+private fun PairingDialog(sdkHandler: IDcsSdkApi) {
+    AndroidView(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(100.dp),
+        factory = {
+            sdkHandler.dcssdkGetPairingBarcode(
+                DCSSDKDefs.DCSSDK_BT_PROTOCOL.SSI_BT_LE,
+                DCSSDKDefs.DCSSDK_BT_SCANNER_CONFIG.SET_FACTORY_DEFAULTS
+            )
         }
-    }
+    )
 }

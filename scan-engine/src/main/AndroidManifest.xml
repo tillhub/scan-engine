@@ -33,6 +33,7 @@
             android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
             android:name="de.tillhub.scanengine.zebra.ZebraPairBarcodeActivity"
+            android:theme="@style/Theme.BarcodeActivity"
             android:exported="true"
             android:launchMode="singleTask">
         </activity>

@@ -1,4 +1,4 @@
-package de.tillhub.scanengine
+package de.tillhub.scanengine.theme
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
