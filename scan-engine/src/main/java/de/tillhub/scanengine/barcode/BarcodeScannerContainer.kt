@@ -14,20 +14,22 @@ import kotlinx.coroutines.flow.merge
 internal class BarcodeScannerContainer(
     context: Context,
     mutableScanEvents: MutableStateFlow<ScanEvent>,
-    externalScanners: List<ScannerType>
+    externalScanners: List<ScannerType>,
+    private val scannerFactory: BarcodeScannerFactory = BarcodeScannerFactory()
 ) : BarcodeScanner {
 
     private val barcodeScanners = mutableListOf<BarcodeScanner>().apply {
         when (ScannerType.get()) {
             ScannerType.SUNMI -> {
-                add(SunmiBarcodeScanner(context, mutableScanEvents))
+                add(scannerFactory.getSunmiBarcodeScanner(context, mutableScanEvents))
             }
+
             else -> Unit
         }
         externalScanners.distinct().forEach {
             when (it) {
                 ScannerType.ZEBRA -> {
-                    add(ZebraBarcodeScanner(context, mutableScanEvents))
+                    add(scannerFactory.getZebraBarcodeScanner(context, mutableScanEvents))
                 }
                 ScannerType.SUNMI,
                 ScannerType.UNKNOWN -> Unit
@@ -41,8 +43,7 @@ internal class BarcodeScannerContainer(
     }
 
     override fun observeScannerResults(): Flow<ScanEvent> {
-        return barcodeScanners
-            .map { it.observeScannerResults() }
+        return barcodeScanners.map { it.observeScannerResults() }
             .fold(emptyFlow()) { accumulator, flow -> merge(accumulator, flow) }
     }
 

@@ -19,7 +19,7 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
 @ExperimentalCoroutinesApi
-class SunmiScannerTest : FunSpec({
+class SunmiCameraScannerTest : FunSpec({
 
     lateinit var resultCaller: ActivityResultCaller
     lateinit var mutableScanEvents: MutableStateFlow<ScanEvent>
