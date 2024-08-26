@@ -29,7 +29,7 @@ internal class ZebraBarcodeScanner(
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     }
 
-    val sdkHandler: SDKHandler by lazy {
+    private val sdkHandler: SDKHandler by lazy {
         SDKHandler(context, true).apply {
 
             dcssdkSetDelegate(this@ZebraBarcodeScanner)

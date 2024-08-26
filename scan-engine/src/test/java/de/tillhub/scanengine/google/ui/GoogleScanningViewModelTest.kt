@@ -9,6 +9,7 @@ import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 import io.mockk.Ordering
 import io.mockk.Runs
 import io.mockk.every
@@ -57,7 +58,7 @@ class GoogleScanningViewModelTest : FunSpec({
         viewModel = GoogleScanningViewModel(scanner, inputImageGenerator)
     }
 
-    test("should update scanning state to CodeScanned when a barcode is scanned") {
+    test("barcode scan updates state to CodeScanned") {
         val barcode = mockk<Barcode> {
             every { rawValue } returns "1234567890"
         }
@@ -74,6 +75,8 @@ class GoogleScanningViewModelTest : FunSpec({
             arr.onComplete(task)
             task
         }
+        viewModel.scanningState.value shouldBe ScanningState.Idle
+
         testScope.launch {
             viewModel.scanningState.toList(testResults)
         }
