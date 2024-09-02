@@ -15,9 +15,13 @@ import com.zebra.scannercontrol.FirmwareUpdateEvent
 import com.zebra.scannercontrol.IDcsScannerEventsOnReLaunch
 import com.zebra.scannercontrol.IDcsSdkApiDelegate
 import com.zebra.scannercontrol.SDKHandler
+import de.tillhub.scanengine.R
 import de.tillhub.scanengine.barcode.BarcodeScannerImpl
 import de.tillhub.scanengine.data.ScanEvent
+import de.tillhub.scanengine.data.Scanner
+import de.tillhub.scanengine.data.ScannerResponse
 import de.tillhub.scanengine.data.ScannerType
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
 internal class ZebraBarcodeScanner(
@@ -25,6 +29,9 @@ internal class ZebraBarcodeScanner(
     events: MutableStateFlow<ScanEvent>
 ) : BarcodeScannerImpl(events), IDcsSdkApiDelegate, IDcsScannerEventsOnReLaunch {
 
+    private val availableScannersFlow by lazy {
+        MutableStateFlow(fetchInitialScanners())
+    }
     private val bluetoothManager: BluetoothManager by lazy {
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     }
@@ -89,17 +96,43 @@ internal class ZebraBarcodeScanner(
         context.startActivity(intent)
     }
 
-    override fun dcssdkEventCommunicationSessionEstablished(scanner: DCSScannerInfo?) {
-        if (scanner == null) return
-        sdkHandler.dcssdkEnableAutomaticSessionReestablishment(true, scanner.scannerID)
+    override fun observeScanners(): Flow<List<Scanner>> = availableScannersFlow
+
+    override suspend fun connect(scannerId: String): ScannerResponse {
+        val result = sdkHandler.dcssdkEstablishCommunicationSession(scannerId.toInt())
+        return when (result) {
+            DCSSDKDefs.DCSSDK_RESULT.DCSSDK_RESULT_FAILURE -> {
+                ScannerResponse.Error(R.drawable.classic_discoverable)
+            }
+
+            DCSSDKDefs.DCSSDK_RESULT.DCSSDK_RESULT_SUCCESS -> {
+                ScannerResponse.Success
+            }
+
+            else -> {
+                ScannerResponse.NotFound
+            }
+        }
+    }
+
+    override fun disconnect(scannerId: String) {
+        sdkHandler.dcssdkTerminateCommunicationSession(scannerId.toInt())
+    }
+
+    override fun dcssdkEventCommunicationSessionEstablished(scannerInfo: DCSScannerInfo?) {
+        if (scannerInfo == null) return
+        sdkHandler.dcssdkEnableAutomaticSessionReestablishment(true, scannerInfo.scannerID)
         context.getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE).edit().apply {
-            putString(HW_SERIAL_NUMBER, scanner.scannerHWSerialNumber)
+            putString(HW_SERIAL_NUMBER, scannerInfo.scannerHWSerialNumber)
             apply()
         }
         mutableScanEvents.tryEmit(ScanEvent.Connected)
+        updateConnectionStatus(scannerInfo.scannerID, true)
     }
 
-    override fun dcssdkEventCommunicationSessionTerminated(scannerId: Int) = Unit
+    override fun dcssdkEventCommunicationSessionTerminated(scannerId: Int) {
+        updateConnectionStatus(scannerId, false)
+    }
 
     override fun dcssdkEventBarcode(barcodeData: ByteArray?, barcodeType: Int, scannerId: Int) {
         barcodeData?.let {
@@ -119,6 +152,38 @@ internal class ZebraBarcodeScanner(
     override fun onLastConnectedScannerDetect(device: BluetoothDevice?): Boolean = true
     override fun onConnectingToLastConnectedScanner(device: BluetoothDevice?) = Unit
     override fun onScannerDisconnect() = Unit
+
+    private fun fetchInitialScanners(): List<Scanner> {
+        if (!hasPermissions()) {
+            return emptyList()
+        }
+
+        val scannerTreeList = mutableListOf<DCSScannerInfo>()
+        sdkHandler.dcssdkGetAvailableScannersList(scannerTreeList)
+        sdkHandler.dcssdkGetActiveScannersList(scannerTreeList)
+
+        return scannerTreeList
+            .distinctBy { it.scannerID }
+            .map { scannerInfo ->
+                Scanner(
+                    id = scannerInfo.scannerID.toString(),
+                    name = scannerInfo.scannerName,
+                    serialNumber = scannerInfo.scannerHWSerialNumber,
+                    isConnected = scannerInfo.isActive
+                )
+            }
+    }
+
+    private fun updateConnectionStatus(scannerId: Int, isConnected: Boolean) {
+        val updatedList = availableScannersFlow.value.map { scanner ->
+            if (scanner.id == scannerId.toString()) {
+                scanner.copy(isConnected = isConnected)
+            } else {
+                scanner
+            }
+        }
+        availableScannersFlow.value = updatedList
+    }
 
     private fun hasPermissions(): Boolean {
         return BLUETOOTH_PERMISSIONS

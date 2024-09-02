@@ -11,4 +11,6 @@
     <string name="loading">Loading</string>
     <string name="pairing_title">Barcode pairing</string>
     <string name="pairing_successful">Pairing successful</string>
+    <string name="available_device_list_title">Available Device List</string>
+    <string name="other_scanners">Other Scanners</string>
 </resources>
