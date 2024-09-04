@@ -768,4 +768,6 @@ libraries:
             - '**/main/java/de/tillhub/scanengine/common/SingletonHolder.kt'
             - '**/main/java/de/tillhub/scanengine/data/ScanEvent.kt'
             - '**/main/java/de/tillhub/scanengine/data/ScannerType.kt'
+            - '**/main/java/de/tillhub/scanengine/data/ScannerResponse.kt'
+            - '**/main/java/de/tillhub/scanengine/data/Scanner.kt'
             - '**/main/java/de/tillhub/scanengine/BarcodeScanner.kt'

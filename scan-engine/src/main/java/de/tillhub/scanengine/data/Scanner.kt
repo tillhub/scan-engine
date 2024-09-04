@@ -1,6 +1,6 @@
 package de.tillhub.scanengine.data
 
-data class Scanner(
+class Scanner(
     val id: String,
     val name: String,
     val serialNumber: String,

@@ -109,7 +109,7 @@ internal class ZebraBarcodeScanner(
 
                 else -> ScannerResponse.Error.NotFound
             }
-        } catch (e: Exception) {
+        } catch (e: NumberFormatException) {
             Timber.e(e, "Error connecting to scanner with ID: $scannerId")
             ScannerResponse.Error.NotFound
         }
@@ -124,7 +124,7 @@ internal class ZebraBarcodeScanner(
             } else {
                 Timber.d("Successfully disconnected scanner with ID: $scannerId")
             }
-        } catch (e: Exception) {
+        } catch (e: NumberFormatException) {
             Timber.e(e, "Error disconnecting scanner with ID: $scannerId")
         }
     }
@@ -187,7 +187,12 @@ internal class ZebraBarcodeScanner(
     private fun updateConnectionStatus(scannerId: Int, isConnected: Boolean) {
         val updatedList = availableScannersFlow.value.map { scanner ->
             if (scanner.id == scannerId.toString()) {
-                scanner.copy(isConnected = isConnected)
+                Scanner(
+                    id = scanner.id,
+                    name = scanner.name,
+                    serialNumber = scanner.serialNumber,
+                    isConnected = isConnected
+                )
             } else {
                 scanner
             }
