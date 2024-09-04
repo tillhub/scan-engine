@@ -756,7 +756,7 @@ style:
         excludeImports:
             - 'java.util.*'
             - 'kotlinx.android.synthetic.*'
-            - 'de.tillhub.printengine.data.*'
+            - 'de.tillhub.scanengine.data.*'
 libraries:
     LibraryEntitiesShouldNotBePublic:
         active: true
