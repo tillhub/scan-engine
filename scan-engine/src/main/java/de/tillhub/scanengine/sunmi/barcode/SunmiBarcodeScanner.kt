@@ -7,8 +7,12 @@ import android.content.IntentFilter
 import androidx.core.content.ContextCompat
 import de.tillhub.scanengine.barcode.BarcodeScannerImpl
 import de.tillhub.scanengine.data.ScanEvent
+import de.tillhub.scanengine.data.Scanner
+import de.tillhub.scanengine.data.ScannerResponse
 import de.tillhub.scanengine.data.ScannerType
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.emptyFlow
 import timber.log.Timber
 
 internal class SunmiBarcodeScanner(
@@ -47,4 +51,7 @@ internal class SunmiBarcodeScanner(
     }
 
     override fun startPairingScreen(scanner: ScannerType) = Unit
+    override fun observeScanners(): Flow<List<Scanner>> = emptyFlow()
+    override suspend fun connect(scannerId: String): ScannerResponse = ScannerResponse.Error.NotFound
+    override fun disconnect(scannerId: String) = Unit
 }

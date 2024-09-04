@@ -4,6 +4,8 @@ import android.content.Context
 import de.tillhub.scanengine.BarcodeScanner
 import de.tillhub.scanengine.zebra.ZebraBarcodeScanner
 import de.tillhub.scanengine.data.ScanEvent
+import de.tillhub.scanengine.data.Scanner
+import de.tillhub.scanengine.data.ScannerResponse
 import de.tillhub.scanengine.data.ScannerType
 import de.tillhub.scanengine.sunmi.barcode.SunmiBarcodeScanner
 import kotlinx.coroutines.flow.Flow
@@ -59,5 +61,21 @@ internal class BarcodeScannerContainer(
             ScannerType.SUNMI -> getScannersByType(SunmiBarcodeScanner::class.java).startPairingScreen(scanner)
             ScannerType.UNKNOWN -> Unit
         }
+    }
+
+    override fun observeScanners(): Flow<List<Scanner>> {
+        return barcodeScanners.map { it.observeScanners() }
+            .fold(emptyFlow()) { accumulator, flow -> merge(accumulator, flow) }
+    }
+
+    override suspend fun connect(scannerId: String): ScannerResponse {
+        return barcodeScanners
+            .map { it.connect(scannerId) }
+            .firstOrNull { it is ScannerResponse.Success || it is ScannerResponse.Error.Connect }
+            ?: ScannerResponse.Error.NotFound
+    }
+
+    override fun disconnect(scannerId: String) {
+        barcodeScanners.forEach { it.disconnect(scannerId) }
     }
 }
