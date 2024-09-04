@@ -75,7 +75,9 @@ internal class BarcodeScannerContainer(
             ?: ScannerResponse.Error.NotFound
     }
 
-    override fun disconnect(scannerId: String) {
-        barcodeScanners.forEach { it.disconnect(scannerId) }
+    override suspend fun disconnect(scannerId: String): ScannerResponse {
+        return barcodeScanners.map { it.disconnect(scannerId) }
+            .firstOrNull { it is ScannerResponse.Success || it is ScannerResponse.Error.Disconnect }
+            ?: ScannerResponse.Error.NotFound
     }
 }

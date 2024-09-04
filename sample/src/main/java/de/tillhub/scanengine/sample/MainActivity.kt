@@ -95,7 +95,9 @@ class MainActivity : ComponentActivity() {
                         Button(
                             onClick = {
                                 scannerList.firstOrNull { it.isConnected }?.apply {
-                                    scanEngine.barcodeScanner.disconnect(id)
+                                    lifecycleScope.launch {
+                                        scanEngine.barcodeScanner.disconnect(id)
+                                    }
                                 }
                             }
                         ) {
@@ -213,8 +215,24 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                ScannerResponse.Error.NotFound-> Toast.makeText(this@MainActivity, "Scanner Not found ", Toast.LENGTH_SHORT).show()
-                ScannerResponse.Success -> Toast.makeText(this@MainActivity, "Scanner connected ", Toast.LENGTH_SHORT).show()
+                ScannerResponse.Error.NotFound -> Toast.makeText(
+                    this@MainActivity,
+                    getString(R.string.scanner_not_found),
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                ScannerResponse.Error.Disconnect -> Toast.makeText(
+                    this@MainActivity,
+                    getString(R.string.scanner_disconnection_error),
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                ScannerResponse.Success.Connect -> Toast.makeText(this@MainActivity,
+                    getString(R.string.scanner_connected), Toast.LENGTH_SHORT)
+                    .show()
+                ScannerResponse.Success.Disconnect -> Toast.makeText(this@MainActivity,
+                    getString(R.string.scanner_disconnected), Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     }

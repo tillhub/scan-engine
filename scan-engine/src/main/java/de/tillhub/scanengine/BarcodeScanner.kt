@@ -11,6 +11,6 @@ interface BarcodeScanner {
     fun scanWithKey(scanKey: String? = null)
     fun startPairingScreen(scanner: ScannerType)
     fun observeScanners(): Flow<List<Scanner>>
+    suspend fun disconnect(scannerId: String): ScannerResponse
     suspend fun connect(scannerId: String): ScannerResponse
-    fun disconnect(scannerId: String)
 }

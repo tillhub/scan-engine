@@ -8,12 +8,17 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Xml
 import com.zebra.barcode.sdk.sms.ConfigurationUpdateEvent
 import com.zebra.scannercontrol.DCSSDKDefs
+import com.zebra.scannercontrol.DCSSDKDefs.DCSSDK_COMMAND_OPCODE
+import com.zebra.scannercontrol.DCSSDKDefs.DCSSDK_RESULT
 import com.zebra.scannercontrol.DCSScannerInfo
 import com.zebra.scannercontrol.FirmwareUpdateEvent
 import com.zebra.scannercontrol.IDcsScannerEventsOnReLaunch
 import com.zebra.scannercontrol.IDcsSdkApiDelegate
+import com.zebra.scannercontrol.RMDAttributes.RMD_ATTR_FW_VERSION
+import com.zebra.scannercontrol.RMDAttributes.RMD_ATTR_MODEL_NUMBER
 import com.zebra.scannercontrol.SDKHandler
 import de.tillhub.scanengine.R
 import de.tillhub.scanengine.barcode.BarcodeScannerImpl
@@ -23,7 +28,8 @@ import de.tillhub.scanengine.data.ScannerResponse
 import de.tillhub.scanengine.data.ScannerType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import timber.log.Timber
+import org.xmlpull.v1.XmlPullParser
+import java.io.StringReader
 
 internal class ZebraBarcodeScanner(
     private val context: Context,
@@ -31,7 +37,7 @@ internal class ZebraBarcodeScanner(
 ) : BarcodeScannerImpl(events), IDcsSdkApiDelegate, IDcsScannerEventsOnReLaunch {
 
     private val availableScannersFlow by lazy {
-        MutableStateFlow(fetchInitialScanners())
+        MutableStateFlow(fetchScanners())
     }
     private val bluetoothManager: BluetoothManager by lazy {
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
@@ -106,24 +112,25 @@ internal class ZebraBarcodeScanner(
             return ScannerResponse.Error.NotFound
         }
         return when (result) {
-            DCSSDKDefs.DCSSDK_RESULT.DCSSDK_RESULT_SUCCESS -> ScannerResponse.Success
-            DCSSDKDefs.DCSSDK_RESULT.DCSSDK_RESULT_FAILURE ->
+            DCSSDK_RESULT.DCSSDK_RESULT_SUCCESS -> ScannerResponse.Success.Connect
+            DCSSDK_RESULT.DCSSDK_RESULT_FAILURE ->
                 ScannerResponse.Error.Connect(R.drawable.classic_discoverable)
 
             else -> ScannerResponse.Error.NotFound
         }
     }
 
-    override fun disconnect(scannerId: String) {
-        try {
-            val result = sdkHandler.dcssdkTerminateCommunicationSession(scannerId.toInt())
-            if (result != DCSSDKDefs.DCSSDK_RESULT.DCSSDK_RESULT_SUCCESS) {
-                Timber.w("Failed to disconnect scanner with ID: $scannerId, result: $result")
-            } else {
-                Timber.d("Successfully disconnected scanner with ID: $scannerId")
-            }
+    override suspend fun disconnect(scannerId: String): ScannerResponse {
+        val result = try {
+            sdkHandler.dcssdkTerminateCommunicationSession(scannerId.toInt())
         } catch (e: NumberFormatException) {
-            Timber.e(e, "Error disconnecting scanner with ID: $scannerId")
+            return ScannerResponse.Error.NotFound
+        }
+        return when (result) {
+            DCSSDK_RESULT.DCSSDK_RESULT_SUCCESS -> ScannerResponse.Success.Disconnect
+            DCSSDK_RESULT.DCSSDK_RESULT_FAILURE -> ScannerResponse.Error.Disconnect
+
+            else -> ScannerResponse.Error.NotFound
         }
     }
 
@@ -135,11 +142,11 @@ internal class ZebraBarcodeScanner(
             apply()
         }
         mutableScanEvents.tryEmit(ScanEvent.Connected)
-        updateConnectionStatus(scannerInfo.scannerID, true)
+        availableScannersFlow.value = fetchScanners()
     }
 
     override fun dcssdkEventCommunicationSessionTerminated(scannerId: Int) {
-        updateConnectionStatus(scannerId, false)
+        availableScannersFlow.value = fetchScanners()
     }
 
     override fun dcssdkEventBarcode(barcodeData: ByteArray?, barcodeType: Int, scannerId: Int) {
@@ -161,7 +168,7 @@ internal class ZebraBarcodeScanner(
     override fun onConnectingToLastConnectedScanner(device: BluetoothDevice?) = Unit
     override fun onScannerDisconnect() = Unit
 
-    private fun fetchInitialScanners(): List<Scanner> {
+    private fun fetchScanners(): List<Scanner> {
         if (!hasPermissions()) {
             return emptyList()
         }
@@ -173,29 +180,91 @@ internal class ZebraBarcodeScanner(
         return scannerTreeList
             .distinctBy { it.scannerID }
             .map { scannerInfo ->
+                val (modelNumber, fwVersion) = getScannerInfo(scannerInfo.scannerID)
                 Scanner(
                     id = scannerInfo.scannerID.toString(),
                     name = scannerInfo.scannerName,
                     serialNumber = scannerInfo.scannerHWSerialNumber,
-                    isConnected = scannerInfo.isActive
+                    isConnected = scannerInfo.isActive,
+                    modelNumber = modelNumber,
+                    fwVersion = fwVersion
                 )
             }
     }
 
-    private fun updateConnectionStatus(scannerId: Int, isConnected: Boolean) {
-        val updatedList = availableScannersFlow.value.map { scanner ->
-            if (scanner.id == scannerId.toString()) {
-                Scanner(
-                    id = scanner.id,
-                    name = scanner.name,
-                    serialNumber = scanner.serialNumber,
-                    isConnected = isConnected
-                )
-            } else {
-                scanner
-            }
+    private fun getScannerInfo(scannerId: Int): Pair<String?, String?> {
+        val inXml = """
+                <inArgs>
+                    <scannerID>$scannerId</scannerID>
+                    <cmdArgs>
+                        <arg-xml>
+                            <attrib_list>
+                            $RMD_ATTR_MODEL_NUMBER,
+                            $RMD_ATTR_FW_VERSION,
+                            </attrib_list>
+                        </arg-xml>
+                    </cmdArgs>
+                </inArgs>
+            """.trimIndent()
+
+        return fetchScannerAttributes(scannerId, inXml)
+    }
+
+    private fun fetchScannerAttributes(scannerId: Int, commandXml: String): Pair<String?, String?> {
+        val sb = StringBuilder()
+
+        if (!executeCommand(DCSSDK_COMMAND_OPCODE.DCSSDK_RSM_ATTR_GET, commandXml, sb, scannerId)) {
+            return null to null
         }
-        availableScannersFlow.value = updatedList
+
+        return runCatching {
+            val parser = Xml.newPullParser().apply {
+                setInput(StringReader(sb.toString()))
+            }
+            parseAttributeId(parser)
+        }.getOrElse { null to null }
+    }
+
+    @Suppress("NestedBlockDepth")
+    private fun parseAttributeId(parser: XmlPullParser): Pair<String?, String?> {
+        var modelNumber: String? = null
+        var fwVersion: String? = null
+        var attrId: Int? = null
+        var text: String? = null
+
+        while (parser.eventType != XmlPullParser.END_DOCUMENT) {
+            when (parser.eventType) {
+                XmlPullParser.TEXT -> text = parser.text?.trim()
+
+                XmlPullParser.END_TAG -> handleEndTag(parser.name, text, attrId)?.let { attr ->
+                    attrId = attr.first
+                    when (attr.first) {
+                        RMD_ATTR_MODEL_NUMBER -> modelNumber = attr.second
+                        RMD_ATTR_FW_VERSION -> fwVersion = attr.second
+                    }
+                }
+            }
+            parser.next()
+        }
+        return modelNumber to fwVersion
+    }
+
+    private fun handleEndTag(tagName: String?, text: String?, attrId: Int?): Pair<Int?, String?>? {
+        return when (tagName) {
+            "id" -> text?.toIntOrNull()?.let { it to null }
+            "value" -> attrId?.let { it to text }
+            else -> null
+        }
+    }
+
+    private fun executeCommand(
+        opCode: DCSSDK_COMMAND_OPCODE?,
+        inXML: String?,
+        outXML: StringBuilder? = StringBuilder(),
+        scannerID: Int
+    ): Boolean {
+        val result = sdkHandler.dcssdkExecuteCommandOpCodeInXMLForScanner(opCode, inXML, outXML, scannerID)
+        return result == DCSSDK_RESULT.DCSSDK_RESULT_SUCCESS
     }
 
     private fun hasPermissions(): Boolean {
