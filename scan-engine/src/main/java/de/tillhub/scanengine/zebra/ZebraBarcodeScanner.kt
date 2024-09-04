@@ -23,6 +23,7 @@ import de.tillhub.scanengine.data.ScannerResponse
 import de.tillhub.scanengine.data.ScannerType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import timber.log.Timber
 
 internal class ZebraBarcodeScanner(
     private val context: Context,
@@ -99,24 +100,33 @@ internal class ZebraBarcodeScanner(
     override fun observeScanners(): Flow<List<Scanner>> = availableScannersFlow
 
     override suspend fun connect(scannerId: String): ScannerResponse {
-        val result = sdkHandler.dcssdkEstablishCommunicationSession(scannerId.toInt())
-        return when (result) {
-            DCSSDKDefs.DCSSDK_RESULT.DCSSDK_RESULT_FAILURE -> {
-                ScannerResponse.Error(R.drawable.classic_discoverable)
-            }
+        return try {
+            val result = sdkHandler.dcssdkEstablishCommunicationSession(scannerId.toInt())
+            when (result) {
+                DCSSDKDefs.DCSSDK_RESULT.DCSSDK_RESULT_SUCCESS -> ScannerResponse.Success
+                DCSSDKDefs.DCSSDK_RESULT.DCSSDK_RESULT_FAILURE ->
+                    ScannerResponse.Error.Connect(R.drawable.classic_discoverable)
 
-            DCSSDKDefs.DCSSDK_RESULT.DCSSDK_RESULT_SUCCESS -> {
-                ScannerResponse.Success
+                else -> ScannerResponse.Error.NotFound
             }
-
-            else -> {
-                ScannerResponse.NotFound
-            }
+        } catch (e: Exception) {
+            Timber.e(e, "Error connecting to scanner with ID: $scannerId")
+            ScannerResponse.Error.NotFound
         }
     }
 
     override fun disconnect(scannerId: String) {
-        sdkHandler.dcssdkTerminateCommunicationSession(scannerId.toInt())
+        try {
+            sdkHandler.dcssdkTerminateCommunicationSession(scannerId.toInt())
+            val result = sdkHandler.dcssdkTerminateCommunicationSession(scannerId.toInt())
+            if (result != DCSSDKDefs.DCSSDK_RESULT.DCSSDK_RESULT_SUCCESS) {
+                Timber.w("Failed to disconnect scanner with ID: $scannerId, result: $result")
+            } else {
+                Timber.d("Successfully disconnected scanner with ID: $scannerId")
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Error disconnecting scanner with ID: $scannerId")
+        }
     }
 
     override fun dcssdkEventCommunicationSessionEstablished(scannerInfo: DCSScannerInfo?) {
@@ -200,11 +210,13 @@ internal class ZebraBarcodeScanner(
                 Manifest.permission.BLUETOOTH_CONNECT,
                 Manifest.permission.BLUETOOTH_ADVERTISE
             )
+
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> listOf(
                 Manifest.permission.BLUETOOTH_SCAN,
                 Manifest.permission.BLUETOOTH_CONNECT,
                 Manifest.permission.BLUETOOTH_ADVERTISE
             )
+
             else -> listOf(
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.ACCESS_FINE_LOCATION,

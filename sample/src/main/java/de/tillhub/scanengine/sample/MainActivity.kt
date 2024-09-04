@@ -207,13 +207,13 @@ class MainActivity : ComponentActivity() {
     ) {
         coroutineScope.launch {
             when (val res = scanEngine.barcodeScanner.connect(inactiveScannerId)) {
-                is ScannerResponse.Error -> {
+                is ScannerResponse.Error.Connect -> {
                     withContext(Dispatchers.Main) {
                         errorDrawable.intValue = res.barcode
                     }
                 }
 
-                ScannerResponse.NotFound-> Toast.makeText(this@MainActivity, "Scanner Not found ", Toast.LENGTH_SHORT).show()
+                ScannerResponse.Error.NotFound-> Toast.makeText(this@MainActivity, "Scanner Not found ", Toast.LENGTH_SHORT).show()
                 ScannerResponse.Success -> Toast.makeText(this@MainActivity, "Scanner connected ", Toast.LENGTH_SHORT).show()
             }
         }

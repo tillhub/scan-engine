@@ -71,8 +71,8 @@ internal class BarcodeScannerContainer(
     override suspend fun connect(scannerId: String): ScannerResponse {
         return barcodeScanners
             .map { it.connect(scannerId) }
-            .firstOrNull { it is ScannerResponse.Success || it is ScannerResponse.Error }
-            ?: ScannerResponse.NotFound
+            .firstOrNull { it is ScannerResponse.Success || it is ScannerResponse.Error.Connect }
+            ?: ScannerResponse.Error.NotFound
     }
 
     override fun disconnect(scannerId: String) {

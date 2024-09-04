@@ -52,6 +52,6 @@ internal class SunmiBarcodeScanner(
 
     override fun startPairingScreen(scanner: ScannerType) = Unit
     override fun observeScanners(): Flow<List<Scanner>> = emptyFlow()
-    override suspend fun connect(scannerId: String): ScannerResponse = ScannerResponse.NotFound
+    override suspend fun connect(scannerId: String): ScannerResponse = ScannerResponse.Error.NotFound
     override fun disconnect(scannerId: String) = Unit
 }
