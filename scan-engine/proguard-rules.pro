@@ -30,9 +30,9 @@
 -keep class de.tillhub.scanengine.data.ScanEvent { *; }
 -keep class de.tillhub.scanengine.data.ScanEvent* { *; }
 -keep class de.tillhub.scanengine.data.Scanner { *; }
+-keep class de.tillhub.scanengine.data.ScannerType { *; }
 -keep class de.tillhub.scanengine.data.ScannerResponse { *; }
 -keep class de.tillhub.scanengine.data.ScannerResponse* { *; }
--keep class de.tillhub.scanengine.data.ScannerManufacturer { *; }
 -keep class de.tillhub.scanengine.BarcodeScanner {  *; }
 
 # Breaking changes with AGP 8.0
