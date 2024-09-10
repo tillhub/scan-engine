@@ -236,25 +236,23 @@ internal class ZebraBarcodeScanner(
             when (parser.eventType) {
                 XmlPullParser.TEXT -> text = parser.text?.trim()
 
-                XmlPullParser.END_TAG -> handleEndTag(parser.name, text, attrId)?.let { attr ->
-                    attrId = attr.first
-                    when (attr.first) {
-                        RMD_ATTR_MODEL_NUMBER -> modelNumber = attr.second
-                        RMD_ATTR_FW_VERSION -> fwVersion = attr.second
+                XmlPullParser.END_TAG -> {
+                    when (parser.name) {
+                        "id" -> text?.toIntOrNull()?.let { attrId = it }
+                        "value" -> text?.let {
+                            attrId?.let { id ->
+                                when (id) {
+                                    RMD_ATTR_MODEL_NUMBER -> modelNumber = it
+                                    RMD_ATTR_FW_VERSION -> fwVersion = it
+                                }
+                            }
+                        }
                     }
                 }
             }
             parser.next()
         }
         return modelNumber to fwVersion
-    }
-
-    private fun handleEndTag(tagName: String?, text: String?, attrId: Int?): Pair<Int?, String?>? {
-        return when (tagName) {
-            "id" -> text?.toIntOrNull()?.let { it to null }
-            "value" -> attrId?.let { it to text }
-            else -> null
-        }
     }
 
     private fun executeCommand(
