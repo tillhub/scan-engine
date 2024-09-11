@@ -126,6 +126,7 @@ internal class ZebraBarcodeScanner(
         return when (result) {
             DCSSDK_RESULT.DCSSDK_RESULT_SUCCESS -> {
                 availableScannersFlow.value = fetchScanners()
+                mutableScanEvents.tryEmit(ScanEvent.NotConnected)
                 ScannerResponse.Success.Disconnect
             }
             DCSSDK_RESULT.DCSSDK_RESULT_FAILURE -> ScannerResponse.Error.Disconnect
@@ -141,8 +142,8 @@ internal class ZebraBarcodeScanner(
             putString(HW_SERIAL_NUMBER, scannerInfo.scannerHWSerialNumber)
             apply()
         }
-        mutableScanEvents.tryEmit(ScanEvent.Connected)
         availableScannersFlow.value = fetchScanners()
+        mutableScanEvents.tryEmit(ScanEvent.Connected)
     }
 
     override fun dcssdkEventCommunicationSessionTerminated(scannerId: Int) {
@@ -173,11 +174,7 @@ internal class ZebraBarcodeScanner(
             return emptyList()
         }
 
-        val scannerTreeList = mutableListOf<DCSScannerInfo>()
-        sdkHandler.dcssdkGetAvailableScannersList(scannerTreeList)
-        sdkHandler.dcssdkGetActiveScannersList(scannerTreeList)
-
-        return scannerTreeList
+        return (sdkHandler.dcssdkGetAvailableScannersList() + sdkHandler.dcssdkGetActiveScannersList())
             .distinctBy { it.scannerID }
             .map { scannerInfo ->
                 Scanner(
