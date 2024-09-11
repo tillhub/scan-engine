@@ -5,6 +5,4 @@ class Scanner(
     val name: String,
     val serialNumber: String,
     val isConnected: Boolean,
-    val modelNumber: String?,
-    val fwVersion: String?
 )
