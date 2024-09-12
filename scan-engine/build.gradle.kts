@@ -46,6 +46,12 @@ android {
             jvmTarget = JavaVersion.VERSION_17.toString()
         }
     }
+    buildFeatures {
+        compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.9"
+    }
 }
 
 detekt {
@@ -55,10 +61,14 @@ detekt {
 }
 
 dependencies {
-
+    // Core
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)
     implementation(libs.google.material)
+
+    // Compose
+    implementation(libs.bundles.compose)
 
     // Groups
     implementation(libs.bundles.core)
@@ -82,6 +92,8 @@ dependencies {
 
     // Unit tests
     testImplementation(libs.bundles.testing)
+    testImplementation(libs.bundles.robolectric)
+    androidTestImplementation(libs.bundles.testing.android)
 }
 
 afterEvaluate {
@@ -90,7 +102,7 @@ afterEvaluate {
             create<MavenPublication>("scan-engine") {
                 groupId = "de.tillhub.scanengine"
                 artifactId = "scan-engine"
-                version = "1.4.7"
+                version = "1.4.8"
 
                 from(components.getByName("release"))
             }

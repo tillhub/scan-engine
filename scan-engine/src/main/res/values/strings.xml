@@ -1,6 +1,14 @@
 <resources>
-    <string name="error_permission_not_granted">Permission must be granted!</string>
+    <string name="bluetooth_feature_missing_title">Bluetooth error!</string>
+    <string name="bluetooth_feature_missing_message">Device does not reach minimum requirement.</string>
 
-    <string name="request_camera_permission">Request camera permission</string>
+    <string name="permission_required_title">Grant permissions</string>
+    <string name="permission_required_message">In order to use barcode reader you need to grant access by accepting the next permission dialog.\n\nWould you like to continue?</string>
+    <string name="permission_camera_request">Request camera permission</string>
 
+    <string name="ok">OK</string>
+    <string name="loading">Loading</string>
+    <string name="pairing_title">Barcode pairing</string>
+    <string name="pairing_successful">Barcode pairing successful</string>
+    <string name="pairing_instruction">Scan the barcode to connect your scanner with the app.</string>
 </resources>

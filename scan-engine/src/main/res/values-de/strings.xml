@@ -1,4 +1,14 @@
 <resources>
-    <string name="error_permission_not_granted">Erlaubnis muss gegeben werden!</string>
-    <string name="request_camera_permission">Zugriff auf Kamera erlauben</string>
+    <string name="bluetooth_feature_missing_title">Bluetooth-Fehler!</string>
+    <string name="bluetooth_feature_missing_message">Mindestanforderungen nicht erfüllt.</string>
+
+    <string name="permission_required_title">Berechtigungen</string>
+    <string name="permission_required_message">Um den Scanner nutzen zu können, müssen Sie den Zugriff im nächsten Berechtigungsdialog gewähren.\n\nMöchten Sie fortfahren?</string>
+    <string name="permission_camera_request">Kameraberechtigungen</string>
+
+    <string name="ok">OK</string>
+    <string name="loading">Laden</string>
+    <string name="pairing_title">Barcode-Kopplung</string>
+    <string name="pairing_successful">Barcode-Kopplung erfolgreich</string>
+    <string name="pairing_instruction">Scannen Sie den Barcode, um Ihren Scanner mit der App zu verbinden.</string>
 </resources>
