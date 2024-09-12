@@ -27,8 +27,8 @@
 -keep class de.tillhub.scanengine.ScanEngine$Companion { *; }
 -keep class de.tillhub.scanengine.common.SingletonHolder { *; }
 
--keep class de.tillhub.scanengine.data.ScanEvent { *; }
--keep class de.tillhub.scanengine.data.ScanEvent* { *; }
+-keep class de.tillhub.scanengine.data.ScannerEvent { *; }
+-keep class de.tillhub.scanengine.data.ScannerEvent* { *; }
 -keep class de.tillhub.scanengine.data.Scanner { *; }
 -keep class de.tillhub.scanengine.data.ScannerType { *; }
 -keep class de.tillhub.scanengine.data.ScannerResponse { *; }

@@ -18,7 +18,7 @@ import com.zebra.scannercontrol.IDcsSdkApiDelegate
 import com.zebra.scannercontrol.SDKHandler
 import de.tillhub.scanengine.R
 import de.tillhub.scanengine.barcode.BarcodeScannerImpl
-import de.tillhub.scanengine.data.ScanEvent
+import de.tillhub.scanengine.data.ScannerEvent
 import de.tillhub.scanengine.data.Scanner
 import de.tillhub.scanengine.data.ScannerResponse
 import de.tillhub.scanengine.data.ScannerType
@@ -27,7 +27,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 internal class ZebraBarcodeScanner(
     private val context: Context,
-    events: MutableStateFlow<ScanEvent>
+    events: MutableStateFlow<ScannerEvent>
 ) : BarcodeScannerImpl(events), IDcsSdkApiDelegate, IDcsScannerEventsOnReLaunch {
 
     private val availableScannersFlow by lazy {
@@ -126,7 +126,7 @@ internal class ZebraBarcodeScanner(
         return when (result) {
             DCSSDK_RESULT.DCSSDK_RESULT_SUCCESS -> {
                 availableScannersFlow.value = fetchScanners()
-                mutableScanEvents.tryEmit(ScanEvent.NotConnected)
+                mutableScannerEvents.tryEmit(ScannerEvent.External.NotConnected)
                 ScannerResponse.Success.Disconnect
             }
             DCSSDK_RESULT.DCSSDK_RESULT_FAILURE -> ScannerResponse.Error.Disconnect
@@ -143,7 +143,7 @@ internal class ZebraBarcodeScanner(
             apply()
         }
         availableScannersFlow.value = fetchScanners()
-        mutableScanEvents.tryEmit(ScanEvent.Connected)
+        mutableScannerEvents.tryEmit(ScannerEvent.External.Connected)
     }
 
     override fun dcssdkEventCommunicationSessionTerminated(scannerId: Int) {
@@ -152,7 +152,7 @@ internal class ZebraBarcodeScanner(
 
     override fun dcssdkEventBarcode(barcodeData: ByteArray?, barcodeType: Int, scannerId: Int) {
         barcodeData?.let {
-            mutableScanEvents.tryEmit(ScanEvent.Success(String(it, Charsets.ISO_8859_1)))
+            mutableScannerEvents.tryEmit(ScannerEvent.Success(String(it, Charsets.ISO_8859_1)))
         }
     }
 

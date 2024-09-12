@@ -766,7 +766,7 @@ libraries:
             - '**/main/java/de/tillhub/scanengine/CameraScanner.kt'
             - '**/main/java/de/tillhub/scanengine/ScanEngine.kt'
             - '**/main/java/de/tillhub/scanengine/common/SingletonHolder.kt'
-            - '**/main/java/de/tillhub/scanengine/data/ScanEvent.kt'
+            - '**/main/java/de/tillhub/scanengine/data/ScannerEvent.kt'
             - '**/main/java/de/tillhub/scanengine/data/ScannerType.kt'
             - '**/main/java/de/tillhub/scanengine/data/ScannerResponse.kt'
             - '**/main/java/de/tillhub/scanengine/data/Scanner.kt'

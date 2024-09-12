@@ -4,7 +4,7 @@ import com.zebra.scannercontrol.SDKHandler
 import de.tillhub.scanengine.ScanEngine
 import de.tillhub.scanengine.barcode.BarcodeScannerContainer
 import de.tillhub.scanengine.common.ViewModelFunSpec
-import de.tillhub.scanengine.data.ScanEvent
+import de.tillhub.scanengine.data.ScannerEvent
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.every
@@ -37,15 +37,15 @@ class ZebraPairBarcodeViewModelTest : ViewModelFunSpec({
     }
 
     test("state transitions to Connected on ScanEvent.Connected") {
-        val scanEvents = MutableStateFlow<ScanEvent>(ScanEvent.NotConnected)
+        val scannerEvents = MutableStateFlow<ScannerEvent>(ScannerEvent.External.NotConnected)
 
         every { scanEngine.barcodeScanner } returns barcodeScannerContainer
         every { barcodeScannerContainer.getScannersByType(ZebraBarcodeScanner::class.java) } returns zebraScanner
-        every { scanEngine.observeScannerResults() } returns scanEvents
+        every { scanEngine.observeScannerResults() } returns scannerEvents
 
         val viewModel = ZebraPairBarcodeViewModel(scanEngine)
 
-        scanEvents.tryEmit(ScanEvent.Connected)
+        scannerEvents.tryEmit(ScannerEvent.External.Connected)
 
         viewModel.uiStateFlow.value shouldBe ZebraPairBarcodeViewModel.State.Connected
     }

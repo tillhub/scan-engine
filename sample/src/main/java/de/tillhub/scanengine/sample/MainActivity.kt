@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import de.tillhub.scanengine.CameraScanner
 import de.tillhub.scanengine.ScanEngine
-import de.tillhub.scanengine.data.ScanEvent
+import de.tillhub.scanengine.data.ScannerEvent
 import de.tillhub.scanengine.data.Scanner
 import de.tillhub.scanengine.data.ScannerResponse
 import de.tillhub.scanengine.data.ScannerType
@@ -76,7 +76,7 @@ class MainActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             scanEngine.observeScannerResults().collect {
-                scanCode.value = (it as? ScanEvent.Success)?.value.orEmpty()
+                scanCode.value = (it as? ScannerEvent.Success)?.value.orEmpty()
             }
         }
     }

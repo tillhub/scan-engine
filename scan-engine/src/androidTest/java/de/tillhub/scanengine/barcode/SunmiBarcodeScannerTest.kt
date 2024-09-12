@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import de.tillhub.scanengine.data.ScanEvent
+import de.tillhub.scanengine.data.ScannerEvent
 import de.tillhub.scanengine.sunmi.barcode.SunmiBarcodeScanner
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -23,7 +23,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class SunmiBarcodeScannerTest {
 
-    private lateinit var mutableScanEvents: MutableSharedFlow<ScanEvent>
+    private lateinit var mutableScannerEvents: MutableSharedFlow<ScannerEvent>
     private lateinit var context: Context
     private lateinit var testScope: TestScope
 
@@ -31,8 +31,8 @@ class SunmiBarcodeScannerTest {
     fun setUp() {
         testScope = TestScope(UnconfinedTestDispatcher())
         context = ApplicationProvider.getApplicationContext()
-        mutableScanEvents = MutableSharedFlow(replay = 1)
-        SunmiBarcodeScanner(context, mutableScanEvents)
+        mutableScannerEvents = MutableSharedFlow(replay = 1)
+        SunmiBarcodeScanner(context, mutableScannerEvents)
     }
 
     @Test
@@ -42,15 +42,15 @@ class SunmiBarcodeScannerTest {
             putExtra("data", "barcode")
         }
 
-        val testResults = mutableListOf<ScanEvent>()
+        val testResults = mutableListOf<ScannerEvent>()
 
         testScope.launch {
-            mutableScanEvents.collect { testResults.add(it) }
+            mutableScannerEvents.collect { testResults.add(it) }
         }
         context.sendBroadcast(intent)
         val result = testResults.first()
-        assertTrue(result is ScanEvent.Success)
-        assertEquals((result as ScanEvent.Success).value, "barcode")
+        assertTrue(result is ScannerEvent.Success)
+        assertEquals((result as ScannerEvent.Success).value, "barcode")
         assertNull(result.scanKey)
     }
 }
