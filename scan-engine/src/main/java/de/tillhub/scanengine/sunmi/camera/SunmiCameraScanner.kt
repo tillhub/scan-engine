@@ -17,7 +17,7 @@ internal class SunmiCameraScanner(
             result.map { event ->
                 when (event) {
                     ScannerEvent.Camera.Canceled -> mutableScannerEvents.tryEmit(event)
-                    is ScannerEvent.Success -> {
+                    is ScannerEvent.ScanResult -> {
                         val scanKey = (mutableScannerEvents.value as? ScannerEvent.Camera.InProgress)?.scanKey
                         mutableScannerEvents.tryEmit(event.copy(scanKey = scanKey))
                     }

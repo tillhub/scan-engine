@@ -40,7 +40,7 @@ internal class SunmiBarcodeScanner(
             val code = intent.getStringExtra(DATA)
             if (!code.isNullOrEmpty()) {
                 Timber.v("scanned code: %s", code)
-                mutableScannerEvents.tryEmit(ScannerEvent.Success(code, scanKey))
+                mutableScannerEvents.tryEmit(ScannerEvent.ScanResult(code, scanKey))
             }
         }
     }

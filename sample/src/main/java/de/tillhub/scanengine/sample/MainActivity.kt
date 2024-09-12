@@ -76,7 +76,7 @@ class MainActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             scanEngine.observeScannerResults().collect {
-                scanCode.value = (it as? ScannerEvent.Success)?.value.orEmpty()
+                scanCode.value = (it as? ScannerEvent.ScanResult)?.value.orEmpty()
             }
         }
     }

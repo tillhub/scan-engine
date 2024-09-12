@@ -76,7 +76,7 @@ class BarcodeScannerContainerTest : FunSpec({
             scannerFactory = scannerFactory
         )
         val testResults = mutableListOf<ScannerEvent>()
-        val event = ScannerEvent.Success("value")
+        val event = ScannerEvent.ScanResult("value")
         mutableScannerEvents.tryEmit(event)
         testScope.launch {
             container.observeScannerResults().toList(testResults)

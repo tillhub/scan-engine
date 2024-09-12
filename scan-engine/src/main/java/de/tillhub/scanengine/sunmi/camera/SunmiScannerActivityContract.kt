@@ -62,7 +62,7 @@ internal class SunmiScannerActivityContract : ActivityResultContract<Unit, List<
                 )
             }
         }.map {
-            ScannerEvent.Success(it.content)
+            ScannerEvent.ScanResult(it.content)
         }
     }
 

@@ -14,7 +14,7 @@ internal class DefaultScannerActivityContract : ActivityResultContract<Unit, Sca
 
     override fun parseResult(resultCode: Int, intent: Intent?): ScannerEvent =
         intent.takeIf { resultCode == Activity.RESULT_OK }?.let {
-            ScannerEvent.Success(
+            ScannerEvent.ScanResult(
                 value = it.getStringExtra(GoogleScanningActivity.DATA_KEY).orEmpty()
             )
         } ?: ScannerEvent.Camera.Canceled

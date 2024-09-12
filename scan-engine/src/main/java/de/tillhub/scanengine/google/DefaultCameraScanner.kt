@@ -16,7 +16,7 @@ internal class DefaultCameraScanner(
         resultCaller.registerForActivityResult(DefaultScannerActivityContract()) { result ->
             when (result) {
                 ScannerEvent.Camera.Canceled -> mutableScannerEvents.tryEmit(result)
-                is ScannerEvent.Success -> {
+                is ScannerEvent.ScanResult -> {
                     val scanKey = (mutableScannerEvents.value as? ScannerEvent.Camera.InProgress)?.scanKey
                     mutableScannerEvents.tryEmit(result.copy(scanKey = scanKey))
                 }

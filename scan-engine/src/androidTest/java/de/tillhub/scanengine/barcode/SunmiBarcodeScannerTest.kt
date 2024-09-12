@@ -49,8 +49,8 @@ class SunmiBarcodeScannerTest {
         }
         context.sendBroadcast(intent)
         val result = testResults.first()
-        assertTrue(result is ScannerEvent.Success)
-        assertEquals((result as ScannerEvent.Success).value, "barcode")
+        assertTrue(result is ScannerEvent.ScanResult)
+        assertEquals((result as ScannerEvent.ScanResult).value, "barcode")
         assertNull(result.scanKey)
     }
 }

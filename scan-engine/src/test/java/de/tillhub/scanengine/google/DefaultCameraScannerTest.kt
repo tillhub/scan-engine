@@ -80,7 +80,7 @@ class DefaultCameraScannerTest : FunSpec({
 
         defaultCameraScanner = DefaultCameraScanner(resultCaller, mutableScannerEvents)
 
-        val events = ScannerEvent.Success("123456789", "key")
+        val events = ScannerEvent.ScanResult("123456789", "key")
         callbackSlot.captured.onActivityResult(events)
 
         val testResults = mutableListOf<ScannerEvent>()
@@ -89,7 +89,7 @@ class DefaultCameraScannerTest : FunSpec({
         }
         defaultCameraScanner.startCameraScanner("key")
         val result = testResults.first()
-        result.shouldBeInstanceOf<ScannerEvent.Success>()
+        result.shouldBeInstanceOf<ScannerEvent.ScanResult>()
         result.value shouldBe "123456789"
     }
 })

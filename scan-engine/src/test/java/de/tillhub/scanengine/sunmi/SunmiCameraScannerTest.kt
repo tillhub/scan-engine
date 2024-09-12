@@ -79,7 +79,7 @@ class SunmiCameraScannerTest : FunSpec({
 
         sunmiCameraScanner = SunmiCameraScanner(resultCaller, mutableScannerEvents)
 
-        val events = listOf(ScannerEvent.Success("123456789", "key"))
+        val events = listOf(ScannerEvent.ScanResult("123456789", "key"))
         callbackSlot.captured.onActivityResult(events)
 
         val testResults = mutableListOf<ScannerEvent>()
@@ -88,7 +88,7 @@ class SunmiCameraScannerTest : FunSpec({
         }
         sunmiCameraScanner.startCameraScanner("key")
         val result = testResults.first()
-        result.shouldBeInstanceOf<ScannerEvent.Success>()
+        result.shouldBeInstanceOf<ScannerEvent.ScanResult>()
         result.value shouldBe "123456789"
     }
 })

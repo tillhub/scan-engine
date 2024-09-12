@@ -152,7 +152,7 @@ internal class ZebraBarcodeScanner(
 
     override fun dcssdkEventBarcode(barcodeData: ByteArray?, barcodeType: Int, scannerId: Int) {
         barcodeData?.let {
-            mutableScannerEvents.tryEmit(ScannerEvent.Success(String(it, Charsets.ISO_8859_1)))
+            mutableScannerEvents.tryEmit(ScannerEvent.ScanResult(String(it, Charsets.ISO_8859_1)))
         }
     }
 
