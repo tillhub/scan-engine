@@ -2,7 +2,7 @@ package de.tillhub.scanengine.barcode
 
 import android.bluetooth.BluetoothManager
 import android.content.Context
-import de.tillhub.scanengine.data.ScanEvent
+import de.tillhub.scanengine.data.ScannerEvent
 import de.tillhub.scanengine.data.ScannerType
 import de.tillhub.scanengine.sunmi.barcode.SunmiBarcodeScanner
 import de.tillhub.scanengine.zebra.ZebraBarcodeScanner
@@ -25,7 +25,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 class BarcodeScannerContainerTest : FunSpec({
 
     lateinit var context: Context
-    lateinit var mutableScanEvents: MutableStateFlow<ScanEvent>
+    lateinit var mutableScannerEvents: MutableStateFlow<ScannerEvent>
     lateinit var externalScanners: List<ScannerType>
     lateinit var testScope: TestScope
     lateinit var scannerFactory: BarcodeScannerFactory
@@ -38,19 +38,19 @@ class BarcodeScannerContainerTest : FunSpec({
                 getSystemService(Context.BLUETOOTH_SERVICE)
             } returns mockk<BluetoothManager>(relaxed = true)
         }
-        mutableScanEvents = MutableStateFlow(mockk(relaxed = true))
+        mutableScannerEvents = MutableStateFlow(mockk(relaxed = true))
         externalScanners = listOf(ScannerType.ZEBRA)
         scannerFactory = mockk()
     }
 
     test("getScannersByType success") {
-        val container = BarcodeScannerContainer(context, mutableScanEvents, externalScanners)
+        val container = BarcodeScannerContainer(context, mutableScannerEvents, externalScanners)
         val zebraScanner = container.getScannersByType(ZebraBarcodeScanner::class.java)
         zebraScanner.shouldBeInstanceOf<ZebraBarcodeScanner>()
     }
     test("getScannersByType error") {
         val type = ZebraBarcodeScanner::class.java
-        val container = BarcodeScannerContainer(context, mutableScanEvents, emptyList())
+        val container = BarcodeScannerContainer(context, mutableScannerEvents, emptyList())
         val exception = shouldThrow<NoSuchElementException> {
             container.getScannersByType(type)
         }
@@ -60,24 +60,24 @@ class BarcodeScannerContainerTest : FunSpec({
     test("observeScannerResults") {
         every { ScannerType.get() } returns ScannerType.SUNMI
         val zebraScanner: ZebraBarcodeScanner = mockk(relaxed = true) {
-            every { observeScannerResults() } returns mutableScanEvents
+            every { observeScannerResults() } returns mutableScannerEvents
         }
 
         val sunmiScanner: SunmiBarcodeScanner = mockk(relaxed = true) {
-            every { observeScannerResults() } returns mutableScanEvents
+            every { observeScannerResults() } returns mutableScannerEvents
         }
         every { scannerFactory.getZebraBarcodeScanner(any(), any()) } returns zebraScanner
         every { scannerFactory.getSunmiBarcodeScanner(any(), any()) } returns sunmiScanner
 
         val container = BarcodeScannerContainer(
             context = context,
-            mutableScanEvents = mutableScanEvents,
+            mutableScannerEvents = mutableScannerEvents,
             externalScanners = externalScanners,
             scannerFactory = scannerFactory
         )
-        val testResults = mutableListOf<ScanEvent>()
-        val event = ScanEvent.Success("value")
-        mutableScanEvents.tryEmit(event)
+        val testResults = mutableListOf<ScannerEvent>()
+        val event = ScannerEvent.ScanResult("value")
+        mutableScannerEvents.tryEmit(event)
         testScope.launch {
             container.observeScannerResults().toList(testResults)
         }
@@ -94,7 +94,7 @@ class BarcodeScannerContainerTest : FunSpec({
 
         val container = BarcodeScannerContainer(
             context,
-            mutableScanEvents,
+            mutableScannerEvents,
             externalScanners,
             scannerFactory = scannerFactory
         )
@@ -110,7 +110,7 @@ class BarcodeScannerContainerTest : FunSpec({
 
         val container = BarcodeScannerContainer(
             context,
-            mutableScanEvents,
+            mutableScannerEvents,
             externalScanners,
             scannerFactory = scannerFactory
         )

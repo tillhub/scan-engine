@@ -3,7 +3,7 @@ package de.tillhub.scanengine.barcode
 import android.content.Context
 import de.tillhub.scanengine.BarcodeScanner
 import de.tillhub.scanengine.zebra.ZebraBarcodeScanner
-import de.tillhub.scanengine.data.ScanEvent
+import de.tillhub.scanengine.data.ScannerEvent
 import de.tillhub.scanengine.data.Scanner
 import de.tillhub.scanengine.data.ScannerResponse
 import de.tillhub.scanengine.data.ScannerType
@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.merge
 
 internal class BarcodeScannerContainer(
     context: Context,
-    mutableScanEvents: MutableStateFlow<ScanEvent>,
+    mutableScannerEvents: MutableStateFlow<ScannerEvent>,
     externalScanners: List<ScannerType>,
     private val scannerFactory: BarcodeScannerFactory = BarcodeScannerFactory()
 ) : BarcodeScanner {
@@ -23,7 +23,7 @@ internal class BarcodeScannerContainer(
     private val barcodeScanners = mutableListOf<BarcodeScanner>().apply {
         when (ScannerType.get()) {
             ScannerType.SUNMI -> {
-                add(scannerFactory.getSunmiBarcodeScanner(context, mutableScanEvents))
+                add(scannerFactory.getSunmiBarcodeScanner(context, mutableScannerEvents))
             }
 
             else -> Unit
@@ -31,7 +31,7 @@ internal class BarcodeScannerContainer(
         externalScanners.distinct().forEach {
             when (it) {
                 ScannerType.ZEBRA -> {
-                    add(scannerFactory.getZebraBarcodeScanner(context, mutableScanEvents))
+                    add(scannerFactory.getZebraBarcodeScanner(context, mutableScannerEvents))
                 }
                 ScannerType.SUNMI,
                 ScannerType.UNKNOWN -> Unit
@@ -44,7 +44,7 @@ internal class BarcodeScannerContainer(
             ?: throw NoSuchElementException("No scanner found of type $type")
     }
 
-    override fun observeScannerResults(): Flow<ScanEvent> {
+    override fun observeScannerResults(): Flow<ScannerEvent> {
         return barcodeScanners.map { it.observeScannerResults() }
             .fold(emptyFlow()) { accumulator, flow -> merge(accumulator, flow) }
     }
@@ -75,7 +75,9 @@ internal class BarcodeScannerContainer(
             ?: ScannerResponse.Error.NotFound
     }
 
-    override fun disconnect(scannerId: String) {
-        barcodeScanners.forEach { it.disconnect(scannerId) }
+    override suspend fun disconnect(scannerId: String): ScannerResponse {
+        return barcodeScanners.map { it.disconnect(scannerId) }
+            .firstOrNull { it is ScannerResponse.Success || it is ScannerResponse.Error.Disconnect }
+            ?: ScannerResponse.Error.NotFound
     }
 }

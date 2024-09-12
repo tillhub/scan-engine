@@ -7,9 +7,9 @@ import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.core.os.BundleCompat
 import de.tillhub.scanengine.common.safeLet
-import de.tillhub.scanengine.data.ScanEvent
+import de.tillhub.scanengine.data.ScannerEvent
 
-internal class SunmiScannerActivityContract : ActivityResultContract<Unit, List<ScanEvent>>() {
+internal class SunmiScannerActivityContract : ActivityResultContract<Unit, List<ScannerEvent>>() {
 
     override fun createIntent(context: Context, input: Unit) = Intent("com.summi.scan").apply {
         setPackage("com.sunmi.sunmiqrcodescanner")
@@ -38,12 +38,12 @@ internal class SunmiScannerActivityContract : ActivityResultContract<Unit, List<
         putExtra("IDENTIFY_MORE_CODE", false)
     }
 
-    override fun parseResult(resultCode: Int, intent: Intent?): List<ScanEvent> =
+    override fun parseResult(resultCode: Int, intent: Intent?): List<ScannerEvent> =
         intent.takeIf { resultCode == Activity.RESULT_OK }?.extras?.let {
             evaluateScanResult(it)
-        } ?: listOf(ScanEvent.Canceled)
+        } ?: listOf(ScannerEvent.Camera.Canceled)
 
-    private fun evaluateScanResult(extras: Bundle): List<ScanEvent> {
+    private fun evaluateScanResult(extras: Bundle): List<ScannerEvent> {
         val rawCodes: List<Map<String, String>> =
             BundleCompat.getParcelableArrayList(
                 extras,
@@ -62,7 +62,7 @@ internal class SunmiScannerActivityContract : ActivityResultContract<Unit, List<
                 )
             }
         }.map {
-            ScanEvent.Success(it.content)
+            ScannerEvent.ScanResult(it.content)
         }
     }
 

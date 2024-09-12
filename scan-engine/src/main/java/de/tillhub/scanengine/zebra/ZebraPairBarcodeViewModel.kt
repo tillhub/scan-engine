@@ -9,7 +9,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.zebra.scannercontrol.SDKHandler
 import de.tillhub.scanengine.ScanEngine
 import de.tillhub.scanengine.barcode.BarcodeScannerContainer
-import de.tillhub.scanengine.data.ScanEvent
+import de.tillhub.scanengine.data.ScannerEvent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -27,7 +27,7 @@ internal class ZebraPairBarcodeViewModel(scanEngine: ScanEngine) : ViewModel() {
     init {
         viewModelScope.launch {
             scanEngine.observeScannerResults().collect { event ->
-                if (event is ScanEvent.Connected) {
+                if (event is ScannerEvent.External.Connected) {
                     uiState.value = State.Connected
                 }
             }

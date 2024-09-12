@@ -17,7 +17,9 @@ import androidx.activity.result.contract.ActivityResultContracts.RequestMultiple
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -113,12 +115,14 @@ internal class ZebraPairBarcodeActivity : ComponentActivity() {
                         finish()
                     }
                 }
+
                 DialogEvent.GrantPermissions -> {
                     ZebraAlertDialog(event) {
                         dialogEvent.value = DialogEvent.Idle
                         requestPermissionLauncher.launch(getPermissionsState().keys.toTypedArray())
                     }
                 }
+
                 DialogEvent.GrantPermissionsManually -> {
                     ZebraAlertDialog(event) {
                         dialogEvent.value = DialogEvent.Idle
@@ -157,9 +161,11 @@ internal class ZebraPairBarcodeActivity : ComponentActivity() {
             permissions.any { shouldShowRequestPermissionRationale(it.key) } -> {
                 dialogEvent.value = DialogEvent.GrantPermissions
             }
+
             alreadyDeclined -> {
                 dialogEvent.value = DialogEvent.GrantPermissionsManually
             }
+
             else -> {
                 requestPermissionLauncher.launch(permissions.keys.toTypedArray())
             }
@@ -193,9 +199,11 @@ private sealed class DialogEvent(
     data object FeatureError : DialogEvent(
         R.string.bluetooth_feature_missing_title, R.string.bluetooth_feature_missing_message
     )
+
     data object GrantPermissions : DialogEvent(
         R.string.permission_required_title, R.string.permission_required_message
     )
+
     data object GrantPermissionsManually : DialogEvent(
         R.string.permission_required_title, R.string.permission_required_message
     )
@@ -236,12 +244,14 @@ private fun ZebraPairBarcodeActivityContent(
                 Toast.makeText(activity, R.string.pairing_successful, Toast.LENGTH_SHORT).show()
                 activity.finish()
             }
+
             ZebraPairBarcodeViewModel.State.Loading -> {
                 Text(stringResource(R.string.loading))
             }
+
             is ZebraPairBarcodeViewModel.State.Pairing -> {
                 state.result.onSuccess {
-                    PairingDialog(sdkHandler = it)
+                    PairingView(sdkHandler = it)
                 }
                 state.result.onFailure {
                     Toast.makeText(activity, it.message, Toast.LENGTH_SHORT).show()
@@ -253,16 +263,27 @@ private fun ZebraPairBarcodeActivityContent(
 }
 
 @Composable
-private fun PairingDialog(sdkHandler: IDcsSdkApi) {
-    AndroidView(
+private fun PairingView(sdkHandler: IDcsSdkApi) {
+    Column(
         modifier = Modifier
-            .fillMaxWidth()
-            .height(100.dp),
-        factory = {
-            sdkHandler.dcssdkGetPairingBarcode(
-                DCSSDKDefs.DCSSDK_BT_PROTOCOL.SSI_BT_LE,
-                DCSSDKDefs.DCSSDK_BT_SCANNER_CONFIG.SET_FACTORY_DEFAULTS
-            )
-        }
-    )
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+    ) {
+        AndroidView(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(100.dp),
+            factory = {
+                sdkHandler.dcssdkGetPairingBarcode(
+                    DCSSDKDefs.DCSSDK_BT_PROTOCOL.SSI_BT_LE,
+                    DCSSDKDefs.DCSSDK_BT_SCANNER_CONFIG.SET_FACTORY_DEFAULTS
+                )
+            }
+        )
+        Text(
+            text = stringResource(id = R.string.pairing_instruction),
+            modifier = Modifier
+                .padding(16.dp)
+        )
+    }
 }

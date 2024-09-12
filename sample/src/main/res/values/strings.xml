@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">sample</string>
+    <string name="scanner_not_found">Scanner Not found</string>
+    <string name="scanner_connected">Scanner connected</string>
+    <string name="scanner_disconnected">Scanner disconnected</string>
+    <string name="auto_reconnect_turnoff">Turn off auto reconnect</string>
+    <string name="scanner_disconnection_error">Error disconnecting scanner</string>
 </resources>

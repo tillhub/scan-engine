@@ -6,7 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import androidx.core.content.ContextCompat
 import de.tillhub.scanengine.barcode.BarcodeScannerImpl
-import de.tillhub.scanengine.data.ScanEvent
+import de.tillhub.scanengine.data.ScannerEvent
 import de.tillhub.scanengine.data.Scanner
 import de.tillhub.scanengine.data.ScannerResponse
 import de.tillhub.scanengine.data.ScannerType
@@ -17,8 +17,8 @@ import timber.log.Timber
 
 internal class SunmiBarcodeScanner(
     context: Context,
-    mutableScanEvents: MutableSharedFlow<ScanEvent>
-) : BarcodeScannerImpl(mutableScanEvents) {
+    mutableScannerEvents: MutableSharedFlow<ScannerEvent>
+) : BarcodeScannerImpl(mutableScannerEvents) {
 
     private val broadcastReceiver = SunmiBarcodeScannerBroadcastReceiver()
 
@@ -40,7 +40,7 @@ internal class SunmiBarcodeScanner(
             val code = intent.getStringExtra(DATA)
             if (!code.isNullOrEmpty()) {
                 Timber.v("scanned code: %s", code)
-                mutableScanEvents.tryEmit(ScanEvent.Success(code, scanKey))
+                mutableScannerEvents.tryEmit(ScannerEvent.ScanResult(code, scanKey))
             }
         }
     }
@@ -52,6 +52,6 @@ internal class SunmiBarcodeScanner(
 
     override fun startPairingScreen(scanner: ScannerType) = Unit
     override fun observeScanners(): Flow<List<Scanner>> = emptyFlow()
+    override suspend fun disconnect(scannerId: String): ScannerResponse = ScannerResponse.Error.NotFound
     override suspend fun connect(scannerId: String): ScannerResponse = ScannerResponse.Error.NotFound
-    override fun disconnect(scannerId: String) = Unit
 }
