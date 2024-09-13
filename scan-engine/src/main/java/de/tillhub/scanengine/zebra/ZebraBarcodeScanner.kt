@@ -110,6 +110,7 @@ internal class ZebraBarcodeScanner(
                 availableScannersFlow.value = fetchScanners()
                 ScannerResponse.Success.Connect
             }
+
             DCSSDK_RESULT.DCSSDK_RESULT_FAILURE ->
                 ScannerResponse.Error.Connect(R.drawable.classic_discoverable)
 
@@ -129,6 +130,7 @@ internal class ZebraBarcodeScanner(
                 mutableScannerEvents.tryEmit(ScannerEvent.External.NotConnected)
                 ScannerResponse.Success.Disconnect
             }
+
             DCSSDK_RESULT.DCSSDK_RESULT_FAILURE -> ScannerResponse.Error.Disconnect
 
             else -> ScannerResponse.Error.NotFound
@@ -152,7 +154,7 @@ internal class ZebraBarcodeScanner(
 
     override fun dcssdkEventBarcode(barcodeData: ByteArray?, barcodeType: Int, scannerId: Int) {
         barcodeData?.let {
-            mutableScannerEvents.tryEmit(ScannerEvent.ScanResult(String(it, Charsets.ISO_8859_1)))
+            mutableScannerEvents.tryEmit(ScannerEvent.ScanResult(String(it, Charsets.ISO_8859_1), scanKey))
         }
     }
 
