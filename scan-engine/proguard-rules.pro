@@ -23,6 +23,7 @@
 -keeppackagenames de.tillhub.scanengine.**
 
 -keep class de.tillhub.scanengine.CameraScanner { *; }
+-keep class de.tillhub.scanengine.CameraScanner* { *; }
 -keep class de.tillhub.scanengine.ScanEngine { *; }
 -keep class de.tillhub.scanengine.ScanEngine$Companion { *; }
 -keep class de.tillhub.scanengine.common.SingletonHolder { *; }
