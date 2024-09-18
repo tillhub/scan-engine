@@ -20,21 +20,27 @@ internal class BarcodeScannerContainer(
     private val scannerFactory: BarcodeScannerFactory = BarcodeScannerFactory()
 ) : BarcodeScanner {
 
-    private val barcodeScanners = mutableListOf<BarcodeScanner>().apply {
-        when (ScannerType.get()) {
-            ScannerType.SUNMI -> {
-                add(scannerFactory.getSunmiBarcodeScanner(context, mutableScannerEvents))
+    private val barcodeScanners = mutableListOf<BarcodeScanner>()
+
+    init {
+        barcodeScanners.apply {
+            when (ScannerType.get()) {
+                ScannerType.SUNMI -> {
+                    add(scannerFactory.getSunmiBarcodeScanner(context, mutableScannerEvents))
+                }
+
+                else -> Unit
             }
 
-            else -> Unit
-        }
-        externalScanners.distinct().forEach {
-            when (it) {
-                ScannerType.ZEBRA -> {
-                    add(scannerFactory.getZebraBarcodeScanner(context, mutableScannerEvents))
+            externalScanners.distinct().forEach {
+                when (it) {
+                    ScannerType.ZEBRA -> {
+                        add(scannerFactory.getZebraBarcodeScanner(context, mutableScannerEvents))
+                    }
+
+                    ScannerType.SUNMI,
+                    ScannerType.UNKNOWN -> Unit
                 }
-                ScannerType.SUNMI,
-                ScannerType.UNKNOWN -> Unit
             }
         }
     }

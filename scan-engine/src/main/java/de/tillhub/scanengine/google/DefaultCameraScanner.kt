@@ -22,6 +22,7 @@ internal class DefaultCameraScanner(
                 }
 
                 is ScannerEvent.Camera.InProgress,
+                is ScannerEvent.External.Connecting,
                 ScannerEvent.External.NotConnected,
                 ScannerEvent.External.Connected -> Unit
             }

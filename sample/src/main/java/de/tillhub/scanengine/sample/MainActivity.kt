@@ -15,9 +15,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
@@ -57,12 +59,14 @@ class MainActivity : ComponentActivity() {
     private lateinit var cameraScanner: CameraScanner
     private var scanCode = mutableStateOf("")
     private val scannerList = mutableStateListOf<Scanner>()
+    private val showProgress = mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         cameraScanner = scanEngine.newCameraScanner(this)
         lifecycleScope.launch {
             scanEngine.barcodeScanner.observeScanners().collect { scanners ->
+                showProgress.value = false
                 scannerList.clear()
                 scannerList.addAll(scanners)
             }
@@ -76,7 +80,18 @@ class MainActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             scanEngine.observeScannerResults().collect {
-                scanCode.value = (it as? ScannerEvent.ScanResult)?.value.orEmpty()
+                when (it) {
+                    is ScannerEvent.External.Connecting -> {
+                        showProgress.value = true
+                    }
+
+                    is ScannerEvent.ScanResult -> {
+                        scanCode.value = (it as? ScannerEvent.ScanResult)?.value.orEmpty()
+                    }
+
+                    else -> Unit
+                }
+
             }
         }
     }
@@ -143,6 +158,13 @@ class MainActivity : ComponentActivity() {
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 ShowScannerList(scannerList, autoReconnect)
+                if (showProgress.value) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.width(64.dp),
+                        color = MaterialTheme.colorScheme.secondary,
+                        trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    )
+                }
             }
         }
     }

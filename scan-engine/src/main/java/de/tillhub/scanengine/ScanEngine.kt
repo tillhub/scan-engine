@@ -30,6 +30,7 @@ class ScanEngine private constructor(private val context: Context) {
     private var externalScanners: List<ScannerType> = emptyList()
     fun initBarcodeScanners(vararg externalScanners: ScannerType): ScanEngine {
         this.externalScanners = externalScanners.asList()
+        barcodeScanner
         return this
     }
 
