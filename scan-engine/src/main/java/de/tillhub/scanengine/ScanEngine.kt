@@ -27,14 +27,13 @@ class ScanEngine private constructor(private val context: Context) {
         }
     }
 
-    private var externalScanners: List<ScannerType> = emptyList()
-    fun initBarcodeScanners(vararg externalScanners: ScannerType): ScanEngine {
-        this.externalScanners = externalScanners.asList()
-        return this
+    val barcodeScanner: BarcodeScanner by lazy {
+        BarcodeScannerContainer(context, mutableScannerEvents)
     }
 
-    val barcodeScanner: BarcodeScanner by lazy {
-        BarcodeScannerContainer(context, mutableScannerEvents, externalScanners)
+    fun initBarcodeScanners(vararg externalScanners: ScannerType): ScanEngine {
+        (barcodeScanner as BarcodeScannerContainer).addScanner(*externalScanners)
+        return this
     }
 
     companion object : SingletonHolder<ScanEngine, Context>(::ScanEngine)

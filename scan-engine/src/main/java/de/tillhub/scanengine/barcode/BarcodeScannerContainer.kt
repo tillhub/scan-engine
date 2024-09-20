@@ -14,24 +14,32 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.merge
 
 internal class BarcodeScannerContainer(
-    context: Context,
-    mutableScannerEvents: MutableStateFlow<ScannerEvent>,
-    externalScanners: List<ScannerType>,
+    private val context: Context,
+    private val mutableScannerEvents: MutableStateFlow<ScannerEvent>,
     private val scannerFactory: BarcodeScannerFactory = BarcodeScannerFactory()
 ) : BarcodeScanner {
 
-    private val barcodeScanners = mutableListOf<BarcodeScanner>().apply {
-        when (ScannerType.get()) {
-            ScannerType.SUNMI -> {
-                add(scannerFactory.getSunmiBarcodeScanner(context, mutableScannerEvents))
-            }
+    private val barcodeScanners = mutableListOf<BarcodeScanner>()
 
-            else -> Unit
+    init {
+        barcodeScanners.apply {
+            when (ScannerType.get()) {
+                ScannerType.SUNMI -> {
+                    add(scannerFactory.getSunmiBarcodeScanner(context, mutableScannerEvents))
+                }
+
+                else -> Unit
+            }
         }
-        externalScanners.distinct().forEach {
-            when (it) {
+    }
+
+    fun addScanner(vararg scanners: ScannerType) {
+        scanners.distinct().forEach { scanner ->
+            when (scanner) {
                 ScannerType.ZEBRA -> {
-                    add(scannerFactory.getZebraBarcodeScanner(context, mutableScannerEvents))
+                    if (barcodeScanners.none {  it::class.java == ZebraBarcodeScanner::class.java }) {
+                        barcodeScanners.add(scannerFactory.getZebraBarcodeScanner(context, mutableScannerEvents))
+                    }
                 }
                 ScannerType.SUNMI,
                 ScannerType.UNKNOWN -> Unit

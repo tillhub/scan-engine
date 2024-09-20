@@ -110,7 +110,6 @@ internal class ZebraBarcodeScanner(
                 availableScannersFlow.value = fetchScanners()
                 ScannerResponse.Success.Connect
             }
-
             DCSSDK_RESULT.DCSSDK_RESULT_FAILURE ->
                 ScannerResponse.Error.Connect(R.drawable.classic_discoverable)
 
@@ -130,7 +129,6 @@ internal class ZebraBarcodeScanner(
                 mutableScannerEvents.tryEmit(ScannerEvent.External.NotConnected)
                 ScannerResponse.Success.Disconnect
             }
-
             DCSSDK_RESULT.DCSSDK_RESULT_FAILURE -> ScannerResponse.Error.Disconnect
 
             else -> ScannerResponse.Error.NotFound
@@ -168,11 +166,14 @@ internal class ZebraBarcodeScanner(
     override fun dcssdkEventConfigurationUpdate(p0: ConfigurationUpdateEvent?) = Unit
 
     override fun onLastConnectedScannerDetect(device: BluetoothDevice?): Boolean = true
-    override fun onConnectingToLastConnectedScanner(device: BluetoothDevice?) = Unit
+    override fun onConnectingToLastConnectedScanner(device: BluetoothDevice) {
+        mutableScannerEvents.tryEmit(ScannerEvent.External.Connecting(device.address))
+    }
     override fun onScannerDisconnect() = Unit
 
     private fun fetchScanners(): List<Scanner> {
-        if (!hasPermissions()) {
+        val btEnabled = bluetoothManager.adapter.isEnabled
+        if (!hasPermissions() && btEnabled) {
             return emptyList()
         }
 
