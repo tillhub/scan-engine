@@ -165,7 +165,7 @@ internal class ZebraBarcodeScanner(
     override fun dcssdkEventAuxScannerAppeared(p0: DCSScannerInfo?, p1: DCSScannerInfo?) = Unit
     override fun dcssdkEventConfigurationUpdate(p0: ConfigurationUpdateEvent?) = Unit
 
-    override fun onLastConnectedScannerDetect(device: BluetoothDevice?): Boolean = true
+    override fun onLastConnectedScannerDetect(device: BluetoothDevice?): Boolean = false
     override fun onConnectingToLastConnectedScanner(device: BluetoothDevice) {
         mutableScannerEvents.tryEmit(ScannerEvent.External.Connecting(device.address))
     }
