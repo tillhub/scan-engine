@@ -14,9 +14,8 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.merge
 
 internal class BarcodeScannerContainer(
-    context: Context,
-    mutableScannerEvents: MutableStateFlow<ScannerEvent>,
-    externalScanners: List<ScannerType>,
+    private val context: Context,
+    private val mutableScannerEvents: MutableStateFlow<ScannerEvent>,
     private val scannerFactory: BarcodeScannerFactory = BarcodeScannerFactory()
 ) : BarcodeScanner {
 
@@ -31,16 +30,19 @@ internal class BarcodeScannerContainer(
 
                 else -> Unit
             }
+        }
+    }
 
-            externalScanners.distinct().forEach {
-                when (it) {
-                    ScannerType.ZEBRA -> {
-                        add(scannerFactory.getZebraBarcodeScanner(context, mutableScannerEvents))
+    fun addScanner(vararg scanners: ScannerType) {
+        scanners.distinct().forEach { scanner ->
+            when (scanner) {
+                ScannerType.ZEBRA -> {
+                    if (barcodeScanners.none {  it::class.java == ZebraBarcodeScanner::class.java }) {
+                        barcodeScanners.add(scannerFactory.getZebraBarcodeScanner(context, mutableScannerEvents))
                     }
-
-                    ScannerType.SUNMI,
-                    ScannerType.UNKNOWN -> Unit
                 }
+                ScannerType.SUNMI,
+                ScannerType.UNKNOWN -> Unit
             }
         }
     }
