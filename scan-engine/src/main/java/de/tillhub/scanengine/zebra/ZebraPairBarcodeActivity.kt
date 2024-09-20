@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.AlertDialog
@@ -42,6 +41,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
@@ -53,6 +53,7 @@ import de.tillhub.scanengine.theme.ScanEngineTheme
 import de.tillhub.scanengine.theme.TabletScaffoldModifier
 import de.tillhub.scanengine.theme.Toolbar
 import de.tillhub.scanengine.zebra.ZebraBarcodeScanner.Companion.BLUETOOTH_PERMISSIONS
+import de.tillhub.scanengine.zebra.ZebraPairBarcodeActivity.Companion.ASPECT_RATIO_DIVIDER
 
 internal class ZebraPairBarcodeActivity : ComponentActivity() {
 
@@ -190,6 +191,7 @@ internal class ZebraPairBarcodeActivity : ComponentActivity() {
 
     companion object {
         private const val SCHEME = "package"
+        const val ASPECT_RATIO_DIVIDER = 3
     }
 }
 
@@ -267,6 +269,8 @@ private fun ZebraPairBarcodeActivityContent(
 
 @Composable
 private fun PairingView(sdkHandler: IDcsSdkApi) {
+    val density = LocalDensity.current
+
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -276,27 +280,27 @@ private fun PairingView(sdkHandler: IDcsSdkApi) {
                 .fillMaxWidth()
                 .padding(32.dp)
         ) {
-            val density = LocalDensity.current
             val width = maxWidth
-            val height = maxHeight
+            val height = min(maxWidth / ASPECT_RATIO_DIVIDER, maxHeight)
+
+            val pairingBarcode = sdkHandler.dcssdkGetPairingBarcode(
+                DCSSDKDefs.DCSSDK_BT_PROTOCOL.SSI_BT_LE,
+                DCSSDKDefs.DCSSDK_BT_SCANNER_CONFIG.SET_FACTORY_DEFAULTS
+            ).also {
+                with(density) { it.setSize(width.toPx().toInt(), height.toPx().toInt()) }
+            }
+
             AndroidView(
                 modifier = Modifier
                     .size(width = width, height = height)
                     .align(Alignment.Center),
-                factory = {
-                    sdkHandler.dcssdkGetPairingBarcode(
-                        DCSSDKDefs.DCSSDK_BT_PROTOCOL.SSI_BT_LE,
-                        DCSSDKDefs.DCSSDK_BT_SCANNER_CONFIG.SET_FACTORY_DEFAULTS
-                    ).also {
-                        with(density) { it.setSize(width.toPx().toInt(), height.toPx().toInt()) }
-                    }
-                }
+                factory = { pairingBarcode }
             )
         }
+
         Text(
             text = stringResource(id = R.string.pairing_instruction),
-            modifier = Modifier
-                .padding(16.dp)
+            modifier = Modifier.padding(16.dp)
         )
     }
 }

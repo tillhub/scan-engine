@@ -24,6 +24,7 @@ internal class SunmiCameraScanner(
 
                     is ScannerEvent.Camera.InProgress,
                     ScannerEvent.External.NotConnected,
+                    is ScannerEvent.External.Connecting,
                     ScannerEvent.External.Connected -> Unit
                 }
             }
