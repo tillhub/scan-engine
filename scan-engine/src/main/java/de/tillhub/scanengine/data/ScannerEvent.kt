@@ -4,7 +4,7 @@ sealed class ScannerEvent {
     sealed class External : ScannerEvent() {
         data object NotConnected : External()
         data object Connected : External()
-        class Connecting(val address: String) : External()
+        class Connecting(val macAddress: String) : External()
     }
 
     sealed class Camera : ScannerEvent() {
