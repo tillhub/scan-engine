@@ -136,14 +136,14 @@ internal class ZebraBarcodeScanner(
     }
 
     override fun dcssdkEventCommunicationSessionEstablished(scannerInfo: DCSScannerInfo?) {
-//        if (scannerInfo == null) return
-//        sdkHandler.dcssdkEnableAutomaticSessionReestablishment(true, scannerInfo.scannerID)
-//        context.getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE).edit().apply {
-//            putString(HW_SERIAL_NUMBER, scannerInfo.scannerHWSerialNumber)
-//            apply()
-//        }
+        if (scannerInfo == null) return
+        sdkHandler.dcssdkEnableAutomaticSessionReestablishment(true, scannerInfo.scannerID)
+        context.getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE).edit().apply {
+            putString(HW_SERIAL_NUMBER, scannerInfo.scannerHWSerialNumber)
+            apply()
+        }
 //        availableScannersFlow.value = fetchScanners()
-//        mutableScannerEvents.tryEmit(ScannerEvent.External.Connected)
+        mutableScannerEvents.tryEmit(ScannerEvent.External.Connected)
     }
 
     override fun dcssdkEventCommunicationSessionTerminated(scannerId: Int) {
