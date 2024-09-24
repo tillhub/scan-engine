@@ -10,5 +10,6 @@
     <string name="loading">Loading</string>
     <string name="pairing_title">Barcode pairing</string>
     <string name="pairing_successful">Barcode pairing successful</string>
-    <string name="pairing_instruction">Scan the barcode to connect your scanner with the app.</string>
+    <string name="pairing_instruction">Please first scan the barcode and then proceed to the Bluetooth pairing screen.</string>
+    <string name="title_bluetooth_setting">"Bluetooth Settings"</string>
 </resources>

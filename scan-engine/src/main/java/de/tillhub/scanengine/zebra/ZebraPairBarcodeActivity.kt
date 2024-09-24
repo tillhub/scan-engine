@@ -17,16 +17,21 @@ import androidx.activity.result.contract.ActivityResultContracts.RequestMultiple
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -37,23 +42,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.min
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
-import com.zebra.scannercontrol.DCSSDKDefs
-import com.zebra.scannercontrol.IDcsSdkApi
 import de.tillhub.scanengine.R
 import de.tillhub.scanengine.extensions.getModifierBasedOnDeviceType
+import de.tillhub.scanengine.theme.OrbitalBlue
 import de.tillhub.scanengine.theme.ScanEngineTheme
 import de.tillhub.scanengine.theme.TabletScaffoldModifier
 import de.tillhub.scanengine.theme.Toolbar
 import de.tillhub.scanengine.zebra.ZebraBarcodeScanner.Companion.BLUETOOTH_PERMISSIONS
-import de.tillhub.scanengine.zebra.ZebraPairBarcodeActivity.Companion.ASPECT_RATIO_DIVIDER
 
 internal class ZebraPairBarcodeActivity : ComponentActivity() {
 
@@ -107,8 +108,10 @@ internal class ZebraPairBarcodeActivity : ComponentActivity() {
                     ZebraPairBarcodeActivityContent(
                         activity = this,
                         paddingValues = it,
-                        state = state
-                    )
+                        state = state,
+                    ) {
+                        startActivity(Intent(Settings.ACTION_BLUETOOTH_SETTINGS))
+                    }
                 }
             }
 
@@ -191,7 +194,6 @@ internal class ZebraPairBarcodeActivity : ComponentActivity() {
 
     companion object {
         private const val SCHEME = "package"
-        const val ASPECT_RATIO_DIVIDER = 3
     }
 }
 
@@ -236,7 +238,8 @@ private fun ZebraAlertDialog(
 private fun ZebraPairBarcodeActivityContent(
     activity: Activity,
     paddingValues: PaddingValues = PaddingValues(),
-    state: ZebraPairBarcodeViewModel.State = ZebraPairBarcodeViewModel.State.Loading
+    state: ZebraPairBarcodeViewModel.State = ZebraPairBarcodeViewModel.State.Loading,
+    openBluetoothSettings: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -256,7 +259,27 @@ private fun ZebraPairBarcodeActivityContent(
 
             is ZebraPairBarcodeViewModel.State.Pairing -> {
                 state.result.onSuccess {
-                    PairingView(sdkHandler = it)
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.SpaceBetween,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.pairing_instruction),
+                            modifier = Modifier.padding(16.dp)
+                        )
+                        Image(
+                            painter = painterResource(id = R.drawable.classic_discoverable),
+                            contentDescription = "Error",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(100.dp),
+                        )
+                        BluetoothSettingsButton {
+                            openBluetoothSettings()
+                            activity.finish()
+                        }
+                    }
                 }
                 state.result.onFailure {
                     Toast.makeText(activity, it.message, Toast.LENGTH_SHORT).show()
@@ -268,39 +291,26 @@ private fun ZebraPairBarcodeActivityContent(
 }
 
 @Composable
-private fun PairingView(sdkHandler: IDcsSdkApi) {
-    val density = LocalDensity.current
-
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
+@Preview
+internal fun BluetoothSettingsButton(
+    onClick: () -> Unit = {},
+) {
+    Button(
+        enabled = true,
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .padding(horizontal = 8.dp),
+        shape = RoundedCornerShape(4.dp),
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = OrbitalBlue
+        )
     ) {
-        BoxWithConstraints(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(32.dp)
-        ) {
-            val width = maxWidth
-            val height = min(maxWidth / ASPECT_RATIO_DIVIDER, maxHeight)
-
-            val pairingBarcode = sdkHandler.dcssdkGetPairingBarcode(
-                DCSSDKDefs.DCSSDK_BT_PROTOCOL.SSI_BT_LE,
-                DCSSDKDefs.DCSSDK_BT_SCANNER_CONFIG.SET_FACTORY_DEFAULTS
-            ).also {
-                with(density) { it.setSize(width.toPx().toInt(), height.toPx().toInt()) }
-            }
-
-            AndroidView(
-                modifier = Modifier
-                    .size(width = width, height = height)
-                    .align(Alignment.Center),
-                factory = { pairingBarcode }
-            )
-        }
-
         Text(
-            text = stringResource(id = R.string.pairing_instruction),
-            modifier = Modifier.padding(16.dp)
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.wrapContentHeight(),
+            text = stringResource(id = R.string.title_bluetooth_setting)
         )
     }
 }
