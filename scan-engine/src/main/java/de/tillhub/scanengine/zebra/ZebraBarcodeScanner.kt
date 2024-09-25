@@ -36,7 +36,7 @@ internal class ZebraBarcodeScanner(
 ) : BarcodeScannerImpl(events), IDcsSdkApiDelegate, IDcsScannerEventsOnReLaunch {
 
     private val availableScannersFlow by lazy {
-        MutableStateFlow(emptyList<Scanner>())
+        MutableStateFlow(fetchScanners())
     }
     private val bluetoothManager: BluetoothManager by lazy {
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
@@ -87,8 +87,6 @@ internal class ZebraBarcodeScanner(
                 Result.success(sdkHandler)
             } catch (e: SecurityException) {
                 Result.failure(e)
-            }.also {
-                availableScannersFlow.value = fetchScanners()
             }
         } else {
             Result.failure(
@@ -179,7 +177,7 @@ internal class ZebraBarcodeScanner(
 
     private fun fetchScanners(): List<Scanner> {
         val btEnabled = bluetoothManager.adapter.isEnabled
-        if (!hasPermissions() && btEnabled) {
+        if (!hasPermissions() || !btEnabled) {
             return emptyList()
         }
 
