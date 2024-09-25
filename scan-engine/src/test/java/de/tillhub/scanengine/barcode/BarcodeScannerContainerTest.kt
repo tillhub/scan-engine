@@ -26,7 +26,6 @@ class BarcodeScannerContainerTest : FunSpec({
 
     lateinit var context: Context
     lateinit var mutableScannerEvents: MutableStateFlow<ScannerEvent>
-    lateinit var externalScanners: List<ScannerType>
     lateinit var testScope: TestScope
     lateinit var scannerFactory: BarcodeScannerFactory
 
@@ -39,18 +38,18 @@ class BarcodeScannerContainerTest : FunSpec({
             } returns mockk<BluetoothManager>(relaxed = true)
         }
         mutableScannerEvents = MutableStateFlow(mockk(relaxed = true))
-        externalScanners = listOf(ScannerType.ZEBRA)
         scannerFactory = mockk()
     }
 
     test("getScannersByType success") {
-        val container = BarcodeScannerContainer(context, mutableScannerEvents, externalScanners)
+        val container = BarcodeScannerContainer(context, mutableScannerEvents)
+        container.addScanner(ScannerType.ZEBRA)
         val zebraScanner = container.getScannersByType(ZebraBarcodeScanner::class.java)
         zebraScanner.shouldBeInstanceOf<ZebraBarcodeScanner>()
     }
     test("getScannersByType error") {
         val type = ZebraBarcodeScanner::class.java
-        val container = BarcodeScannerContainer(context, mutableScannerEvents, emptyList())
+        val container = BarcodeScannerContainer(context, mutableScannerEvents)
         val exception = shouldThrow<NoSuchElementException> {
             container.getScannersByType(type)
         }
@@ -72,9 +71,9 @@ class BarcodeScannerContainerTest : FunSpec({
         val container = BarcodeScannerContainer(
             context = context,
             mutableScannerEvents = mutableScannerEvents,
-            externalScanners = externalScanners,
             scannerFactory = scannerFactory
         )
+        container.addScanner(ScannerType.ZEBRA)
         val testResults = mutableListOf<ScannerEvent>()
         val event = ScannerEvent.ScanResult("value")
         mutableScannerEvents.tryEmit(event)
@@ -95,9 +94,9 @@ class BarcodeScannerContainerTest : FunSpec({
         val container = BarcodeScannerContainer(
             context,
             mutableScannerEvents,
-            externalScanners,
             scannerFactory = scannerFactory
         )
+        container.addScanner(ScannerType.ZEBRA)
         container.scanWithKey("test_key")
         verify {
             zebraScanner.scanWithKey("test_key")
@@ -111,9 +110,9 @@ class BarcodeScannerContainerTest : FunSpec({
         val container = BarcodeScannerContainer(
             context,
             mutableScannerEvents,
-            externalScanners,
             scannerFactory = scannerFactory
         )
+        container.addScanner(ScannerType.ZEBRA)
         container.startPairingScreen(ScannerType.ZEBRA)
         verify { zebraScanner.startPairingScreen(ScannerType.ZEBRA) }
     }
