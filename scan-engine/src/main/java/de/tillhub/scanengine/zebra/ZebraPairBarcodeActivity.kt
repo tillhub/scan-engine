@@ -109,9 +109,7 @@ internal class ZebraPairBarcodeActivity : ComponentActivity() {
                         activity = this,
                         paddingValues = it,
                         state = state,
-                    ) {
-                        startActivity(Intent(Settings.ACTION_BLUETOOTH_SETTINGS))
-                    }
+                    )
                 }
             }
 
@@ -239,7 +237,6 @@ private fun ZebraPairBarcodeActivityContent(
     activity: Activity,
     paddingValues: PaddingValues = PaddingValues(),
     state: ZebraPairBarcodeViewModel.State = ZebraPairBarcodeViewModel.State.Loading,
-    openBluetoothSettings: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -276,7 +273,7 @@ private fun ZebraPairBarcodeActivityContent(
                                 .height(100.dp),
                         )
                         BluetoothSettingsButton {
-                            openBluetoothSettings()
+                            activity.startActivity(Intent(Settings.ACTION_BLUETOOTH_SETTINGS))
                             activity.finish()
                         }
                     }

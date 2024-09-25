@@ -112,6 +112,7 @@ internal class ZebraBarcodeScanner(
 
     override suspend fun connect(scannerId: String): ScannerResponse {
         val result = try {
+            mutableScannerEvents.tryEmit(ScannerEvent.External.Connecting(scannerId = scannerId))
             sdkHandler.dcssdkEstablishCommunicationSession(scannerId.toInt())
         } catch (e: NumberFormatException) {
             return ScannerResponse.Error.NotFound
@@ -121,6 +122,7 @@ internal class ZebraBarcodeScanner(
                 mutableScannerEvents.tryEmit(ScannerEvent.External.Connected)
                 ScannerResponse.Success.Connect
             }
+
             DCSSDK_RESULT.DCSSDK_RESULT_FAILURE ->
                 ScannerResponse.Error.Connect(R.drawable.classic_discoverable)
 
@@ -139,6 +141,7 @@ internal class ZebraBarcodeScanner(
                 mutableScannerEvents.tryEmit(ScannerEvent.External.NotConnected)
                 ScannerResponse.Success.Disconnect
             }
+
             DCSSDK_RESULT.DCSSDK_RESULT_FAILURE -> ScannerResponse.Error.Disconnect
 
             else -> ScannerResponse.Error.NotFound
@@ -170,9 +173,7 @@ internal class ZebraBarcodeScanner(
     override fun dcssdkEventConfigurationUpdate(p0: ConfigurationUpdateEvent?) = Unit
 
     override fun onLastConnectedScannerDetect(device: BluetoothDevice?): Boolean = false
-    override fun onConnectingToLastConnectedScanner(device: BluetoothDevice) {
-        mutableScannerEvents.tryEmit(ScannerEvent.External.Connecting(device.address))
-    }
+    override fun onConnectingToLastConnectedScanner(device: BluetoothDevice) = Unit
     override fun onScannerDisconnect() = Unit
 
     private fun fetchScanners(): List<Scanner> {
