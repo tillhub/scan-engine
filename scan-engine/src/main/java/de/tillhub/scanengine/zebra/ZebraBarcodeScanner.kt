@@ -3,11 +3,16 @@ package de.tillhub.scanengine.zebra
 import android.Manifest
 import android.app.Activity
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothDevice.ACTION_BOND_STATE_CHANGED
 import android.bluetooth.BluetoothManager
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.registerReceiver
 import com.zebra.barcode.sdk.sms.ConfigurationUpdateEvent
 import com.zebra.scannercontrol.DCSSDKDefs
 import com.zebra.scannercontrol.DCSSDKDefs.DCSSDK_RESULT
@@ -18,8 +23,8 @@ import com.zebra.scannercontrol.IDcsSdkApiDelegate
 import com.zebra.scannercontrol.SDKHandler
 import de.tillhub.scanengine.R
 import de.tillhub.scanengine.barcode.BarcodeScannerImpl
-import de.tillhub.scanengine.data.ScannerEvent
 import de.tillhub.scanengine.data.Scanner
+import de.tillhub.scanengine.data.ScannerEvent
 import de.tillhub.scanengine.data.ScannerResponse
 import de.tillhub.scanengine.data.ScannerType
 import kotlinx.coroutines.flow.Flow
@@ -31,12 +36,12 @@ internal class ZebraBarcodeScanner(
 ) : BarcodeScannerImpl(events), IDcsSdkApiDelegate, IDcsScannerEventsOnReLaunch {
 
     private val availableScannersFlow by lazy {
-        MutableStateFlow(fetchScanners())
+        MutableStateFlow(emptyList<Scanner>())
     }
     private val bluetoothManager: BluetoothManager by lazy {
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     }
-
+    private val broadcastReceiver = ZebraBarcodeBroadcastReceiver()
     private val sdkHandler: SDKHandler by lazy {
         SDKHandler(context, true).apply {
 
@@ -72,10 +77,18 @@ internal class ZebraBarcodeScanner(
     fun initScanner(): Result<SDKHandler> {
         val btEnabled = bluetoothManager.adapter.isEnabled
         return if (hasPermissions() && btEnabled) {
+            registerReceiver(
+                context,
+                broadcastReceiver,
+                createIntentFilter(),
+                ContextCompat.RECEIVER_EXPORTED
+            )
             try {
                 Result.success(sdkHandler)
             } catch (e: SecurityException) {
                 Result.failure(e)
+            }.also {
+                availableScannersFlow.value = fetchScanners()
             }
         } else {
             Result.failure(
@@ -101,15 +114,17 @@ internal class ZebraBarcodeScanner(
 
     override suspend fun connect(scannerId: String): ScannerResponse {
         val result = try {
+            mutableScannerEvents.tryEmit(ScannerEvent.External.Connecting(scannerId = scannerId))
             sdkHandler.dcssdkEstablishCommunicationSession(scannerId.toInt())
         } catch (e: NumberFormatException) {
             return ScannerResponse.Error.NotFound
         }
         return when (result) {
             DCSSDK_RESULT.DCSSDK_RESULT_SUCCESS -> {
-                availableScannersFlow.value = fetchScanners()
+                mutableScannerEvents.tryEmit(ScannerEvent.External.Connected)
                 ScannerResponse.Success.Connect
             }
+
             DCSSDK_RESULT.DCSSDK_RESULT_FAILURE ->
                 ScannerResponse.Error.Connect(R.drawable.classic_discoverable)
 
@@ -125,10 +140,10 @@ internal class ZebraBarcodeScanner(
         }
         return when (result) {
             DCSSDK_RESULT.DCSSDK_RESULT_SUCCESS -> {
-                availableScannersFlow.value = fetchScanners()
                 mutableScannerEvents.tryEmit(ScannerEvent.External.NotConnected)
                 ScannerResponse.Success.Disconnect
             }
+
             DCSSDK_RESULT.DCSSDK_RESULT_FAILURE -> ScannerResponse.Error.Disconnect
 
             else -> ScannerResponse.Error.NotFound
@@ -137,13 +152,7 @@ internal class ZebraBarcodeScanner(
 
     override fun dcssdkEventCommunicationSessionEstablished(scannerInfo: DCSScannerInfo?) {
         if (scannerInfo == null) return
-        sdkHandler.dcssdkEnableAutomaticSessionReestablishment(true, scannerInfo.scannerID)
-        context.getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE).edit().apply {
-            putString(HW_SERIAL_NUMBER, scannerInfo.scannerHWSerialNumber)
-            apply()
-        }
         availableScannersFlow.value = fetchScanners()
-        mutableScannerEvents.tryEmit(ScannerEvent.External.Connected)
     }
 
     override fun dcssdkEventCommunicationSessionTerminated(scannerId: Int) {
@@ -165,15 +174,13 @@ internal class ZebraBarcodeScanner(
     override fun dcssdkEventAuxScannerAppeared(p0: DCSScannerInfo?, p1: DCSScannerInfo?) = Unit
     override fun dcssdkEventConfigurationUpdate(p0: ConfigurationUpdateEvent?) = Unit
 
-    override fun onLastConnectedScannerDetect(device: BluetoothDevice?): Boolean = true
-    override fun onConnectingToLastConnectedScanner(device: BluetoothDevice) {
-        mutableScannerEvents.tryEmit(ScannerEvent.External.Connecting(device.address))
-    }
+    override fun onLastConnectedScannerDetect(device: BluetoothDevice?): Boolean = false
+    override fun onConnectingToLastConnectedScanner(device: BluetoothDevice) = Unit
     override fun onScannerDisconnect() = Unit
 
     private fun fetchScanners(): List<Scanner> {
         val btEnabled = bluetoothManager.adapter.isEnabled
-        if (!hasPermissions() && btEnabled) {
+        if (!hasPermissions() || !btEnabled) {
             return emptyList()
         }
 
@@ -189,6 +196,18 @@ internal class ZebraBarcodeScanner(
             }
     }
 
+    private fun createIntentFilter(): IntentFilter = IntentFilter().apply {
+        addAction(ACTION_BOND_STATE_CHANGED)
+    }
+
+    private inner class ZebraBarcodeBroadcastReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == ACTION_BOND_STATE_CHANGED) {
+                availableScannersFlow.value = fetchScanners()
+            }
+        }
+    }
+
     private fun hasPermissions(): Boolean {
         return BLUETOOTH_PERMISSIONS
             .map { context.checkSelfPermission(it) == PackageManager.PERMISSION_GRANTED }
@@ -196,8 +215,6 @@ internal class ZebraBarcodeScanner(
     }
 
     companion object {
-        private const val HW_SERIAL_NUMBER: String = "hwSerialNumber"
-        private const val PREFERENCES_FILE: String = "Prefs"
         val BLUETOOTH_PERMISSIONS = when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> listOf(
                 Manifest.permission.BLUETOOTH_SCAN,

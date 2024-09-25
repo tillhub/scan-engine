@@ -37,10 +37,11 @@ internal class BarcodeScannerContainer(
         scanners.distinct().forEach { scanner ->
             when (scanner) {
                 ScannerType.ZEBRA -> {
-                    if (barcodeScanners.none {  it::class.java == ZebraBarcodeScanner::class.java }) {
+                    if (barcodeScanners.none { it::class.java == ZebraBarcodeScanner::class.java }) {
                         barcodeScanners.add(scannerFactory.getZebraBarcodeScanner(context, mutableScannerEvents))
                     }
                 }
+
                 ScannerType.SUNMI,
                 ScannerType.UNKNOWN -> Unit
             }
