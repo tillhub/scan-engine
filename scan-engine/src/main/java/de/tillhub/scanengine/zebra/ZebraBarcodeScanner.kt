@@ -75,7 +75,7 @@ internal class ZebraBarcodeScanner(
     }
 
     fun initScanner(): Result<SDKHandler> {
-        val btEnabled = bluetoothManager.adapter.isEnabled
+        val btEnabled = bluetoothManager.adapter?.isEnabled ?: false
         return if (hasPermissions() && btEnabled) {
             registerReceiver(
                 context,
