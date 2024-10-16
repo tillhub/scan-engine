@@ -2,12 +2,12 @@ package de.tillhub.scanengine.barcode
 
 import android.content.Context
 import de.tillhub.scanengine.BarcodeScanner
-import de.tillhub.scanengine.zebra.ZebraBarcodeScanner
-import de.tillhub.scanengine.data.ScannerEvent
 import de.tillhub.scanengine.data.Scanner
+import de.tillhub.scanengine.data.ScannerEvent
 import de.tillhub.scanengine.data.ScannerResponse
 import de.tillhub.scanengine.data.ScannerType
 import de.tillhub.scanengine.sunmi.barcode.SunmiBarcodeScanner
+import de.tillhub.scanengine.zebra.ZebraBarcodeScanner
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
@@ -45,6 +45,12 @@ internal class BarcodeScannerContainer(
                 ScannerType.SUNMI,
                 ScannerType.UNKNOWN -> Unit
             }
+        }
+    }
+
+    internal fun addScanner(scanner: BarcodeScanner) {
+        if (barcodeScanners.none { it::class.java == scanner::class.java }) {
+            barcodeScanners.add(scanner)
         }
     }
 
