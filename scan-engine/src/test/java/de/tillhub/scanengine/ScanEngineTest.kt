@@ -1,10 +1,12 @@
 package de.tillhub.scanengine
 
+import android.app.Activity
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import androidx.activity.result.ActivityResultCaller
 import de.tillhub.scanengine.barcode.BarcodeScannerContainer
 import de.tillhub.scanengine.data.ScannerType
+import de.tillhub.scanengine.generic.GenericKeyEventScanner
 import de.tillhub.scanengine.google.DefaultCameraScanner
 import de.tillhub.scanengine.sunmi.camera.SunmiCameraScanner
 import io.kotest.core.spec.style.FunSpec
@@ -18,6 +20,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 class ScanEngineTest : FunSpec({
 
     lateinit var context: Context
+    lateinit var activity: Activity
     lateinit var resultCaller: ActivityResultCaller
     lateinit var scanEngine: ScanEngine
 
@@ -28,6 +31,7 @@ class ScanEngineTest : FunSpec({
                 getSystemService(Context.BLUETOOTH_SERVICE)
             } returns mockk<BluetoothManager>(relaxed = true)
         }
+        activity = mockk(relaxed = true)
         resultCaller = mockk(relaxed = true)
         scanEngine = ScanEngine.getInstance(context).initBarcodeScanners(ScannerType.ZEBRA)
     }
@@ -49,5 +53,10 @@ class ScanEngineTest : FunSpec({
     test("barcodeScanner lazy initialization should initialize BarcodeScannerContainer correctly") {
         val barcodeScanner = scanEngine.barcodeScanner
         barcodeScanner.shouldBeInstanceOf<BarcodeScannerContainer>()
+    }
+
+    test("newKeyEventScanner") {
+        val scanner = scanEngine.newKeyEventScanner(activity)
+        scanner.shouldBeInstanceOf<GenericKeyEventScanner>()
     }
 })

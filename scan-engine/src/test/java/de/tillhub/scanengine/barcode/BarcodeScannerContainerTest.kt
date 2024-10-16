@@ -1,9 +1,11 @@
 package de.tillhub.scanengine.barcode
 
+import android.app.Activity
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import de.tillhub.scanengine.data.ScannerEvent
 import de.tillhub.scanengine.data.ScannerType
+import de.tillhub.scanengine.generic.GenericKeyEventScanner
 import de.tillhub.scanengine.sunmi.barcode.SunmiBarcodeScanner
 import de.tillhub.scanengine.zebra.ZebraBarcodeScanner
 import io.kotest.assertions.throwables.shouldThrow
@@ -25,6 +27,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 class BarcodeScannerContainerTest : FunSpec({
 
     lateinit var context: Context
+    lateinit var activity: Activity
     lateinit var mutableScannerEvents: MutableStateFlow<ScannerEvent>
     lateinit var testScope: TestScope
     lateinit var scannerFactory: BarcodeScannerFactory
@@ -37,6 +40,7 @@ class BarcodeScannerContainerTest : FunSpec({
                 getSystemService(Context.BLUETOOTH_SERVICE)
             } returns mockk<BluetoothManager>(relaxed = true)
         }
+        activity = mockk(relaxed = true)
         mutableScannerEvents = MutableStateFlow(mockk(relaxed = true))
         scannerFactory = mockk()
     }
@@ -46,6 +50,13 @@ class BarcodeScannerContainerTest : FunSpec({
         container.addScanner(ScannerType.ZEBRA)
         val zebraScanner = container.getScannersByType(ZebraBarcodeScanner::class.java)
         zebraScanner.shouldBeInstanceOf<ZebraBarcodeScanner>()
+    }
+    test("addScanner") {
+        val container = BarcodeScannerContainer(context, mutableScannerEvents)
+        val scanner = GenericKeyEventScanner(activity, mutableScannerEvents)
+        container.addScanner(scanner)
+        val genericScanner = container.getScannersByType(GenericKeyEventScanner::class.java)
+        genericScanner.shouldBeInstanceOf<GenericKeyEventScanner>()
     }
     test("getScannersByType error") {
         val type = ZebraBarcodeScanner::class.java
