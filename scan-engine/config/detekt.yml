@@ -771,3 +771,4 @@ libraries:
             - '**/main/java/de/tillhub/scanengine/data/ScannerResponse.kt'
             - '**/main/java/de/tillhub/scanengine/data/Scanner.kt'
             - '**/main/java/de/tillhub/scanengine/BarcodeScanner.kt'
+            - '**/main/java/de/tillhub/scanengine/KeyEventScanner.kt'
