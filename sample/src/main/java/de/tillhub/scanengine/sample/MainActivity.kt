@@ -1,6 +1,8 @@
 package de.tillhub.scanengine.sample
 
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.view.KeyEvent
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -40,9 +42,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import de.tillhub.scanengine.CameraScanner
+import de.tillhub.scanengine.KeyEventScanner
 import de.tillhub.scanengine.ScanEngine
-import de.tillhub.scanengine.data.ScannerEvent
 import de.tillhub.scanengine.data.Scanner
+import de.tillhub.scanengine.data.ScannerEvent
 import de.tillhub.scanengine.data.ScannerResponse
 import de.tillhub.scanengine.data.ScannerType
 import de.tillhub.scanengine.sample.ui.theme.TillhubScanEngineTheme
@@ -54,9 +57,10 @@ import kotlinx.coroutines.withContext
 class MainActivity : ComponentActivity() {
 
     private val scanEngine by lazy {
-        ScanEngine.getInstance(applicationContext).initBarcodeScanners(ScannerType.ZEBRA)
+        ScanEngine.getInstance(applicationContext)
     }
     private lateinit var cameraScanner: CameraScanner
+    private lateinit var keyEventScanner: KeyEventScanner
     private var scanCode = mutableStateOf("")
     private val scannerList = mutableStateListOf<Scanner>()
     private val showProgress = mutableStateOf(false)
@@ -64,6 +68,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         cameraScanner = scanEngine.newCameraScanner(this)
+        keyEventScanner = scanEngine.newKeyEventScanner(this)
         lifecycleScope.launch {
             scanEngine.barcodeScanner.observeScanners().collect { scanners ->
                 showProgress.value = false
@@ -94,6 +99,12 @@ class MainActivity : ComponentActivity() {
 
             }
         }
+    }
+
+    @SuppressLint("RestrictedApi")
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        keyEventScanner.dispatchKeyEvent(event)
+        return super.dispatchKeyEvent(event)
     }
 
     @Composable
