@@ -48,7 +48,7 @@ class GenericKeyEventScannerTest : FunSpec({
 
         val keyEventEnter = mockk<KeyEvent> {
             every { action } returns KeyEvent.ACTION_DOWN
-            every { unicodeChar } returns 0
+            every { unicodeChar } returns 1
             every { eventTime } returns 101L
             every { keyCode } returns KeyEvent.KEYCODE_ENTER
         }
@@ -57,6 +57,49 @@ class GenericKeyEventScannerTest : FunSpec({
         every { mockEditText.hasFocus() } returns false
 
         scanner.dispatchKeyEvent(keyEventA, "ScanKey")
+
+        scanner.dispatchKeyEvent(keyEventEnter, "ScanKey")
+
+        val testResults = mutableListOf<ScannerEvent>()
+        testScope.launch {
+            scanner.observeScannerResults().toList(testResults)
+        }
+
+        verify(exactly = 1) { mutableScannerEvents.tryEmit(any()) }
+
+        val result = testResults.first() as ScannerEvent.ScanResult
+        result.value shouldBe "A"
+        result.scanKey shouldBe "ScanKey"
+    }
+
+    test("dispatchKeyEvent should not append non-printable keys and emit ScanResult when Enter is pressed") {
+        val keyEventA = mockk<KeyEvent> {
+            every { action } returns KeyEvent.ACTION_DOWN
+            every { unicodeChar } returns 'A'.code
+            every { eventTime } returns 100L
+            every { keyCode } returns KeyEvent.KEYCODE_A
+        }
+
+        val keyEventShiftLef = mockk<KeyEvent> {
+            every { action } returns KeyEvent.KEYCODE_SHIFT_LEFT
+            every { unicodeChar } returns 0
+            every { eventTime } returns 101L
+            every { keyCode } returns KeyEvent.KEYCODE_SHIFT_LEFT
+        }
+
+        val keyEventEnter = mockk<KeyEvent> {
+            every { action } returns KeyEvent.ACTION_DOWN
+            every { unicodeChar } returns 1
+            every { eventTime } returns 101L
+            every { keyCode } returns KeyEvent.KEYCODE_ENTER
+        }
+
+        every { activity.findViewById<View>(android.R.id.content).findFocus() } returns mockEditText
+        every { mockEditText.hasFocus() } returns false
+
+        scanner.dispatchKeyEvent(keyEventA, "ScanKey")
+
+        scanner.dispatchKeyEvent(keyEventShiftLef, "ScanKey")
 
         scanner.dispatchKeyEvent(keyEventEnter, "ScanKey")
 
