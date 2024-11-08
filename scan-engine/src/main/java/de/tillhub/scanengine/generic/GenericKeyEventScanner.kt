@@ -49,7 +49,9 @@ internal class GenericKeyEventScanner(
 
         lastEventTime = currentEventTime
 
-        event.unicodeChar.takeIf { it != 0 }?.toChar()?.let { inputBuffer.append(it) }
+        if (event.keyCode !in UNWANTED_KEY_CODES && event.unicodeChar != NON_PRINTING_KEY) {
+            inputBuffer.append(event.unicodeChar.toChar())
+        }
 
         if (event.keyCode == KeyEvent.KEYCODE_ENTER && inputBuffer.isNotEmpty()) {
             mutableScannerEvents.tryEmit(ScannerEvent.ScanResult(inputBuffer.toString(), scanKey))
@@ -62,5 +64,17 @@ internal class GenericKeyEventScanner(
         /* SCAN_THRESHOLD is the minimum time (in ms) between key events to distinguish scans.
         If the time exceeds this value, the input buffer resets for a new scan.*/
         private const val SCAN_THRESHOLD = 50L
+        private const val NON_PRINTING_KEY = 0
+        private val UNWANTED_KEY_CODES = setOf(
+            KeyEvent.KEYCODE_SHIFT_LEFT, KeyEvent.KEYCODE_SHIFT_RIGHT,
+            KeyEvent.KEYCODE_CTRL_LEFT, KeyEvent.KEYCODE_CTRL_RIGHT,
+            KeyEvent.KEYCODE_ALT_LEFT, KeyEvent.KEYCODE_ALT_RIGHT,
+            KeyEvent.KEYCODE_META_LEFT, KeyEvent.KEYCODE_META_RIGHT,
+            KeyEvent.KEYCODE_CAPS_LOCK, KeyEvent.KEYCODE_NUM_LOCK,
+            KeyEvent.KEYCODE_SYM, KeyEvent.KEYCODE_ESCAPE,
+            KeyEvent.KEYCODE_FUNCTION,
+            KeyEvent.KEYCODE_SCROLL_LOCK,
+            KeyEvent.KEYCODE_ENTER
+        )
     }
 }
