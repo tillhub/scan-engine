@@ -29,8 +29,8 @@ out/
 # Gradle files
 .gradle/
 /build
-/scan-engine/build
-/buildSrc/build
+/shared/build
+/sample/build
 
 # Local configuration file (sdk path, etc)
 /local.properties
@@ -59,3 +59,8 @@ out/
 /.idea/navEditor.xml
 .externalNativeBuild
 .cxx
+/.kotlin
+
+# CocoaPods
+Pods/
+*.xcworkspace

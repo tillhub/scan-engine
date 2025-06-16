@@ -1,25 +1,20 @@
-import java.net.URI
-
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 pluginManagement {
     repositories {
         google()
-        mavenCentral()
         gradlePluginPortal()
+        mavenCentral()
     }
 }
 
-@Suppress("UnstableApiUsage")
 dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven {
-            url = URI.create("https://jitpack.io")
-        }
+        maven("https://plugins.gradle.org/m2/")
     }
 }
 
-
-rootProject.name = "Tillhub Scan Engine"
+rootProject.name = "Tillhub_Scan_Engine"
+include(":shared")
 include(":sample")
-include(":scan-engine")
