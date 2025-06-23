@@ -10,6 +10,4 @@ expect class CameraController {
      * Stops the camera session.
      */
     fun stopSession()
-
-    fun setScanKey(scanKey: String?)
 }

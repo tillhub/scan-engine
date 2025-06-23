@@ -74,7 +74,10 @@ fun CameraScreen(
                     ) {
                         Text(
                             style = MaterialTheme.typography.headlineSmall,
-                            modifier = Modifier.padding(vertical = 16.dp),
+                            modifier = Modifier.padding(
+                                vertical = 16.dp,
+                                horizontal = 8.dp
+                            ),
                             text = stringResource(Res.string.permission_camera_request)
                         )
                         BottomButton(

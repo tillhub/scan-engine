@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.tillhub.scanengine.ScanEngine
 import de.tillhub.scanengine.data.ScannerEvent
-import de.tillhub.scanengine.sample.theme.Tillhub_Scan_EngineTheme
+import de.tillhub.scanengine.sample.theme.ScanEngineTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -53,7 +53,7 @@ fun App() {
         }
     }
 
-    Tillhub_Scan_EngineTheme {
+    ScanEngineTheme {
         Box(
             contentAlignment = Alignment.TopCenter,
             modifier = Modifier

@@ -14,22 +14,19 @@ kotlin {
         }
     }
 
-    listOf(
-        iosX64(),
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach { iosTarget ->
-        iosTarget.binaries.framework {
-            baseName = "ComposeApp"
-            isStatic = true
-        }
-    }
+    val xcfName = "ComposeApp"
+    iosX64 { binaries.framework { baseName = xcfName } }
+    iosArm64 { binaries.framework { baseName = xcfName } }
+    iosSimulatorArm64 { binaries.framework { baseName = xcfName } }
 
     sourceSets {
 
         androidMain.dependencies {
             implementation(libs.activity.compose)
             implementation(compose.preview)
+
+            implementation(compose.uiTooling)
+            implementation(libs.lifecycle.runtime.ktx)
         }
         commonMain.dependencies {
             implementation(projects.scanEngine)
@@ -40,9 +37,8 @@ kotlin {
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
             implementation(compose.ui)
-            implementation(compose.uiTooling)
 
-            implementation(libs.lifecycle.runtime.ktx)
+
         }
     }
 }
@@ -80,5 +76,4 @@ android {
 }
 
 dependencies {
-
 }

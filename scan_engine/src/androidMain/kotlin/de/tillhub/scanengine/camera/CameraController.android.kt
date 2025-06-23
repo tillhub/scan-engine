@@ -30,7 +30,6 @@ actual class CameraController(
         BarcodeScannerOptions.Builder().setBarcodeFormats(Barcode.FORMAT_ALL_FORMATS).build()
     )
 ) {
-    private var scanKey: String? = null;
 
     private val analyzer: ImageAnalysis.Analyzer = QRImageAnalyzer(
         scanner = scanner,
@@ -92,10 +91,6 @@ actual class CameraController(
      */
     actual fun stopSession() {
         cameraProvider?.unbindAll()
-    }
-
-    actual fun setScanKey(scanKey: String?) {
-        this.scanKey = scanKey
     }
 
 
