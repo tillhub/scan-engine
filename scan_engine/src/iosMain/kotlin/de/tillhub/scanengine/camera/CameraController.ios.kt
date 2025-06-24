@@ -30,18 +30,17 @@ import platform.darwin.NSObject
 import platform.darwin.dispatch_get_main_queue
 
 actual class CameraController(
+    private val cameraWrapper: CameraWrapper = CameraWrapper(),
+    private val metadataOutput: AVCaptureMetadataOutput = AVCaptureMetadataOutput(),
     barcodeScanned: (String) -> Unit,
 ) : UIViewController(null, null) {
     private val analyzer: QRImageAnalyzer = QRImageAnalyzer(barcodeScanned)
-
-    private val customCameraController = CustomCameraController()
-    private var metadataOutput = AVCaptureMetadataOutput()
 
     /**
      * Starts the camera session.
      */
     actual fun startSession() {
-        customCameraController.startSession()
+        cameraWrapper.startSession()
         setupScanner()
     }
 
@@ -49,7 +48,7 @@ actual class CameraController(
      * Stops the camera session.
      */
     actual fun stopSession() {
-        customCameraController.stopSession()
+        cameraWrapper.stopSession()
     }
 
     override fun viewDidLoad() {
@@ -57,30 +56,30 @@ actual class CameraController(
         setupCamera()
     }
 
-    fun getCameraPreviewLayer() = customCameraController.cameraPreviewLayer
+    fun getCameraPreviewLayer() = cameraWrapper.cameraPreviewLayer
 
     internal fun currentVideoOrientation(): AVCaptureVideoOrientation =
-        customCameraController.currentVideoOrientation()
+        cameraWrapper.currentVideoOrientation()
 
     private fun setupCamera() {
-        customCameraController.setupSession()
-        customCameraController.setupPreviewLayer(view)
+        cameraWrapper.setupSession()
+        cameraWrapper.setupPreviewLayer(view)
 
-        if (customCameraController.captureSession?.canAddOutput(metadataOutput) == true) {
-            customCameraController.captureSession?.addOutput(metadataOutput)
+        if (cameraWrapper.captureSession?.canAddOutput(metadataOutput) == true) {
+            cameraWrapper.captureSession?.addOutput(metadataOutput)
+        }
+
+        cameraWrapper.onError = { error ->
+            println("Camera Error: $error")
         }
 
         startSession()
-
-        customCameraController.onError = { error ->
-            println("Camera Error: $error")
-        }
     }
 
     @OptIn(ExperimentalForeignApi::class)
     override fun viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        customCameraController.cameraPreviewLayer?.setFrame(view.bounds)
+        cameraWrapper.cameraPreviewLayer?.setFrame(view.bounds)
     }
 
     private fun setupScanner() {

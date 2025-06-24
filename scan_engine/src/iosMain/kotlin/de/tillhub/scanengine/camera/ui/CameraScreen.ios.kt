@@ -18,7 +18,7 @@ actual fun cameraPreview(
     barcodeScanned: (String) -> Unit
 ) {
     val cameraController = remember {
-        CameraController(barcodeScanned)
+        CameraController(barcodeScanned = barcodeScanned)
     }
 
     DisposableEffect(Unit) {
