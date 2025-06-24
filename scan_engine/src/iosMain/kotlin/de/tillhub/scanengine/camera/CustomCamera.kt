@@ -11,7 +11,6 @@ import platform.AVFoundation.AVCapturePhotoQualityPrioritizationBalanced
 import platform.AVFoundation.AVCaptureDeviceDiscoverySession
 import platform.AVFoundation.AVCaptureDeviceTypeBuiltInWideAngleCamera
 import platform.AVFoundation.AVMediaTypeVideo
-import platform.AVFoundation.AVCaptureDevicePositionUnspecified
 import platform.AVFoundation.AVCaptureDevicePositionBack
 import platform.AVFoundation.AVCaptureDeviceInput
 import platform.AVFoundation.AVLayerVideoGravityResizeAspectFill
@@ -88,7 +87,7 @@ class CustomCameraController : NSObject(), AVCapturePhotoCaptureDelegateProtocol
         val availableDevices = AVCaptureDeviceDiscoverySession.discoverySessionWithDeviceTypes(
             listOf(AVCaptureDeviceTypeBuiltInWideAngleCamera),
             AVMediaTypeVideo,
-            AVCaptureDevicePositionUnspecified
+            AVCaptureDevicePositionBack
         ).devices
 
         if (availableDevices.isEmpty()) return false

@@ -41,9 +41,8 @@ actual class CameraController(
      * Starts the camera session.
      */
     actual fun startSession() {
-        setupScanner()
-
         customCameraController.startSession()
+        setupScanner()
     }
 
     /**
@@ -87,20 +86,20 @@ actual class CameraController(
     private fun setupScanner() {
         metadataOutput.setMetadataObjectsDelegate(analyzer, dispatch_get_main_queue())
 
-        metadataOutput.metadataObjectTypes += listOf(
-            AVMetadataObjectTypeQRCode!!,
-            AVMetadataObjectTypeEAN13Code!!,
-            AVMetadataObjectTypeEAN8Code!!,
-            AVMetadataObjectTypeCode128Code!!,
-            AVMetadataObjectTypeCode39Code!!,
-            AVMetadataObjectTypeCode93Code!!,
-            AVMetadataObjectTypeCode39Mod43Code!!,
-            AVMetadataObjectTypeITF14Code!!,
-            AVMetadataObjectTypePDF417Code!!,
-            AVMetadataObjectTypeAztecCode!!,
-            AVMetadataObjectTypeDataMatrixCode!!,
-            AVMetadataObjectTypeUPCECode!!
-        )
+//        metadataOutput.metadataObjectTypes += listOf(
+//            AVMetadataObjectTypeQRCode!!,
+//            AVMetadataObjectTypeEAN13Code!!,
+//            AVMetadataObjectTypeEAN8Code!!,
+//            AVMetadataObjectTypeCode128Code!!,
+//            AVMetadataObjectTypeCode39Code!!,
+//            AVMetadataObjectTypeCode93Code!!,
+//            AVMetadataObjectTypeCode39Mod43Code!!,
+//            AVMetadataObjectTypeITF14Code!!,
+//            AVMetadataObjectTypePDF417Code!!,
+//            AVMetadataObjectTypeAztecCode!!,
+//            AVMetadataObjectTypeDataMatrixCode!!,
+//            AVMetadataObjectTypeUPCECode!!
+//        )
     }
 }
 
@@ -121,13 +120,14 @@ internal class QRImageAnalyzer(
     ) {
         if (isProcessing.value) return
 
-        for (metadata in didOutputMetadataObjects) {
-            if (metadata !is AVMetadataMachineReadableCodeObject) continue
-            val scannedCode = metadata.stringValue ?: continue
-            if (scannedCode == lastScannedCode) continue
-
-            processCode(scannedCode)
-            break
+        didOutputMetadataObjects.firstOrNull {
+            it is AVMetadataMachineReadableCodeObject &&
+                    !it.stringValue.isNullOrEmpty() &&
+                    it.stringValue != lastScannedCode
+        }?.let { scannedCode ->
+            (scannedCode as AVMetadataMachineReadableCodeObject).stringValue?.let {
+                processCode(it)
+            }
         }
     }
 
