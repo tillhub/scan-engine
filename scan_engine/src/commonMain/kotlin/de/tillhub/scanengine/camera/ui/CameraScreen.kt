@@ -16,14 +16,15 @@ import de.tillhub.scanengine.camera.PermissionHandler
 import de.tillhub.scanengine.camera.getPermissionHandler
 import de.tillhub.scanengine.ui.components.BottomButton
 import de.tillhub.scanengine.ui.components.Toolbar
-import de.tillhub.scanengine.ui.components.getModifierBasedOnDeviceType
-import de.tillhub.scanengine.ui.theme.TabletScaffoldModifier
 import de.tillhub.scanengine.ui.theme.AppTheme
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import de.tillhub.scanengine.resources.Res
+import de.tillhub.scanengine.resources.camera_error
 import de.tillhub.scanengine.resources.camera_title
 import de.tillhub.scanengine.resources.permission_camera_request
+import de.tillhub.scanengine.resources.permission_required_message
+import de.tillhub.scanengine.resources.permission_required_title
 
 @Preview
 @Composable
@@ -35,30 +36,49 @@ fun CameraScreen(
 
     val hasPermission = remember { mutableStateOf(permissions.hasCameraPermission()) }
     val askForPermission = remember { mutableStateOf(false) }
+    val cameraError = remember { mutableStateOf(false) }
 
     AppTheme {
         Scaffold(
-            modifier = getModifierBasedOnDeviceType(
-                isTablet = TabletScaffoldModifier,
-                isMobile = Modifier
-            ),
+            modifier = Modifier,
             topBar = {
                 Toolbar(
                     title = if (hasPermission.value) {
                         stringResource(Res.string.camera_title)
                     } else {
-                        stringResource(Res.string.camera_title)
+                        stringResource(Res.string.permission_required_title)
                     },
                     onClick = { onDismiss() }
                 )
             }
         ) { innerPadding ->
             when {
+                cameraError.value -> {
+                    Column(
+                        modifier = Modifier
+                            .padding(innerPadding)
+                            .padding(top = 16.dp)
+                            .fillMaxHeight(),
+                        verticalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            style = MaterialTheme.typography.headlineSmall,
+                            modifier = Modifier.padding(
+                                vertical = 16.dp,
+                                horizontal = 8.dp
+                            ),
+                            text = stringResource(Res.string.camera_error)
+                        )
+                    }
+                }
                 hasPermission.value -> cameraPreview(
                     modifier = Modifier
                         .padding(innerPadding)
                         .padding(top = 16.dp),
-                    barcodeScanned = onResult
+                    barcodeScanned = onResult,
+                    onCameraError = { error ->
+                        cameraError.value = true
+                    }
                 )
                 askForPermission.value -> permissions.RequestCameraPermission(
                     onGranted = { hasPermission.value = true },
@@ -78,7 +98,7 @@ fun CameraScreen(
                                 vertical = 16.dp,
                                 horizontal = 8.dp
                             ),
-                            text = stringResource(Res.string.permission_camera_request)
+                            text = stringResource(Res.string.permission_required_message)
                         )
                         BottomButton(
                             text = stringResource(Res.string.permission_camera_request),
@@ -94,5 +114,6 @@ fun CameraScreen(
 @Composable
 expect fun cameraPreview(
     modifier: Modifier,
-    barcodeScanned: (String) -> Unit
+    barcodeScanned: (String) -> Unit,
+    onCameraError: (String) -> Unit
 )

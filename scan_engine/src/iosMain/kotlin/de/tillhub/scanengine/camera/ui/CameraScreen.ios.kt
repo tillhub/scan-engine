@@ -15,10 +15,14 @@ import platform.UIKit.UIDeviceOrientationDidChangeNotification
 @Composable
 actual fun cameraPreview(
     modifier: Modifier,
-    barcodeScanned: (String) -> Unit
+    barcodeScanned: (String) -> Unit,
+    onCameraError: (String) -> Unit
 ) {
     val cameraController = remember {
-        CameraController(barcodeScanned = barcodeScanned)
+        CameraController(
+            barcodeScanned = barcodeScanned,
+            onCameraError = onCameraError
+        )
     }
 
     DisposableEffect(Unit) {

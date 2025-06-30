@@ -5,6 +5,7 @@ import platform.AVFoundation.AVCaptureDevice
 import platform.AVFoundation.AVCaptureDeviceDiscoverySession
 import platform.AVFoundation.AVCaptureDeviceInput
 import platform.AVFoundation.AVCaptureDevicePositionBack
+import platform.AVFoundation.AVCaptureDevicePositionUnspecified
 import platform.AVFoundation.AVCaptureDeviceTypeBuiltInWideAngleCamera
 import platform.AVFoundation.AVCaptureSession
 import platform.AVFoundation.AVCaptureSessionPresetPhoto
@@ -99,16 +100,17 @@ class CameraWrapper: NSObject() {
         stopSession()
         cameraPreviewLayer?.removeFromSuperlayer()
         cameraPreviewLayer = null
+        captureSession = null
         currentCamera = null
     }
 
-    @Suppress("TooGenericExceptionCaught", "SwallowedException")
+    @Suppress("TooGenericExceptionCaught", "SwallowedException", "ReturnCount")
     @OptIn(ExperimentalForeignApi::class)
     private fun setupInputs(): Boolean {
         val availableDevices = AVCaptureDeviceDiscoverySession.discoverySessionWithDeviceTypes(
             listOf(AVCaptureDeviceTypeBuiltInWideAngleCamera),
             AVMediaTypeVideo,
-            AVCaptureDevicePositionBack
+            AVCaptureDevicePositionUnspecified
         ).devices
 
         if (availableDevices.isEmpty()) return false
@@ -116,6 +118,8 @@ class CameraWrapper: NSObject() {
         val backCamera = availableDevices.find {
             (it as AVCaptureDevice).position == AVCaptureDevicePositionBack
         } as? AVCaptureDevice
+
+        //val backCamera = availableDevices.firstOrNull() as? AVCaptureDevice
 
         currentCamera = backCamera ?: return false
 

@@ -7,6 +7,8 @@
     <string name="permission_required_message">Um den Scanner nutzen zu können, müssen Sie den Zugriff im nächsten Berechtigungsdialog gewähren.\n\nMöchten Sie fortfahren?</string>
     <string name="permission_camera_request">Kameraberechtigungen</string>
 
+    <string name="camera_error">Es gab ein Problem bei der Anforderung einer Kamera-Schnittstelle auf Ihrem Gerät.</string>
+
     <string name="ok">OK</string>
     <string name="loading">Laden</string>
     <string name="pairing_title">Barcode-Kopplung</string>

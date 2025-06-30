@@ -15,7 +15,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 @Composable
 actual fun cameraPreview(
     modifier: Modifier,
-    barcodeScanned: (String) -> Unit
+    barcodeScanned: (String) -> Unit,
+    onCameraError: (String) -> Unit
 ) {
     val context = LocalContext.current
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current

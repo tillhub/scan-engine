@@ -32,7 +32,8 @@ import platform.darwin.dispatch_get_main_queue
 actual class CameraController(
     private val cameraWrapper: CameraWrapper = CameraWrapper(),
     private val metadataOutput: AVCaptureMetadataOutput = AVCaptureMetadataOutput(),
-    barcodeScanned: (String) -> Unit,
+    private val onCameraError: (String) -> Unit,
+    barcodeScanned: (String) -> Unit
 ) : UIViewController(null, null) {
     private val analyzer: QRImageAnalyzer = QRImageAnalyzer(barcodeScanned)
 
@@ -62,15 +63,16 @@ actual class CameraController(
         cameraWrapper.currentVideoOrientation()
 
     private fun setupCamera() {
+        cameraWrapper.onError = { error ->
+            println("Camera Error: $error")
+            onCameraError(error.message.orEmpty())
+        }
+
         cameraWrapper.setupSession()
         cameraWrapper.setupPreviewLayer(view)
 
         if (cameraWrapper.captureSession?.canAddOutput(metadataOutput) == true) {
             cameraWrapper.captureSession?.addOutput(metadataOutput)
-        }
-
-        cameraWrapper.onError = { error ->
-            println("Camera Error: $error")
         }
 
         startSession()
@@ -85,6 +87,7 @@ actual class CameraController(
     private fun setupScanner() {
         metadataOutput.setMetadataObjectsDelegate(analyzer, dispatch_get_main_queue())
 
+        if (cameraWrapper.captureSession?.isRunning() == true) {
 //        metadataOutput.metadataObjectTypes += listOf(
 //            AVMetadataObjectTypeQRCode!!,
 //            AVMetadataObjectTypeEAN13Code!!,
@@ -99,6 +102,7 @@ actual class CameraController(
 //            AVMetadataObjectTypeDataMatrixCode!!,
 //            AVMetadataObjectTypeUPCECode!!
 //        )
+        }
     }
 }
 
