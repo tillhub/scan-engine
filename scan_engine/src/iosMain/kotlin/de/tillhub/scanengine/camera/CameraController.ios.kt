@@ -37,12 +37,25 @@ actual class CameraController(
 ) : UIViewController(null, null) {
     private val analyzer: QRImageAnalyzer = QRImageAnalyzer(barcodeScanned)
 
+    override fun viewDidLoad() {
+        super.viewDidLoad()
+        setupCamera()
+    }
+
+    @OptIn(ExperimentalForeignApi::class)
+    override fun viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        cameraWrapper.cameraPreviewLayer?.setFrame(view.bounds)
+        setupScanner()
+    }
+
+    fun getCameraPreviewLayer() = cameraWrapper.cameraPreviewLayer
+
     /**
      * Starts the camera session.
      */
     actual fun startSession() {
         cameraWrapper.startSession()
-        setupScanner()
     }
 
     /**
@@ -51,13 +64,6 @@ actual class CameraController(
     actual fun stopSession() {
         cameraWrapper.stopSession()
     }
-
-    override fun viewDidLoad() {
-        super.viewDidLoad()
-        setupCamera()
-    }
-
-    fun getCameraPreviewLayer() = cameraWrapper.cameraPreviewLayer
 
     internal fun currentVideoOrientation(): AVCaptureVideoOrientation =
         cameraWrapper.currentVideoOrientation()
@@ -78,30 +84,24 @@ actual class CameraController(
         startSession()
     }
 
-    @OptIn(ExperimentalForeignApi::class)
-    override fun viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        cameraWrapper.cameraPreviewLayer?.setFrame(view.bounds)
-    }
-
     private fun setupScanner() {
         metadataOutput.setMetadataObjectsDelegate(analyzer, dispatch_get_main_queue())
 
         if (cameraWrapper.captureSession?.isRunning() == true) {
-//        metadataOutput.metadataObjectTypes += listOf(
-//            AVMetadataObjectTypeQRCode!!,
-//            AVMetadataObjectTypeEAN13Code!!,
-//            AVMetadataObjectTypeEAN8Code!!,
-//            AVMetadataObjectTypeCode128Code!!,
-//            AVMetadataObjectTypeCode39Code!!,
-//            AVMetadataObjectTypeCode93Code!!,
-//            AVMetadataObjectTypeCode39Mod43Code!!,
-//            AVMetadataObjectTypeITF14Code!!,
-//            AVMetadataObjectTypePDF417Code!!,
-//            AVMetadataObjectTypeAztecCode!!,
-//            AVMetadataObjectTypeDataMatrixCode!!,
-//            AVMetadataObjectTypeUPCECode!!
-//        )
+            metadataOutput.metadataObjectTypes += listOf(
+                AVMetadataObjectTypeQRCode!!,
+                AVMetadataObjectTypeEAN13Code!!,
+                AVMetadataObjectTypeEAN8Code!!,
+                AVMetadataObjectTypeCode128Code!!,
+                AVMetadataObjectTypeCode39Code!!,
+                AVMetadataObjectTypeCode93Code!!,
+                AVMetadataObjectTypeCode39Mod43Code!!,
+                AVMetadataObjectTypeITF14Code!!,
+                AVMetadataObjectTypePDF417Code!!,
+                AVMetadataObjectTypeAztecCode!!,
+                AVMetadataObjectTypeDataMatrixCode!!,
+                AVMetadataObjectTypeUPCECode!!
+            )
         }
     }
 }

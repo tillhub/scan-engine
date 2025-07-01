@@ -62,7 +62,7 @@ fun CameraScreen(
                         verticalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            style = MaterialTheme.typography.headlineSmall,
+                            style = MaterialTheme.typography.labelLarge,
                             modifier = Modifier.padding(
                                 vertical = 16.dp,
                                 horizontal = 8.dp
@@ -88,15 +88,14 @@ fun CameraScreen(
                     Column(
                         modifier = Modifier
                             .padding(innerPadding)
-                            .padding(top = 16.dp)
                             .fillMaxHeight(),
                         verticalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            style = MaterialTheme.typography.headlineSmall,
+                            style = MaterialTheme.typography.labelLarge,
                             modifier = Modifier.padding(
                                 vertical = 16.dp,
-                                horizontal = 8.dp
+                                horizontal = 16.dp
                             ),
                             text = stringResource(Res.string.permission_required_message)
                         )

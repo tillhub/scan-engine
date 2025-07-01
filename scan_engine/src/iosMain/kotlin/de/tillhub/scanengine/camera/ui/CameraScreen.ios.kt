@@ -1,5 +1,6 @@
 package de.tillhub.scanengine.camera.ui
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -42,7 +43,7 @@ actual fun cameraPreview(
     }
 
     UIKitViewController(
+        modifier = Modifier.fillMaxSize(),
         factory = { cameraController },
-        modifier = modifier,
     )
 }

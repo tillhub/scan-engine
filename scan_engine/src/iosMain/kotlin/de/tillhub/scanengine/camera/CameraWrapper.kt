@@ -43,7 +43,6 @@ class CameraWrapper: NSObject() {
             captureSession = AVCaptureSession()
             captureSession?.beginConfiguration()
 
-
             captureSession?.sessionPreset = AVCaptureSessionPresetPhoto
 
             if (!setupInputs()) {
@@ -59,7 +58,12 @@ class CameraWrapper: NSObject() {
 
     fun startSession() {
         if (captureSession?.isRunning() == false) {
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH.toLong(), 0u)) {
+            dispatch_async(
+                queue = dispatch_get_global_queue(
+                    identifier = DISPATCH_QUEUE_PRIORITY_HIGH.toLong(),
+                    flags = 0u
+                )
+            ) {
                 captureSession?.startRunning()
             }
         }
@@ -118,8 +122,6 @@ class CameraWrapper: NSObject() {
         val backCamera = availableDevices.find {
             (it as AVCaptureDevice).position == AVCaptureDevicePositionBack
         } as? AVCaptureDevice
-
-        //val backCamera = availableDevices.firstOrNull() as? AVCaptureDevice
 
         currentCamera = backCamera ?: return false
 
