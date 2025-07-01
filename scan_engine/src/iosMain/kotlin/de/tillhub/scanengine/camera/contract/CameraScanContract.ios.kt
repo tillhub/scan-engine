@@ -8,6 +8,12 @@ import de.tillhub.scanengine.data.ScannerEvent
 import platform.UIKit.UIApplication
 import platform.UIKit.UIViewController
 
+/**
+ * iOS implementation of a [CameraScanContract] using a [UIViewController] to present the camera
+ * preview.
+ *
+ * @param onResult a callback for the result of the camera scan.
+ */
 @Composable
 actual fun rememberCameraScanLauncher(
     onResult: (ScannerEvent) -> Unit
@@ -15,6 +21,15 @@ actual fun rememberCameraScanLauncher(
     object : CameraScanContract {
         private var viewController: UIViewController? = null
 
+        /**
+         * Launches the camera scanner.
+         *
+         * This function presents a [ComposeUIViewController] containing the [CameraScreen]
+         * composable. The [CameraScreen] handles the camera preview and barcode scanning.
+         *
+         * @param scanKey An optional key to identify the scan session. This key will be included
+         * in the [ScannerEvent.ScanResult] when a barcode is successfully scanned.
+         */
         override fun launchCameraScanner(scanKey: String?) {
             val rootVC = UIApplication.sharedApplication.keyWindow?.rootViewController ?: return
 
@@ -41,6 +56,12 @@ actual fun rememberCameraScanLauncher(
             }
         }
 
+        /**
+         * Dismisses the camera scanner view controller.
+         *
+         * This function dismisses the currently presented [UIViewController] that hosts the
+         * camera preview. It also nullifies the `viewController` reference after dismissal.
+         */
         private fun dismiss() {
             viewController?.dismissViewControllerAnimated(true) {
                 viewController = null

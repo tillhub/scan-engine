@@ -2,6 +2,12 @@ package de.tillhub.scanengine.camera
 
 import androidx.compose.runtime.Composable
 
+/**
+ * Interface for handling camera permission requests.
+ *
+ * This interface provides methods to check and request camera permission,
+ * crucial for features that require access to the device's camera.
+ */
 interface PermissionHandler {
     /**
      * Checks if the camera permission is granted.
@@ -17,7 +23,7 @@ interface PermissionHandler {
      * @param onDenied Callback invoked when permission is denied.
      */
     @Composable
-    fun RequestCameraPermission(onGranted: () -> Unit, onDenied: () -> Unit)
+    fun requestCameraPermission(onGranted: () -> Unit, onDenied: () -> Unit)
 }
 
 @Composable

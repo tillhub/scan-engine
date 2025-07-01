@@ -80,7 +80,7 @@ fun CameraScreen(
                         cameraError.value = true
                     }
                 )
-                askForPermission.value -> permissions.RequestCameraPermission(
+                askForPermission.value -> permissions.requestCameraPermission(
                     onGranted = { hasPermission.value = true },
                     onDenied = { askForPermission.value = false }
                 )

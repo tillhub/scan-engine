@@ -22,7 +22,7 @@ class AndroidPermissionHandler(
     }
 
     @Composable
-    override fun RequestCameraPermission(onGranted: () -> Unit, onDenied: () -> Unit) {
+    override fun requestCameraPermission(onGranted: () -> Unit, onDenied: () -> Unit) {
         val launcher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.RequestPermission(),
             onResult = { isGranted ->
