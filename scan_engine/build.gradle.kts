@@ -1,29 +1,22 @@
-import com.android.build.api.dsl.androidLibrary
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
 
 plugins {
+    alias(libs.plugins.android.library)
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidKotlinMultiplatformLibrary)
     alias(libs.plugins.compose)
     alias(libs.plugins.compose.compiler)
 }
 
 kotlin {
-    targets.all {
-        compilations.all {
-            compileTaskProvider.configure {
-                compilerOptions {
-                    // removes warnings for expect/actual classes
-                    freeCompilerArgs.add("-Xexpect-actual-classes")
-                }
-            }
-        }
+    compilerOptions {
+        // removes warnings for expect/actual classes
+        freeCompilerArgs.add("-Xexpect-actual-classes")
     }
 
-    androidLibrary {
-        namespace = "de.tillhub.scanengine"
-        compileSdk = 35
-        minSdk = 24
-        experimentalProperties["android.experimental.kmp.enableAndroidResources"] = true
+    androidTarget {
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        instrumentedTestVariant.sourceSetTree.set(KotlinSourceSetTree.test)
     }
 
     val xcfName = "scan_engine"
@@ -53,6 +46,27 @@ kotlin {
             implementation(libs.bundles.mlkit)
             implementation(libs.activity.compose)
         }
+    }
+}
+
+android {
+    namespace = Configs.APPLICATION_ID
+    compileSdk = Configs.COMPILE_SDK
+
+    experimentalProperties["android.experimental.kmp.enableAndroidResources"] = true
+
+    defaultConfig {
+        minSdk = Configs.MIN_SDK
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
+    compileOptions {
+        sourceCompatibility = Configs.JAVA_VERSION
+        targetCompatibility = Configs.JAVA_VERSION
     }
 }
 

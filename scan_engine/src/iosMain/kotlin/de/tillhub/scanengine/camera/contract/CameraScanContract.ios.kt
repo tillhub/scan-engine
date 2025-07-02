@@ -33,6 +33,8 @@ actual fun rememberCameraScanLauncher(
         override fun launchCameraScanner(scanKey: String?) {
             val rootVC = UIApplication.sharedApplication.keyWindow?.rootViewController ?: return
 
+            onResult.invoke(ScannerEvent.Camera.InProgress(scanKey))
+
             viewController = ComposeUIViewController {
                 CameraScreen(
                     onResult = {

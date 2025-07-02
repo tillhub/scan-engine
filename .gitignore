@@ -31,6 +31,7 @@ out/
 /build
 /scan_engine/build
 /sample/build
+/buildSrc/build
 
 # Local configuration file (sdk path, etc)
 /local.properties

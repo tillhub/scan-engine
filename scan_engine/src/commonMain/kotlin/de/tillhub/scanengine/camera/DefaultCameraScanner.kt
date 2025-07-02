@@ -8,6 +8,12 @@ import de.tillhub.scanengine.data.ScannerEvent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
+/**
+ * A default implementation of [CameraScanner] that uses a [MutableStateFlow] to emit [ScannerEvent]s
+ * and a [CameraScanContract] to launch the camera scanner.
+ *
+ * @param mutableScannerEvents The [MutableStateFlow] to emit [ScannerEvent]s to.
+ */
 internal class DefaultCameraScanner(
     private val mutableScannerEvents: MutableStateFlow<ScannerEvent>,
 ) : CameraScanner {
@@ -17,17 +23,6 @@ internal class DefaultCameraScanner(
     @Composable
     override fun cameraScannerLauncher(): CameraScanContract =
         rememberCameraScanLauncher { result ->
-            when (result) {
-                ScannerEvent.Camera.Canceled -> mutableScannerEvents.tryEmit(result)
-                is ScannerEvent.ScanResult -> {
-                    val scanKey = (mutableScannerEvents.value as? ScannerEvent.Camera.InProgress)?.scanKey
-                    mutableScannerEvents.tryEmit(result.copy(scanKey = scanKey))
-                }
-
-                is ScannerEvent.Camera.InProgress,
-                is ScannerEvent.External.Connecting,
-                ScannerEvent.External.NotConnected,
-                ScannerEvent.External.Connected -> Unit
-            }
+            mutableScannerEvents.tryEmit(result)
         }
 }
