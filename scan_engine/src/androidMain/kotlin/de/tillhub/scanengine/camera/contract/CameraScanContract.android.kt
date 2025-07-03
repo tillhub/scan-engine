@@ -31,7 +31,7 @@ import de.tillhub.scanengine.data.ScannerEvent
  * @see ScannerEvent
  */
 @Composable
-actual fun rememberCameraScanLauncher(onResult: (ScannerEvent) -> Unit): CameraScanContract {
+internal actual fun rememberCameraScanLauncher(onResult: (ScannerEvent) -> Unit): CameraScanContract {
     val context = LocalContext.current
     val launchCallback = remember { mutableStateOf<((String?) -> Unit)?>(null) }
 

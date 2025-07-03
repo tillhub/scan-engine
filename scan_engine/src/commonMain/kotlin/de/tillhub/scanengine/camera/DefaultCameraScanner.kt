@@ -18,8 +18,18 @@ internal class DefaultCameraScanner(
     private val mutableScannerEvents: MutableStateFlow<ScannerEvent>,
 ) : CameraScanner {
 
+    /**
+     * Observes the results of the camera scanner.
+     *
+     * @return A [StateFlow] that emits [ScannerEvent]s when the camera scanner produces a result.
+     */
     override fun observeScannerResults(): StateFlow<ScannerEvent> = mutableScannerEvents
 
+    /**
+     * Launches the camera scanner and emits the result to the [mutableScannerEvents] [MutableStateFlow].
+     *
+     * @return A [CameraScanContract] that can be used to launch the camera scanner.
+     */
     @Composable
     override fun cameraScannerLauncher(): CameraScanContract =
         rememberCameraScanLauncher { result ->

@@ -33,7 +33,7 @@ import platform.UIKit.UIDeviceOrientationDidChangeNotification
  *                      or operation. It receives an error message string as a parameter.
  */
 @Composable
-actual fun cameraPreview(
+internal actual fun cameraPreview(
     modifier: Modifier,
     barcodeScanned: (String) -> Unit,
     onCameraError: (String) -> Unit

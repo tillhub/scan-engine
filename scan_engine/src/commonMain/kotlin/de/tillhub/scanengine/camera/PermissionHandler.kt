@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
  * This interface provides methods to check and request camera permission,
  * crucial for features that require access to the device's camera.
  */
-interface PermissionHandler {
+internal interface PermissionHandler {
     /**
      * Checks if the camera permission is granted.
      *
@@ -27,4 +27,4 @@ interface PermissionHandler {
 }
 
 @Composable
-expect fun getPermissionHandler(): PermissionHandler
+internal expect fun getPermissionHandler(): PermissionHandler

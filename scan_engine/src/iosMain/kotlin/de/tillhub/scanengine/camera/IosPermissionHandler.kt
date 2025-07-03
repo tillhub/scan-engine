@@ -56,7 +56,7 @@ internal class IosPermissionHandler : PermissionHandler {
 }
 
 @Composable
-actual fun getPermissionHandler(): PermissionHandler {
+internal actual fun getPermissionHandler(): PermissionHandler {
     return remember {
         IosPermissionHandler()
     }

@@ -26,9 +26,22 @@ import de.tillhub.scanengine.resources.permission_camera_request
 import de.tillhub.scanengine.resources.permission_required_message
 import de.tillhub.scanengine.resources.permission_required_title
 
+/**
+ * A Composable function that displays a camera screen for barcode scanning.
+ *
+ * This screen handles camera permission requests and displays appropriate UI based on the permission status.
+ * If permission is granted, it shows the camera preview for scanning.
+ * If permission is denied, it shows a message requesting permission.
+ * If there's a camera error, it displays an error message.
+ *
+ * @param onResult A callback function that is invoked when a barcode is successfully scanned.
+ *                 It receives the scanned barcode string as a parameter.
+ * @param onDismiss A callback function that is invoked when the user dismisses the screen
+ *                  (e.g., by clicking the back button in the toolbar).
+ */
 @Preview
 @Composable
-fun CameraScreen(
+internal fun CameraScreen(
     onResult: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -110,8 +123,18 @@ fun CameraScreen(
     }
 }
 
+/**
+ * A Composable function that displays the camera preview for barcode scanning.
+ * This is an expect function, meaning its actual implementation is provided by the platform-specific code (Android or iOS).
+ *
+ * @param modifier Modifier to be applied to the camera preview.
+ * @param barcodeScanned A callback function that is invoked when a barcode is successfully scanned.
+ *                       It receives the scanned barcode string as a parameter.
+ * @param onCameraError A callback function that is invoked when an error occurs with the camera.
+ *                      It receives an error message string as a parameter.
+ */
 @Composable
-expect fun cameraPreview(
+internal expect fun cameraPreview(
     modifier: Modifier,
     barcodeScanned: (String) -> Unit,
     onCameraError: (String) -> Unit

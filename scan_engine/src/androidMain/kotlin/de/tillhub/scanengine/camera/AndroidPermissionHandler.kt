@@ -16,7 +16,7 @@ import androidx.core.content.ContextCompat
  *
  * @param context The application context used to check and request permissions.
  */
-class AndroidPermissionHandler(
+internal class AndroidPermissionHandler(
     private val context: Context
 ) : PermissionHandler {
     /**
@@ -83,7 +83,7 @@ class AndroidPermissionHandler(
  * @return An instance of [PermissionHandler].
  */
 @Composable
-actual fun getPermissionHandler(): PermissionHandler {
+internal actual fun getPermissionHandler(): PermissionHandler {
     val context = LocalContext.current
 
     return remember {

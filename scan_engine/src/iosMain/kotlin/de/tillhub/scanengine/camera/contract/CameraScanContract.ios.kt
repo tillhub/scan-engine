@@ -15,7 +15,7 @@ import platform.UIKit.UIViewController
  * @param onResult a callback for the result of the camera scan.
  */
 @Composable
-actual fun rememberCameraScanLauncher(
+internal actual fun rememberCameraScanLauncher(
     onResult: (ScannerEvent) -> Unit
 ): CameraScanContract = remember {
     object : CameraScanContract {

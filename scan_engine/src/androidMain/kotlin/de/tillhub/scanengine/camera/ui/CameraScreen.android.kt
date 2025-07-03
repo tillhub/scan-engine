@@ -28,7 +28,7 @@ import de.tillhub.scanengine.camera.CameraController
  *                      if any issue occurs during camera initialization or operation.
  */
 @Composable
-actual fun cameraPreview(
+internal actual fun cameraPreview(
     modifier: Modifier,
     barcodeScanned: (String) -> Unit,
     onCameraError: (String) -> Unit
