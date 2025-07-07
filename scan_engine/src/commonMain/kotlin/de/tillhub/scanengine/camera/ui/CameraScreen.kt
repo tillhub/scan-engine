@@ -11,6 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import de.tillhub.scanengine.camera.PermissionHandler
 import de.tillhub.scanengine.camera.getPermissionHandler
@@ -34,6 +36,8 @@ import de.tillhub.scanengine.resources.permission_required_title
  * If permission is denied, it shows a message requesting permission.
  * If there's a camera error, it displays an error message.
  *
+ * @param permissions An instance of [PermissionHandler] used to manage camera permissions.
+ *                    Defaults to a platform-specific implementation obtained via [getPermissionHandler].
  * @param onResult A callback function that is invoked when a barcode is successfully scanned.
  *                 It receives the scanned barcode string as a parameter.
  * @param onDismiss A callback function that is invoked when the user dismisses the screen
@@ -42,10 +46,10 @@ import de.tillhub.scanengine.resources.permission_required_title
 @Preview
 @Composable
 internal fun CameraScreen(
+    permissions: PermissionHandler = getPermissionHandler(),
     onResult: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
-    val permissions: PermissionHandler = getPermissionHandler()
 
     val hasPermission = remember { mutableStateOf(permissions.hasCameraPermission()) }
     val askForPermission = remember { mutableStateOf(false) }
@@ -76,10 +80,12 @@ internal fun CameraScreen(
                     ) {
                         Text(
                             style = MaterialTheme.typography.labelLarge,
-                            modifier = Modifier.padding(
-                                vertical = 16.dp,
-                                horizontal = 8.dp
-                            ),
+                            modifier = Modifier
+                                .padding(
+                                    vertical = 16.dp,
+                                    horizontal = 8.dp
+                                )
+                                .semantics { contentDescription = "Camera Error" },
                             text = stringResource(Res.string.camera_error)
                         )
                     }
@@ -87,7 +93,8 @@ internal fun CameraScreen(
                 hasPermission.value -> cameraPreview(
                     modifier = Modifier
                         .padding(innerPadding)
-                        .padding(top = 16.dp),
+                        .padding(top = 16.dp)
+                        .semantics { contentDescription = "Camera preview" },
                     barcodeScanned = onResult,
                     onCameraError = { error ->
                         cameraError.value = true
@@ -106,10 +113,12 @@ internal fun CameraScreen(
                     ) {
                         Text(
                             style = MaterialTheme.typography.labelLarge,
-                            modifier = Modifier.padding(
-                                vertical = 16.dp,
-                                horizontal = 16.dp
-                            ),
+                            modifier = Modifier
+                                .padding(
+                                    vertical = 16.dp,
+                                    horizontal = 16.dp
+                                )
+                                .semantics { contentDescription = "Permission explanation" },
                             text = stringResource(Res.string.permission_required_message)
                         )
                         BottomButton(

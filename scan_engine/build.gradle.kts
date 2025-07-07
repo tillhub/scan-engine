@@ -1,3 +1,4 @@
+import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
 
@@ -17,6 +18,11 @@ kotlin {
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         instrumentedTestVariant.sourceSetTree.set(KotlinSourceSetTree.test)
+
+        dependencies {
+            androidTestImplementation(libs.androidx.ui.test.junit4.android)
+            androidTestImplementation(libs.androidx.ui.test.manifest)
+        }
     }
 
     val xcfName = "scan_engine"
@@ -39,7 +45,16 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtimeCompose)
         }
         commonTest.dependencies {
-            implementation(libs.kotlin.test)
+            implementation(kotlin("test"))
+
+            @OptIn(ExperimentalComposeLibrary::class)
+            implementation(compose.uiTest)
+        }
+        iosTest.dependencies {
+            implementation(kotlin("test"))
+
+            @OptIn(ExperimentalComposeLibrary::class)
+            implementation(compose.uiTest)
         }
         androidMain.dependencies {
             implementation(libs.bundles.camera)
@@ -67,6 +82,15 @@ android {
     compileOptions {
         sourceCompatibility = Configs.JAVA_VERSION
         targetCompatibility = Configs.JAVA_VERSION
+    }
+
+    testOptions {
+        unitTests {
+            all {
+                // We want to exclude all UI tests from the unit tests
+                it.exclude("**/scanengine/camera/ui/**")
+            }
+        }
     }
 }
 

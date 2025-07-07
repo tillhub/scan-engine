@@ -29,10 +29,6 @@ import kotlinx.coroutines.flow.drop
  *             // Handle successful scan
  *             println("Scanned code: ${event.scanCode.value}")
  *         }
- *         is ScannerEvent.Error -> {
- *             // Handle error
- *             println("Scan error: ${event.exception.message}")
- *         }
  *         // Handle other event types
  *         ...
  *     }
