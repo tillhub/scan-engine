@@ -25,5 +25,5 @@ interface CameraScanContract {
  */
 @Composable
 internal expect fun rememberCameraScanLauncher(
-    onResult: (ScannerEvent) -> Unit
+    onResult: (ScannerEvent) -> Unit,
 ): CameraScanContract

@@ -43,7 +43,7 @@ internal class IosPermissionHandler : PermissionHandler {
     @Composable
     override fun requestCameraPermission(onGranted: () -> Unit, onDenied: () -> Unit) {
         AVCaptureDevice.requestAccessForMediaType(
-            AVMediaTypeVideo
+            AVMediaTypeVideo,
         ) { granted ->
             if (granted) {
                 onGranted()
@@ -52,7 +52,6 @@ internal class IosPermissionHandler : PermissionHandler {
             }
         }
     }
-
 }
 
 @Composable

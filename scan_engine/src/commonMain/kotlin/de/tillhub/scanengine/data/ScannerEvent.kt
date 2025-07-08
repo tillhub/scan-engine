@@ -14,11 +14,11 @@ sealed class ScannerEvent {
 
     class ScanResult(
         val value: String,
-        val scanKey: String? = null
+        val scanKey: String? = null,
     ) : ScannerEvent() {
         fun copy(
             value: String = this.value,
-            scanKey: String? = this.scanKey
+            scanKey: String? = this.scanKey,
         ) = ScanResult(value, scanKey)
     }
 }

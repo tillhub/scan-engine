@@ -5,7 +5,8 @@ import de.tillhub.scanengine.getPlatform
 enum class ScannerType(val value: String) {
     SUNMI("SUNMI"),
     ZEBRA("ZEBRA"),
-    UNKNOWN("UNKNOWN");
+    UNKNOWN("UNKNOWN"),
+    ;
 
     companion object {
         fun get(): ScannerType =

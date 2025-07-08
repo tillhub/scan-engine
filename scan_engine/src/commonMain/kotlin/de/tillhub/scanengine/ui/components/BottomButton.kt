@@ -13,7 +13,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import de.tillhub.scanengine.ui.theme.MagneticGrey
 import de.tillhub.scanengine.ui.theme.OrbitalBlue
-import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -21,7 +20,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 internal fun BottomButton(
     isEnable: Boolean = true,
     text: String,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
 ) {
     Button(
         enabled = isEnable,
@@ -31,13 +30,13 @@ internal fun BottomButton(
         shape = RectangleShape,
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (isEnable) OrbitalBlue else MagneticGrey
-        )
+            containerColor = if (isEnable) OrbitalBlue else MagneticGrey,
+        ),
     ) {
         Text(
             style = MaterialTheme.typography.headlineSmall,
             modifier = Modifier.padding(vertical = 8.dp),
-            text = text
+            text = text,
         )
     }
 }

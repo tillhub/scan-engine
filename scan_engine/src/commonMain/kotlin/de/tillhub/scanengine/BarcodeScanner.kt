@@ -1,7 +1,7 @@
 package de.tillhub.scanengine
 
-import de.tillhub.scanengine.data.ScannerEvent
 import de.tillhub.scanengine.data.Scanner
+import de.tillhub.scanengine.data.ScannerEvent
 import de.tillhub.scanengine.data.ScannerResponse
 import de.tillhub.scanengine.data.ScannerType
 import kotlinx.coroutines.flow.Flow

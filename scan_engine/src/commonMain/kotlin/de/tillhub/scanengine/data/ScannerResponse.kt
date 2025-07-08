@@ -1,6 +1,5 @@
 package de.tillhub.scanengine.data
 
-
 sealed class ScannerResponse {
     sealed class Error : ScannerResponse() {
         data object NotFound : Error()

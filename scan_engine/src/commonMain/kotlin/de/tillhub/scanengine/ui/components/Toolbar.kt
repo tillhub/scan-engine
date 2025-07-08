@@ -22,7 +22,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 internal fun Toolbar(
     title: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Column {
         TopAppBar(
@@ -32,20 +32,20 @@ internal fun Toolbar(
                 Text(
                     title,
                     style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.testTag("toolbarTitle")
+                    modifier = Modifier.testTag("toolbarTitle"),
                 )
             },
             navigationIcon = {
                 IconButton(
                     onClick = onClick,
-                    modifier = Modifier.testTag("toolbarIcon")
+                    modifier = Modifier.testTag("toolbarIcon"),
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Close,
-                        contentDescription = "close"
+                        contentDescription = "close",
                     )
                 }
-            }
+            },
         )
         HorizontalDivider()
     }

@@ -21,7 +21,7 @@ class CameraScanActivity : ComponentActivity() {
                 onDismiss = {
                     setResult(RESULT_CANCELED)
                     finish()
-                }
+                },
             )
         }
     }

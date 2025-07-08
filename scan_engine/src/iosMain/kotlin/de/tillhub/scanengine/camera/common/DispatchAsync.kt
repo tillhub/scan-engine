@@ -13,8 +13,8 @@ fun dispatchAsync(priority: Int = DISPATCH_QUEUE_PRIORITY_HIGH, block: () -> Uni
     dispatch_async(
         queue = dispatch_get_global_queue(
             identifier = priority.toLong(),
-            flags = 0u
+            flags = 0u,
         ),
-        block = block
+        block = block,
     )
 }

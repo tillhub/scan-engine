@@ -5,10 +5,10 @@ import androidx.compose.runtime.Composable
 
 @Composable
 internal fun AppTheme(
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     MaterialTheme(
         typography = typography,
-        content = content
+        content = content,
     )
 }

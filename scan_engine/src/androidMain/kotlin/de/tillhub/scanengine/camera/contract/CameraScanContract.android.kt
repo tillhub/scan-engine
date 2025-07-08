@@ -38,14 +38,14 @@ internal actual fun rememberCameraScanLauncher(onResult: (ScannerEvent) -> Unit)
     var scanKey: String? = null
 
     val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
+        contract = ActivityResultContracts.StartActivityForResult(),
     ) { result ->
         val resultData = result.data?.extras?.getString(CameraScanActivity.DATA_KEY)
 
         val scanResult = if (result.resultCode == Activity.RESULT_OK && !resultData.isNullOrEmpty()) {
             ScannerEvent.ScanResult(
                 value = resultData,
-                scanKey = scanKey
+                scanKey = scanKey,
             )
         } else {
             ScannerEvent.Camera.Canceled

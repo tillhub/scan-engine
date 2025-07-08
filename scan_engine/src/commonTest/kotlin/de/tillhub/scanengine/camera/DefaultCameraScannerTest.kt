@@ -31,7 +31,7 @@ class DefaultCameraScannerTest {
 
         val result2 = target.observeScannerResults().firstOrNull()
 
-        assertTrue(result2 is ScannerEvent.ScanResult )
+        assertTrue(result2 is ScannerEvent.ScanResult)
         assertNull(result2.scanKey)
         assertEquals("test", result2.value)
     }

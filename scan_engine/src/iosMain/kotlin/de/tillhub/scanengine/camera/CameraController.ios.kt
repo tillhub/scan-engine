@@ -46,7 +46,7 @@ actual class CameraController(
     private val cameraWrapper: CameraWrapper = CameraWrapper(),
     private val metadataOutput: AVCaptureMetadataOutput = AVCaptureMetadataOutput(),
     private val onCameraError: (String) -> Unit,
-    barcodeScanned: (String) -> Unit
+    barcodeScanned: (String) -> Unit,
 ) : UIViewController(null, null) {
     private val analyzer: QRImageAnalyzer = QRImageAnalyzer(barcodeScanned)
 
@@ -173,7 +173,7 @@ actual class CameraController(
                 AVMetadataObjectTypePDF417Code!!,
                 AVMetadataObjectTypeAztecCode!!,
                 AVMetadataObjectTypeDataMatrixCode!!,
-                AVMetadataObjectTypeUPCECode!!
+                AVMetadataObjectTypeUPCECode!!,
             )
         }
     }
@@ -193,7 +193,7 @@ actual class CameraController(
  */
 internal class QRImageAnalyzer(
     private val onCodeScanned: (String) -> Unit,
-    private val debounceMs: Long = 1000L
+    private val debounceMs: Long = 1000L,
 ) : NSObject(), AVCaptureMetadataOutputObjectsDelegateProtocol {
 
     private val isProcessing = atomic(false)
@@ -218,14 +218,14 @@ internal class QRImageAnalyzer(
     override fun captureOutput(
         output: AVCaptureOutput,
         didOutputMetadataObjects: List<*>,
-        fromConnection: AVCaptureConnection
+        fromConnection: AVCaptureConnection,
     ) {
         if (isProcessing.value) return
 
         didOutputMetadataObjects.firstOrNull {
             it is AVMetadataMachineReadableCodeObject &&
-                    !it.stringValue.isNullOrEmpty() &&
-                    it.stringValue != lastScannedCode
+                !it.stringValue.isNullOrEmpty() &&
+                it.stringValue != lastScannedCode
         }?.let { scannedCode ->
             (scannedCode as AVMetadataMachineReadableCodeObject).stringValue?.let {
                 processCode(it)

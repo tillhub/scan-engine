@@ -31,7 +31,7 @@ import de.tillhub.scanengine.camera.CameraController
 internal actual fun cameraPreview(
     modifier: Modifier,
     barcodeScanned: (String) -> Unit,
-    onCameraError: (String) -> Unit
+    onCameraError: (String) -> Unit,
 ) {
     val context = LocalContext.current
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current

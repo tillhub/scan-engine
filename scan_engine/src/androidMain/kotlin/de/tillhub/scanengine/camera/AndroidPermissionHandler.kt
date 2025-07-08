@@ -17,7 +17,7 @@ import androidx.core.content.ContextCompat
  * @param context The application context used to check and request permissions.
  */
 internal class AndroidPermissionHandler(
-    private val context: Context
+    private val context: Context,
 ) : PermissionHandler {
     /**
      * Checks if the app has been granted camera permission.
@@ -27,7 +27,7 @@ internal class AndroidPermissionHandler(
     override fun hasCameraPermission(): Boolean {
         return ContextCompat.checkSelfPermission(
             context,
-            Manifest.permission.CAMERA
+            Manifest.permission.CAMERA,
         ) == PackageManager.PERMISSION_GRANTED
     }
 
@@ -52,18 +52,17 @@ internal class AndroidPermissionHandler(
                 } else {
                     onDenied()
                 }
-            }
+            },
         )
 
         val permissionStatus = ContextCompat.checkSelfPermission(
             context,
-            Manifest.permission.CAMERA
+            Manifest.permission.CAMERA,
         )
 
         when (permissionStatus) {
             PackageManager.PERMISSION_GRANTED -> onGranted()
             PackageManager.PERMISSION_DENIED -> {
-
                 LaunchedEffect(Unit) {
                     launcher.launch(Manifest.permission.CAMERA)
                 }

@@ -32,7 +32,7 @@ class CameraScreenTest {
         @Composable
         override fun requestCameraPermission(
             onGranted: () -> Unit,
-            onDenied: () -> Unit
+            onDenied: () -> Unit,
         ) {
             permissionGranted = onGranted
             permissionDenied = onDenied
@@ -40,21 +40,20 @@ class CameraScreenTest {
                 modifier = Modifier
                     .padding(top = 16.dp)
                     .fillMaxHeight(),
-                verticalArrangement = Arrangement.SpaceBetween
+                verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(
                     style = MaterialTheme.typography.labelLarge,
                     modifier = Modifier
                         .padding(
                             vertical = 16.dp,
-                            horizontal = 16.dp
+                            horizontal = 16.dp,
                         )
                         .semantics { contentDescription = "Permission request" },
-                    text = "Permission request"
+                    text = "Permission request",
                 )
             }
         }
-
     }
 
     @Test
@@ -63,7 +62,7 @@ class CameraScreenTest {
             CameraScreen(
                 permissions = permissionHandler,
                 onResult = {},
-                onDismiss = {}
+                onDismiss = {},
             )
         }
 
@@ -77,7 +76,7 @@ class CameraScreenTest {
             CameraScreen(
                 permissions = permissionHandler,
                 onResult = {},
-                onDismiss = {}
+                onDismiss = {},
             )
         }
 
@@ -92,7 +91,7 @@ class CameraScreenTest {
             CameraScreen(
                 permissions = permissionHandler,
                 onResult = {},
-                onDismiss = {}
+                onDismiss = {},
             )
         }
 
@@ -112,7 +111,7 @@ class CameraScreenTest {
             CameraScreen(
                 permissions = permissionHandler,
                 onResult = {},
-                onDismiss = {}
+                onDismiss = {},
             )
         }
 

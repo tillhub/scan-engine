@@ -17,7 +17,7 @@ internal fun buttonElevation() = buttonElevation(
     pressedElevation = 1.dp,
     disabledElevation = 1.dp,
     hoveredElevation = 2.dp,
-    focusedElevation = 2.dp
+    focusedElevation = 2.dp,
 )
 
 @Composable

@@ -41,14 +41,14 @@ actual class CameraController(
     private val lifecycleOwner: LifecycleOwner,
     barcodeScanned: (String) -> Unit,
     scanner: BarcodeScanner = BarcodeScanning.getClient(
-        BarcodeScannerOptions.Builder().setBarcodeFormats(Barcode.FORMAT_ALL_FORMATS).build()
-    )
+        BarcodeScannerOptions.Builder().setBarcodeFormats(Barcode.FORMAT_ALL_FORMATS).build(),
+    ),
 ) {
 
     private val analyzer: ImageAnalysis.Analyzer = QRImageAnalyzer(
         scanner = scanner,
         inputImageGenerator = InputImageGenerator(),
-        barcodeScanned = barcodeScanned
+        barcodeScanned = barcodeScanned,
     )
 
     private var cameraProvider: ProcessCameraProvider? = null
@@ -96,13 +96,12 @@ actual class CameraController(
                     lifecycleOwner,
                     CameraSelector.DEFAULT_BACK_CAMERA,
                     preview,
-                    imageAnalyzer
+                    imageAnalyzer,
                 )
 
                 onCameraReady()
-
             },
-            executor
+            executor,
         )
     }
 
@@ -117,7 +116,7 @@ actual class CameraController(
     actual fun stopSession() {
         cameraProvider?.unbindAll()
     }
-    
+
     /**
      * Creates a [ResolutionSelector] with predefined settings.
      *
@@ -148,7 +147,7 @@ actual class CameraController(
 internal class QRImageAnalyzer(
     private val scanner: BarcodeScanner,
     private val inputImageGenerator: InputImageGenerator,
-    private val barcodeScanned: (String) -> Unit
+    private val barcodeScanned: (String) -> Unit,
 ) : ImageAnalysis.Analyzer {
 
     /**

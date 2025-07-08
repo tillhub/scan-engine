@@ -16,7 +16,7 @@ import platform.UIKit.UIViewController
  */
 @Composable
 internal actual fun rememberCameraScanLauncher(
-    onResult: (ScannerEvent) -> Unit
+    onResult: (ScannerEvent) -> Unit,
 ): CameraScanContract = remember {
     object : CameraScanContract {
         private var viewController: UIViewController? = null
@@ -41,15 +41,15 @@ internal actual fun rememberCameraScanLauncher(
                         onResult(
                             ScannerEvent.ScanResult(
                                 value = it,
-                                scanKey = scanKey
-                            )
+                                scanKey = scanKey,
+                            ),
                         )
                         dismiss()
                     },
                     onDismiss = {
                         onResult(ScannerEvent.Camera.Canceled)
                         dismiss()
-                    }
+                    },
                 )
             }
 

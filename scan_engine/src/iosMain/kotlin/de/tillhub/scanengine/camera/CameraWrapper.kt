@@ -40,7 +40,7 @@ import platform.darwin.NSObject
  * @property cameraPreviewLayer The `AVCaptureVideoPreviewLayer` used to display the camera feed, if set up.
  * @property onError A callback function that is invoked when a [CameraException] occurs.
  */
-class CameraWrapper: NSObject() {
+class CameraWrapper : NSObject() {
     private var currentCamera: AVCaptureDevice? = null
     var captureSession: AVCaptureSession? = null
     var cameraPreviewLayer: AVCaptureVideoPreviewLayer? = null
@@ -59,7 +59,7 @@ class CameraWrapper: NSObject() {
      * If input setup fails, it throws a [CameraException.DeviceNotAvailable].
      * If any [CameraException] occurs during setup, the session is cleaned up using [cleanupSession],
      * and the [onError] callback is invoked with the exception.
-     */    
+     */
     internal fun setupSession() {
         try {
             captureSession = AVCaptureSession()
@@ -181,16 +181,18 @@ class CameraWrapper: NSObject() {
         val availableDevices = AVCaptureDeviceDiscoverySession.discoverySessionWithDeviceTypes(
             listOf(AVCaptureDeviceTypeBuiltInWideAngleCamera),
             AVMediaTypeVideo,
-            AVCaptureDevicePositionUnspecified
+            AVCaptureDevicePositionUnspecified,
         ).devices
 
-        (availableDevices.find {
-            (it as AVCaptureDevice).position == AVCaptureDevicePositionBack
-        } as? AVCaptureDevice)?.let { currentCamera ->
+        (
+            availableDevices.find {
+                (it as AVCaptureDevice).position == AVCaptureDevicePositionBack
+            } as? AVCaptureDevice
+            )?.let { currentCamera ->
             try {
                 val input = AVCaptureDeviceInput.deviceInputWithDevice(
                     currentCamera,
-                    null
+                    null,
                 )
 
                 if (input != null && captureSession?.canAddInput(input) == true) {
