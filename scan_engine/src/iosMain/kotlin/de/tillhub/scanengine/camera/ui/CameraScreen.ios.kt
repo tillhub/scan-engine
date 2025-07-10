@@ -7,6 +7,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.UIKitViewController
 import de.tillhub.scanengine.camera.CameraController
+import kotlinx.cinterop.ExperimentalForeignApi
 import platform.Foundation.NSNotificationCenter
 import platform.UIKit.UIDeviceOrientationDidChangeNotification
 
@@ -29,6 +30,7 @@ import platform.UIKit.UIDeviceOrientationDidChangeNotification
  * @param onCameraError A lambda function that is invoked if an error occurs during camera initialization
  *                      or operation. It receives an error message string as a parameter.
  */
+@OptIn(ExperimentalForeignApi::class)
 @Composable
 internal actual fun cameraPreview(
     modifier: Modifier,
@@ -48,10 +50,7 @@ internal actual fun cameraPreview(
             UIDeviceOrientationDidChangeNotification,
             null,
             null,
-        ) { _ ->
-            cameraController.getCameraPreviewLayer()?.connection?.videoOrientation =
-                cameraController.currentVideoOrientation()
-        }
+        ) { _ -> cameraController.updateOrientation() }
 
         onDispose {
             notificationCenter.removeObserver(observer)

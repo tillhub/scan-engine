@@ -1,3 +1,4 @@
+import dev.mokkery.gradle.ApplicationRule
 import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
@@ -7,6 +8,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.compose)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.mokkery)
 }
 
 kotlin {
@@ -44,6 +46,12 @@ kotlin {
 
             implementation(libs.androidx.lifecycle.runtimeCompose)
         }
+        androidMain.dependencies {
+            implementation(libs.bundles.camera)
+            implementation(libs.bundles.mlkit)
+            implementation(libs.activity.compose)
+        }
+
         commonTest.dependencies {
             implementation(kotlin("test"))
 
@@ -56,12 +64,12 @@ kotlin {
             @OptIn(ExperimentalComposeLibrary::class)
             implementation(compose.uiTest)
         }
-        androidMain.dependencies {
-            implementation(libs.bundles.camera)
-            implementation(libs.bundles.mlkit)
-            implementation(libs.activity.compose)
-        }
+
     }
+}
+
+mokkery {
+    rule.set(ApplicationRule.MatchesName(Regex(".+Test")))
 }
 
 android {

@@ -1,6 +1,9 @@
 package de.tillhub.scanengine.camera
 
-import de.tillhub.scanengine.camera.common.dispatchAsync
+import de.tillhub.scanengine.camera.common.CaptureMetadataOutput
+import de.tillhub.scanengine.camera.common.CaptureMetadataOutputImpl
+import de.tillhub.scanengine.camera.common.Dispatcher
+import de.tillhub.scanengine.camera.common.DispatcherImpl
 import kotlinx.atomicfu.atomic
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.CoroutineScope
@@ -12,7 +15,6 @@ import platform.AVFoundation.AVCaptureConnection
 import platform.AVFoundation.AVCaptureMetadataOutput
 import platform.AVFoundation.AVCaptureMetadataOutputObjectsDelegateProtocol
 import platform.AVFoundation.AVCaptureOutput
-import platform.AVFoundation.AVCaptureVideoOrientation
 import platform.AVFoundation.AVMetadataMachineReadableCodeObject
 import platform.AVFoundation.AVMetadataObjectTypeAztecCode
 import platform.AVFoundation.AVMetadataObjectTypeCode128Code
@@ -42,13 +44,16 @@ import platform.darwin.dispatch_get_main_queue
  * @param barcodeScanned A lambda function that is invoked when a barcode is successfully scanned.
  *                       It receives the scanned barcode value as a [String].
  */
-actual class CameraController(
-    private val cameraWrapper: CameraWrapper = CameraWrapper(),
-    private val metadataOutput: AVCaptureMetadataOutput = AVCaptureMetadataOutput(),
+@OptIn(ExperimentalForeignApi::class)
+internal actual class CameraController(
+    private val cameraWrapper: CameraWrapper = CameraWrapperImpl(),
+    private val metadataOutput: CaptureMetadataOutput = CaptureMetadataOutputImpl(),
     private val onCameraError: (String) -> Unit,
     barcodeScanned: (String) -> Unit,
+    private val analyzer: QRImageAnalyzer = QRImageAnalyzer(barcodeScanned),
+    private val dispatcher: Dispatcher = DispatcherImpl
 ) : UIViewController(null, null) {
-    private val analyzer: QRImageAnalyzer = QRImageAnalyzer(barcodeScanned)
+
 
     /**
      * Called after the controller's view is loaded into memory.
@@ -67,20 +72,20 @@ actual class CameraController(
     @OptIn(ExperimentalForeignApi::class)
     override fun viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        cameraWrapper.cameraPreviewLayer?.setFrame(view.bounds)
-        dispatchAsync {
+        cameraWrapper.setPreviewLayerFrame(view)
+        dispatcher.dispatchAsync {
             setupScanner()
         }
     }
 
     /**
-     * Provides access to the camera preview layer.
-     * This layer is responsible for displaying the camera feed.
-     *
-     * @return The [platform.AVFoundation.AVCaptureVideoPreviewLayer] used for displaying the camera preview,
-     *         or null if it's not available.
+     * Updates the video orientation of the camera preview layer's connection.
+     * This method ensures that the displayed camera feed is correctly oriented
+     * according to the device's current orientation by fetching the current
+     * video orientation from the `cameraController` and applying it to the
+     * preview layer's connection.
      */
-    internal fun getCameraPreviewLayer() = cameraWrapper.cameraPreviewLayer
+    internal fun updateOrientation() = cameraWrapper.updateOrientation()
 
     /**
      * Starts the camera session.
@@ -95,16 +100,6 @@ actual class CameraController(
     actual fun stopSession() {
         cameraWrapper.stopSession()
     }
-
-    /**
-     * Retrieves the current video orientation from the camera wrapper.
-     * This is important for ensuring that the displayed video and scanned barcodes
-     * are correctly oriented according to the device's current orientation.
-     *
-     * @return The current [AVCaptureVideoOrientation] of the camera.
-     */
-    internal fun currentVideoOrientation(): AVCaptureVideoOrientation =
-        cameraWrapper.currentVideoOrientation()
 
     /**
      * Sets up the camera by configuring the camera wrapper and metadata output.
@@ -127,10 +122,7 @@ actual class CameraController(
 
         cameraWrapper.setupSession()
         cameraWrapper.setupPreviewLayer(view)
-
-        if (cameraWrapper.captureSession?.canAddOutput(metadataOutput) == true) {
-            cameraWrapper.captureSession?.addOutput(metadataOutput)
-        }
+        cameraWrapper.addOutputIfPossible(metadataOutput)
 
         startSession()
     }
@@ -158,22 +150,27 @@ actual class CameraController(
      * - UPC-E
      */
     private fun setupScanner() {
-        metadataOutput.setMetadataObjectsDelegate(analyzer, dispatch_get_main_queue())
+        metadataOutput.setMetadataObjectsDelegate(
+            delegate = analyzer,
+            queue = dispatch_get_main_queue()
+        )
 
-        if (cameraWrapper.captureSession?.isRunning() == true) {
-            metadataOutput.metadataObjectTypes += listOf(
-                AVMetadataObjectTypeQRCode!!,
-                AVMetadataObjectTypeEAN13Code!!,
-                AVMetadataObjectTypeEAN8Code!!,
-                AVMetadataObjectTypeCode128Code!!,
-                AVMetadataObjectTypeCode39Code!!,
-                AVMetadataObjectTypeCode93Code!!,
-                AVMetadataObjectTypeCode39Mod43Code!!,
-                AVMetadataObjectTypeITF14Code!!,
-                AVMetadataObjectTypePDF417Code!!,
-                AVMetadataObjectTypeAztecCode!!,
-                AVMetadataObjectTypeDataMatrixCode!!,
-                AVMetadataObjectTypeUPCECode!!,
+        if (cameraWrapper.isRunning() == true) {
+            metadataOutput.addMetadataObjectTypes(
+                types = listOf(
+                    AVMetadataObjectTypeQRCode!!,
+                    AVMetadataObjectTypeEAN13Code!!,
+                    AVMetadataObjectTypeEAN8Code!!,
+                    AVMetadataObjectTypeCode128Code!!,
+                    AVMetadataObjectTypeCode39Code!!,
+                    AVMetadataObjectTypeCode93Code!!,
+                    AVMetadataObjectTypeCode39Mod43Code!!,
+                    AVMetadataObjectTypeITF14Code!!,
+                    AVMetadataObjectTypePDF417Code!!,
+                    AVMetadataObjectTypeAztecCode!!,
+                    AVMetadataObjectTypeDataMatrixCode!!,
+                    AVMetadataObjectTypeUPCECode!!,
+                )
             )
         }
     }

@@ -7,7 +7,7 @@ package de.tillhub.scanengine.camera
  * It is an expect class, meaning that the actual implementation will be provided
  * by the platform-specific modules (e.g., Android, iOS).
  */
-expect class CameraController {
+internal expect class CameraController {
     /**
      * Starts the camera session.
      */

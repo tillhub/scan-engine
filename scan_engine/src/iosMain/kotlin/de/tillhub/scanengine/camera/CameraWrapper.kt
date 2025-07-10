@@ -1,28 +1,39 @@
 package de.tillhub.scanengine.camera
 
-import de.tillhub.scanengine.camera.common.dispatchAsync
+import de.tillhub.scanengine.camera.CameraWrapperImpl.CameraException
+import de.tillhub.scanengine.camera.common.CaptureMetadataOutput
+import de.tillhub.scanengine.camera.common.CaptureProvider
+import de.tillhub.scanengine.camera.common.CaptureProviderImpl
+import de.tillhub.scanengine.camera.common.CaptureSession
+import de.tillhub.scanengine.camera.common.CaptureVideoPreviewLayer
+import de.tillhub.scanengine.camera.common.Dispatcher
+import de.tillhub.scanengine.camera.common.DispatcherImpl
 import kotlinx.cinterop.ExperimentalForeignApi
-import platform.AVFoundation.AVCaptureDevice
-import platform.AVFoundation.AVCaptureDeviceDiscoverySession
-import platform.AVFoundation.AVCaptureDeviceInput
 import platform.AVFoundation.AVCaptureDevicePositionBack
-import platform.AVFoundation.AVCaptureDevicePositionUnspecified
-import platform.AVFoundation.AVCaptureDeviceTypeBuiltInWideAngleCamera
-import platform.AVFoundation.AVCaptureSession
 import platform.AVFoundation.AVCaptureSessionPresetPhoto
 import platform.AVFoundation.AVCaptureVideoOrientation
 import platform.AVFoundation.AVCaptureVideoOrientationLandscapeLeft
 import platform.AVFoundation.AVCaptureVideoOrientationLandscapeRight
 import platform.AVFoundation.AVCaptureVideoOrientationPortrait
 import platform.AVFoundation.AVCaptureVideoOrientationPortraitUpsideDown
-import platform.AVFoundation.AVCaptureVideoPreviewLayer
-import platform.AVFoundation.AVLayerVideoGravityResizeAspectFill
-import platform.AVFoundation.AVMediaTypeVideo
-import platform.AVFoundation.position
 import platform.UIKit.UIDevice
 import platform.UIKit.UIDeviceOrientation
 import platform.UIKit.UIView
-import platform.darwin.NSObject
+
+
+@ExperimentalForeignApi
+internal interface CameraWrapper {
+    var onError: ((CameraException) -> Unit)?
+
+    fun setupSession()
+    fun startSession()
+    fun stopSession()
+    fun setupPreviewLayer(view: UIView)
+    fun setPreviewLayerFrame(view: UIView)
+    fun updateOrientation()
+    fun isRunning(): Boolean?
+    fun addOutputIfPossible(output: CaptureMetadataOutput): Boolean?
+}
 
 /**
  * A wrapper class for managing camera operations on iOS devices using AVFoundation.
@@ -40,12 +51,15 @@ import platform.darwin.NSObject
  * @property cameraPreviewLayer The `AVCaptureVideoPreviewLayer` used to display the camera feed, if set up.
  * @property onError A callback function that is invoked when a [CameraException] occurs.
  */
-class CameraWrapper : NSObject() {
-    private var currentCamera: AVCaptureDevice? = null
-    var captureSession: AVCaptureSession? = null
-    var cameraPreviewLayer: AVCaptureVideoPreviewLayer? = null
+@OptIn(ExperimentalForeignApi::class)
+internal class CameraWrapperImpl(
+    private val captureFactory: CaptureProvider = CaptureProviderImpl,
+    private val dispatcher: Dispatcher = DispatcherImpl
+) : CameraWrapper {
+    override var onError: ((CameraException) -> Unit)? = null
 
-    var onError: ((CameraException) -> Unit)? = null
+    private var cameraPreviewLayer: CaptureVideoPreviewLayer? = null
+    private var captureSession: CaptureSession? = null
 
     sealed class CameraException : Exception() {
         class DeviceNotAvailable : CameraException()
@@ -60,9 +74,9 @@ class CameraWrapper : NSObject() {
      * If any [CameraException] occurs during setup, the session is cleaned up using [cleanupSession],
      * and the [onError] callback is invoked with the exception.
      */
-    internal fun setupSession() {
+    override fun setupSession() {
         try {
-            captureSession = AVCaptureSession()
+            captureSession = captureFactory.getCaptureSession()
             captureSession?.beginConfiguration()
 
             captureSession?.sessionPreset = AVCaptureSessionPresetPhoto
@@ -82,9 +96,9 @@ class CameraWrapper : NSObject() {
      * Starts the camera capture session if it is not already running.
      * The session is started asynchronously on a separate dispatch queue.
      */
-    internal fun startSession() {
+    override fun startSession() {
         if (captureSession?.isRunning() == false) {
-            dispatchAsync {
+            dispatcher.dispatchAsync {
                 captureSession?.startRunning()
             }
         }
@@ -93,7 +107,7 @@ class CameraWrapper : NSObject() {
     /**
      * Stops the camera capture session if it is currently running.
      */
-    internal fun stopSession() {
+    override fun stopSession() {
         if (captureSession?.isRunning() == true) {
             captureSession?.stopRunning()
         }
@@ -109,18 +123,76 @@ class CameraWrapper : NSObject() {
      *
      * @param view The `UIView` on which the camera preview will be displayed.
      */
-    @OptIn(ExperimentalForeignApi::class)
-    internal fun setupPreviewLayer(view: UIView) {
+    override fun setupPreviewLayer(view: UIView) {
         captureSession?.let { session ->
-            val newPreviewLayer = AVCaptureVideoPreviewLayer(session = session).apply {
-                videoGravity = AVLayerVideoGravityResizeAspectFill
-                setFrame(view.bounds)
-                connection?.videoOrientation = currentVideoOrientation()
-            }
+            val newPreviewLayer = captureFactory.getCaptureVideoPreviewLayer(
+                session = session,
+                view = view,
+                orientation = currentVideoOrientation(),
+            )
 
-            view.layer.addSublayer(newPreviewLayer)
             cameraPreviewLayer = newPreviewLayer
         }
+    }
+    
+    /**
+     * Sets the frame of the camera preview layer to match the bounds of a given UIView.
+     *
+     * This function is a convenience wrapper around [setPreviewLayerFrame] that takes a `UIView`
+     * as input and uses its `bounds` to update the frame of the `cameraPreviewLayer`.
+     * This is useful for ensuring the preview layer correctly fills the view it's displayed in.
+     *
+     * @param view The `UIView` whose bounds will be used to set the frame of the preview layer.
+     */
+    override fun setPreviewLayerFrame(view: UIView) {
+        cameraPreviewLayer?.setFrame(view)
+    }
+
+    /**
+     * Updates the orientation of the camera preview layer to match the current device orientation.
+     *
+     * This function calls [currentVideoOrientation] to get the appropriate video orientation
+     * and then sets the `orientation` property of the `cameraPreviewLayer`. This ensures that
+     * the camera preview is displayed correctly as the device is rotated.
+     */
+    override fun updateOrientation() {
+        cameraPreviewLayer?.orientation = currentVideoOrientation()
+    }
+
+    /**
+     * Checks if the camera capture session is currently running.
+     *
+     * @return `true` if the session is running, `false` if it's not, or `null` if the
+     *         `captureSession` is not initialized.
+     */
+    override fun isRunning(): Boolean? = captureSession?.isRunning()
+    
+    /**
+     * Attempts to add a `CaptureMetadataOutput` to the current `captureSession` if possible.
+     *
+     * This function delegates the operation to the `addOutputIfPossible` method of the `captureSession`.
+     * It's used to add specific outputs to the session, but only if they are compatible and can be added.
+     *
+     * @param output The `CaptureMetadataOutput` to be added to the session.
+     * @return `true` if the output was successfully added,
+     *         `false` if it could not be added (e.g., due to incompatibility),
+     *         or `null` if the `captureSession` is not initialized.
+     */
+    override fun addOutputIfPossible(output: CaptureMetadataOutput): Boolean? =
+        captureSession?.addOutputIfPossible(output)
+
+    /**
+     * Cleans up the camera session and related resources.
+     *
+     * This function stops the capture session, removes the preview layer from its superlayer,
+     * and nils out references to the preview layer, capture session, and current camera.
+     * This is typically called when the camera is no longer needed or in case of an error.
+     */
+    private fun cleanupSession() {
+        stopSession()
+        cameraPreviewLayer?.removeFromSuperlayer()
+        cameraPreviewLayer = null
+        captureSession = null
     }
 
     /**
@@ -136,7 +208,7 @@ class CameraWrapper : NSObject() {
      *
      * @return The `AVCaptureVideoOrientation` that corresponds to the current device orientation.
      */
-    internal fun currentVideoOrientation(): AVCaptureVideoOrientation {
+    private fun currentVideoOrientation(): AVCaptureVideoOrientation {
         val orientation = UIDevice.currentDevice.orientation
         return when (orientation) {
             UIDeviceOrientation.UIDeviceOrientationPortrait -> AVCaptureVideoOrientationPortrait
@@ -147,20 +219,6 @@ class CameraWrapper : NSObject() {
         }
     }
 
-    /**
-     * Cleans up the camera session and related resources.
-     *
-     * This function stops the capture session, removes the preview layer from its superlayer,
-     * and nils out references to the preview layer, capture session, and current camera.
-     * This is typically called when the camera is no longer needed or in case of an error.
-     */
-    private fun cleanupSession() {
-        stopSession()
-        cameraPreviewLayer?.removeFromSuperlayer()
-        cameraPreviewLayer = null
-        captureSession = null
-        currentCamera = null
-    }
 
     /**
      * Sets up the camera inputs for the `AVCaptureSession`.
@@ -178,25 +236,11 @@ class CameraWrapper : NSObject() {
     @Suppress("TooGenericExceptionCaught", "SwallowedException")
     @OptIn(ExperimentalForeignApi::class)
     private fun setupInputs(): Boolean {
-        val availableDevices = AVCaptureDeviceDiscoverySession.discoverySessionWithDeviceTypes(
-            listOf(AVCaptureDeviceTypeBuiltInWideAngleCamera),
-            AVMediaTypeVideo,
-            AVCaptureDevicePositionUnspecified,
-        ).devices
+        val availableDevices = captureFactory.getCaptureDevices()
 
-        (
-            availableDevices.find {
-                (it as AVCaptureDevice).position == AVCaptureDevicePositionBack
-            } as? AVCaptureDevice
-            )?.let { currentCamera ->
+        availableDevices.find { it.position == AVCaptureDevicePositionBack }?.let { currentCamera ->
             try {
-                val input = AVCaptureDeviceInput.deviceInputWithDevice(
-                    currentCamera,
-                    null,
-                )
-
-                if (input != null && captureSession?.canAddInput(input) == true) {
-                    captureSession?.addInput(input)
+                if (captureSession?.addInputIfPossible(currentCamera) == true) {
                     return true
                 }
             } catch (e: Exception) {

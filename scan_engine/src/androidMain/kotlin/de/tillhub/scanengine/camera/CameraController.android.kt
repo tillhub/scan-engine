@@ -36,20 +36,19 @@ import com.google.mlkit.vision.common.InputImage
  * @property scanner The [BarcodeScanner] instance used for detecting barcodes. By default, it's
  *                   configured to scan all barcode formats.
  */
-actual class CameraController(
+internal actual class CameraController(
     private val context: Context,
     private val lifecycleOwner: LifecycleOwner,
     barcodeScanned: (String) -> Unit,
     scanner: BarcodeScanner = BarcodeScanning.getClient(
         BarcodeScannerOptions.Builder().setBarcodeFormats(Barcode.FORMAT_ALL_FORMATS).build(),
     ),
-) {
-
     private val analyzer: ImageAnalysis.Analyzer = QRImageAnalyzer(
         scanner = scanner,
         inputImageGenerator = InputImageGenerator(),
         barcodeScanned = barcodeScanned,
     )
+) {
 
     private var cameraProvider: ProcessCameraProvider? = null
     private var preview: Preview? = null
