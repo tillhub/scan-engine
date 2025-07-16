@@ -59,14 +59,14 @@ fun App() {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(WindowInsets.systemBars.asPaddingValues())
-                .padding(16.dp)
+                .padding(16.dp),
         ) {
             Column {
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 24.dp),
-                    elevation = CardDefaults.cardElevation(4.dp)
+                    elevation = CardDefaults.cardElevation(4.dp),
                 ) {
                     Text(
                         modifier = Modifier
@@ -76,7 +76,7 @@ fun App() {
                             .wrapContentWidth(),
                         text = "Results : ${scannedResult.value}",
                         fontSize = 20.sp,
-                        style = MaterialTheme.typography.titleMedium
+                        style = MaterialTheme.typography.titleMedium,
                     )
                 }
 
@@ -100,12 +100,12 @@ fun App() {
 @Composable
 fun ScanSection(
     label: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Column {
         OutlinedButton(
             modifier = Modifier.fillMaxWidth(),
-            onClick = onClick
+            onClick = onClick,
         ) {
             Text(text = label)
         }
