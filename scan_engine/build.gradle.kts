@@ -24,6 +24,9 @@ kotlin {
         dependencies {
             androidTestImplementation(libs.androidx.ui.test.junit4.android)
             androidTestImplementation(libs.androidx.ui.test.manifest)
+
+            testImplementation(libs.robolectric)
+            testImplementation(libs.androidx.test.core)
         }
     }
 
@@ -69,7 +72,7 @@ kotlin {
 }
 
 mokkery {
-    rule.set(ApplicationRule.MatchesName(Regex(".+Test")))
+    rule.set(ApplicationRule.AllTests)
 }
 
 android {

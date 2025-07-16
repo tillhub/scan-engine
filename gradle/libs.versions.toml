@@ -20,9 +20,13 @@ spotless = "6.21.0"
 mokkery = "2.8.0"
 
 uiTestJunit4 = "1.8.3"
+robolectric = "4.15"
+androidx-test = "1.6.1"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
+androidx-test-core = { group = "androidx.test", name = "core", version.ref = "androidx-test" }
 
 camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "camera-core" }
 camera-core = { module = "androidx.camera:camera-core", version.ref = "camera-core" }

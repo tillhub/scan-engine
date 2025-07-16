@@ -10,7 +10,6 @@ import androidx.camera.core.Preview
 import androidx.camera.core.resolutionselector.AspectRatioStrategy
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.resolutionselector.ResolutionStrategy
-import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
@@ -19,6 +18,8 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
+import de.tillhub.scanengine.camera.common.CameraProvider
+import java.util.concurrent.Executor
 
 /**
  * Manages the camera operations for barcode scanning.
@@ -36,6 +37,7 @@ import com.google.mlkit.vision.common.InputImage
  * @property scanner The [BarcodeScanner] instance used for detecting barcodes. By default, it's
  *                   configured to scan all barcode formats.
  */
+@Suppress("LongParameterList")
 internal actual class CameraController(
     private val context: Context,
     private val lifecycleOwner: LifecycleOwner,
@@ -47,15 +49,15 @@ internal actual class CameraController(
         scanner = scanner,
         inputImageGenerator = InputImageGenerator(),
         barcodeScanned = barcodeScanned,
-    )
+    ),
+    private val executor: Executor = ContextCompat.getMainExecutor(context),
+    private val cameraHandler: CameraHandler = CameraHandlerImpl(context, executor)
 ) {
 
-    private var cameraProvider: ProcessCameraProvider? = null
+    private var cameraProvider: CameraProvider? = null
     private var preview: Preview? = null
     private var camera: Camera? = null
     private var previewView: PreviewView? = null
-
-    private val executor = ContextCompat.getMainExecutor(context)
 
     /**
      * Binds the camera to the provided [PreviewView] and starts the camera session.
@@ -71,37 +73,33 @@ internal actual class CameraController(
     internal fun bindCamera(previewView: PreviewView, onCameraReady: () -> Unit = {}) {
         this.previewView = previewView
 
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
-        cameraProviderFuture.addListener(
-            {
-                cameraProvider = cameraProviderFuture.get()
-                cameraProvider?.unbindAll()
+        cameraHandler.getCameraProvider { provider ->
+            cameraProvider = provider
+            cameraProvider?.unbindAll()
 
-                preview = Preview.Builder()
-                    .setResolutionSelector(createResolutionSelector())
-                    .build()
-                    .also {
-                        it.surfaceProvider = previewView.surfaceProvider
-                    }
+            preview = Preview.Builder()
+                .setResolutionSelector(createResolutionSelector())
+                .build()
+                .also {
+                    it.surfaceProvider = previewView.surfaceProvider
+                }
 
-                val imageAnalyzer = ImageAnalysis.Builder()
-                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                    .build()
-                    .also {
-                        it.setAnalyzer(executor, analyzer)
-                    }
+            val imageAnalyzer = ImageAnalysis.Builder()
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .build()
+                .also {
+                    it.setAnalyzer(executor, analyzer)
+                }
 
-                camera = cameraProvider?.bindToLifecycle(
-                    lifecycleOwner,
-                    CameraSelector.DEFAULT_BACK_CAMERA,
-                    preview,
-                    imageAnalyzer,
-                )
+            camera = cameraProvider?.bindToLifecycle(
+                lifecycleOwner,
+                CameraSelector.DEFAULT_BACK_CAMERA,
+                preview,
+                imageAnalyzer,
+            )
 
-                onCameraReady()
-            },
-            executor,
-        )
+            onCameraReady()
+        }
     }
 
     /**
