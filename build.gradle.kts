@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.android.application).apply(false)
     alias(libs.plugins.kotlin.android).apply(false)
     alias(libs.plugins.spotless).apply(false)
+    alias(libs.plugins.maven.publish).apply(false)
 }
 
 subprojects {
@@ -16,7 +17,11 @@ subprojects {
             target("**/*.kt")
             targetExclude("${layout.buildDirectory}/**/*.kt")
 
-            ktlint()
+            ktlint().editorConfigOverride(
+                mapOf(
+                    "ktlint_function_naming_ignore_when_annotated_with" to "Composable"
+                )
+            )
         }
 
         kotlinGradle {

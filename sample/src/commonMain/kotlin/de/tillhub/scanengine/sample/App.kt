@@ -113,5 +113,6 @@ fun ScanSection(
 }
 
 enum class ScanScreen {
-    CameraScan, Bluetooth
+    CameraScan,
+    Bluetooth,
 }

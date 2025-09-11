@@ -17,5 +17,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "Tillhub_Scan_Engine"
-include(":scan_engine")
+include(":scan-engine")
 include(":sample")
