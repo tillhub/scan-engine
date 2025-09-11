@@ -1,112 +1,172 @@
+import dev.mokkery.gradle.ApplicationRule
+import org.jetbrains.compose.ExperimentalComposeLibrary
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
+
 plugins {
-    alias(libs.plugins.androidLibrary)
-    alias(libs.plugins.kotlinAndroid)
-    alias(libs.plugins.detekt)
-    id("maven-publish")
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.compose)
+    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.mokkery)
+    alias(libs.plugins.maven.publish)
+}
+
+kotlin {
+    compilerOptions {
+        // removes warnings for expect/actual classes
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+
+    androidTarget {
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        instrumentedTestVariant.sourceSetTree.set(KotlinSourceSetTree.test)
+
+        publishLibraryVariants("release")
+
+        dependencies {
+            androidTestImplementation(libs.androidx.ui.test.junit4.android)
+            androidTestImplementation(libs.androidx.ui.test.manifest)
+
+            testImplementation(libs.robolectric)
+            testImplementation(libs.androidx.test.core)
+        }
+    }
+
+    val xcfName = "scan-engine"
+    iosX64 { binaries.framework { baseName = xcfName } }
+    iosArm64 { binaries.framework { baseName = xcfName } }
+    iosSimulatorArm64 { binaries.framework { baseName = xcfName } }
+
+    sourceSets {
+        commonMain.dependencies {
+            implementation(libs.bundles.core)
+
+            implementation(compose.runtime)
+            implementation(compose.foundation)
+            implementation(compose.material3)
+            implementation(compose.materialIconsExtended)
+            implementation(compose.ui)
+            implementation(compose.components.resources)
+            implementation(compose.components.uiToolingPreview)
+
+            implementation(libs.androidx.lifecycle.runtimeCompose)
+        }
+        androidMain.dependencies {
+            implementation(libs.bundles.camera)
+            implementation(libs.bundles.mlkit)
+            implementation(libs.activity.compose)
+        }
+
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+
+            @OptIn(ExperimentalComposeLibrary::class)
+            implementation(compose.uiTest)
+        }
+        iosTest.dependencies {
+            implementation(kotlin("test"))
+
+            @OptIn(ExperimentalComposeLibrary::class)
+            implementation(compose.uiTest)
+        }
+    }
+}
+
+mokkery {
+    rule.set(ApplicationRule.AllTests)
 }
 
 android {
-    namespace = "de.tillhub.scanengine"
-    compileSdk = 34
+    namespace = Configs.APPLICATION_ID
+    compileSdk = Configs.COMPILE_SDK
+
+    experimentalProperties["android.experimental.kmp.enableAndroidResources"] = true
 
     defaultConfig {
-        minSdk = 24
-
+        minSdk = Configs.MIN_SDK
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles("consumer-rules.pro")
     }
-
-    buildFeatures {
-        viewBinding = true
-    }
-
-    buildTypes {
-        debug {
-            isMinifyEnabled = false
-        }
-        release {
-            isMinifyEnabled = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = Configs.JAVA_VERSION
+        targetCompatibility = Configs.JAVA_VERSION
     }
 
-    tasks.withType<Test> {
-        useJUnitPlatform()
-    }
-
-    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-        kotlinOptions {
-            jvmTarget = JavaVersion.VERSION_17.toString()
-            freeCompilerArgs = listOf("-Xjvm-default=all")
-        }
-    }
-    buildFeatures {
-        compose = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.9"
-    }
-}
-
-detekt {
-    buildUponDefaultConfig = true // preconfigure defaults
-    allRules = false // activate all available (even unstable) rules.
-    config.setFrom("$projectDir/config/detekt.yml")
-}
-
-dependencies {
-    // Core
-    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    implementation(libs.androidx.core)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.google.material)
-
-    // Compose
-    implementation(libs.bundles.compose)
-
-    // Groups
-    implementation(libs.bundles.core)
-    implementation(libs.bundles.ui)
-    implementation(libs.bundles.lifecycle)
-
-    // Utils
-    coreLibraryDesugaring(libs.android.desugarJdkLibs)
-    implementation(libs.timber)
-    detektPlugins(libs.detekt.formatting)
-    detektPlugins(libs.detekt.libraries)
-
-    // Module Specific dependencies
-    implementation(libs.androidx.constraintlayout)
-
-    // ML Kit
-    implementation(libs.bundles.mlkit)
-
-    // Camera
-    implementation(libs.bundles.camera)
-
-    // Unit tests
-    testImplementation(libs.bundles.testing)
-    testImplementation(libs.bundles.robolectric)
-    androidTestImplementation(libs.bundles.testing.android)
-}
-
-afterEvaluate {
-    publishing {
-        publications {
-            create<MavenPublication>("scan-engine") {
-                groupId = "de.tillhub.scanengine"
-                artifactId = "scan-engine"
-                version = "1.5.7"
-
-                from(components.getByName("release"))
+    testOptions {
+        unitTests {
+            all {
+                // We want to exclude all UI tests from the unit tests
+                it.exclude(
+                    "**/scanengine/ui/components/**",
+                    "**/scanengine/camera/ui/**",
+                )
             }
         }
     }
+}
+
+compose.resources {
+    packageOfResClass = "de.tillhub.scanengine.resources"
+    generateResClass = auto
+}
+
+mavenPublishing {
+    // Define coordinates for the published artifact
+    coordinates(
+        groupId = "io.github.tillhub",
+        artifactId = "scan-engine",
+        version =
+            libs.versions.scan.engine
+                .get(),
+    )
+
+    // Configure POM metadata for the published artifact
+    pom {
+        name.set("Scan Engine")
+        description.set("Kotlin MultiPlatform Library that provides unified barcode scanning functionality for Android and iOS platforms")
+        inceptionYear.set("2025")
+        url.set("https://github.com/tillhub/scan-engine")
+
+        licenses {
+            license {
+                name.set("MIT")
+                url.set("https://opensource.org/licenses/MIT")
+            }
+        }
+
+        // Specify developers information
+        developers {
+            developer {
+                id.set("djordjeh")
+                name.set("Đorđe Hrnjez")
+                email.set("dorde.hrnjez@unzer.com")
+            }
+            developer {
+                id.set("SloInfinity")
+                name.set("Martin Sirok")
+                email.set("m.sirok.ext@unzer.com")
+            }
+            developer {
+                id.set("shekar-allam")
+                name.set("Chandrashekar Allam")
+                email.set("chandrashekar.allam@unzer.com")
+            }
+        }
+
+        // Specify SCM information
+        scm {
+            url.set("https://github.com/tillhub/scan-engine")
+        }
+    }
+
+    // Configure publishing to Maven Central
+    publishToMavenCentral()
+
+    // Enable GPG signing for all publications
+    signAllPublications()
 }
