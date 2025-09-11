@@ -17,7 +17,7 @@ This is a Kotlin Multiplatform (KMP) library that provides unified barcode scann
 - For the naming of test class use suffix `Test` of the original class
 - If the same class name exists in common module and in platform specific like android for example, you can add platform name as suffix as well but before the word `Test`
 - Test coverage is ony important for the `scan-engine/` module and run tests only for this module
-- Classes with functions annotated as @Composable they need to be tested via android (instrumented) tests and not unit tests
+- Classes with functions annotated as @Composable they need to be tested via android instrumented tests and not unit tests
 - Activities or Fragment classes cover with android (instrumented) tests, not unit tests
 - Make sure at the end after you run all tests you cleanup test class for any unused variables, imports or components
 - `./gradlew :scan-engine:allTests` - Run tests for all platforms (Android, iOS) and create aggregated report

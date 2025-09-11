@@ -23,17 +23,17 @@ class CameraScanActivityTest {
     fun testActivityLaunch() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val intent = Intent(context, CameraScanActivity::class.java)
-        
+
         ActivityScenario.launch<CameraScanActivity>(intent).use { scenario ->
             scenario.onActivity { activity ->
                 assertNotNull(activity)
-                
+
                 // Test basic activity functionality
                 val testBarcode = "test_barcode_123"
                 val resultIntent = Intent().apply {
                     putExtra(CameraScanActivity.DATA_KEY, testBarcode)
                 }
-                
+
                 // Verify we can set result and finish activity
                 activity.setResult(Activity.RESULT_OK, resultIntent)
                 activity.finish()
@@ -45,11 +45,11 @@ class CameraScanActivityTest {
     fun testActivityCancellation() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val intent = Intent(context, CameraScanActivity::class.java)
-        
+
         ActivityScenario.launch<CameraScanActivity>(intent).use { scenario ->
             scenario.onActivity { activity ->
                 assertNotNull(activity)
-                
+
                 // Test cancellation scenario
                 activity.setResult(Activity.RESULT_CANCELED)
                 activity.finish()

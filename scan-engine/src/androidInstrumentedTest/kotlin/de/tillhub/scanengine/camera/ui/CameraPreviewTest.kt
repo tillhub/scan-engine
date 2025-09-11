@@ -45,7 +45,7 @@ class CameraPreviewTest {
                     .fillMaxSize()
                     .testTag("camera_preview"),
                 barcodeScanned = barcodeCallback,
-                onCameraError = errorCallback
+                onCameraError = errorCallback,
             )
         }
 
@@ -73,7 +73,7 @@ class CameraPreviewTest {
             cameraPreview(
                 modifier = Modifier.testTag("camera_preview_callbacks"),
                 barcodeScanned = barcodeCallback,
-                onCameraError = errorCallback
+                onCameraError = errorCallback,
             )
         }
 
@@ -92,7 +92,7 @@ class CameraPreviewTest {
                     .fillMaxSize()
                     .testTag("camera_preview_modified"),
                 barcodeScanned = { },
-                onCameraError = { }
+                onCameraError = { },
             )
         }
 
@@ -119,7 +119,7 @@ class CameraPreviewTest {
                 },
                 onCameraError = { error ->
                     errorState.value = error
-                }
+                },
             )
         }
 
@@ -141,7 +141,7 @@ class CameraPreviewTest {
             cameraPreview(
                 modifier = Modifier.testTag("camera_preview_recomposition"),
                 barcodeScanned = { },
-                onCameraError = { }
+                onCameraError = { },
             )
         }
 
