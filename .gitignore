@@ -30,6 +30,7 @@ out/
 .gradle/
 /build
 /scan-engine/build
+/sample/build
 /buildSrc/build
 
 # Local configuration file (sdk path, etc)
@@ -59,3 +60,16 @@ out/
 /.idea/navEditor.xml
 .externalNativeBuild
 .cxx
+/.kotlin
+
+# CocoaPods
+Pods/
+*.xcworkspace
+
+# ============================
+# Xcode / iOS
+# ============================
+iosApp/Pods/
+/iosApp/iosApp.xcodeproj/xcuserdata/
+/iosApp/iosApp.xcodeproj/project.xcworkspace/xcuserdata/
+**/xcuserdata/
