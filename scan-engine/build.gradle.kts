@@ -1,13 +1,16 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.detekt)
+    alias(libs.plugins.compose.compiler)
     id("maven-publish")
 }
 
 android {
     namespace = "de.tillhub.scanengine"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 24
@@ -41,10 +44,10 @@ android {
         useJUnitPlatform()
     }
 
-    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-        kotlinOptions {
-            jvmTarget = JavaVersion.VERSION_17.toString()
-            freeCompilerArgs = listOf("-Xjvm-default=all")
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+            freeCompilerArgs.add("-Xjvm-default=all")
         }
     }
     buildFeatures {
@@ -103,7 +106,7 @@ afterEvaluate {
             create<MavenPublication>("scan-engine") {
                 groupId = "de.tillhub.scanengine"
                 artifactId = "scan-engine"
-                version = "1.5.7"
+                version = "1.6.2"
 
                 from(components.getByName("release"))
             }
