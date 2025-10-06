@@ -24,6 +24,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.snackbar.Snackbar
 import de.tillhub.scanengine.R
+import de.tillhub.scanengine.common.Manufacturer
 import de.tillhub.scanengine.databinding.ActivityGoogleScanningBinding
 import kotlinx.coroutines.launch
 import java.util.concurrent.Executor
@@ -120,6 +121,13 @@ internal class GoogleScanningActivity : AppCompatActivity() {
         val preview: Preview = Preview.Builder()
             .build()
             .also {
+                binding.previewView.apply {
+                    if (Manufacturer.matches(Manufacturer.VERIFONE)) {
+                        scaleX = -1f
+                        scaleY = -1f
+                    }
+                }
+
                 it.setSurfaceProvider(binding.previewView.surfaceProvider)
             }
 
