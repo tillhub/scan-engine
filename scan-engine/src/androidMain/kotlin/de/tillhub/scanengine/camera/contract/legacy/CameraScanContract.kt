@@ -10,7 +10,7 @@ import de.tillhub.scanengine.data.ScannerEvent
 class CameraScanContract : ActivityResultContract<String?, ScannerEvent>() {
     override fun createIntent(
         context: Context,
-        input: String?
+        input: String?,
     ): Intent = Intent(context, CameraScanActivity::class.java).apply {
         input?.let {
             putExtra(CameraScanActivity.SCAN_KEY, it)
@@ -19,7 +19,7 @@ class CameraScanContract : ActivityResultContract<String?, ScannerEvent>() {
 
     override fun parseResult(
         resultCode: Int,
-        intent: Intent?
+        intent: Intent?,
     ): ScannerEvent {
         val resultData = intent?.extras?.getString(CameraScanActivity.DATA_KEY)
         val scanKey = intent?.extras?.getString(CameraScanActivity.SCAN_KEY)
