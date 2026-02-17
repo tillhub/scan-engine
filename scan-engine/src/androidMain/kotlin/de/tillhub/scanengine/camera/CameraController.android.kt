@@ -19,6 +19,7 @@ import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
 import de.tillhub.scanengine.camera.common.CameraProvider
+import de.tillhub.scanengine.camera.common.Manufacturer
 import java.util.concurrent.Executor
 
 /**
@@ -87,6 +88,12 @@ internal actual class CameraController(
                     .setResolutionSelector(createResolutionSelector())
                     .build()
                     .also {
+                        previewView.apply {
+                            if (Manufacturer.matches(Manufacturer.VERIFONE)) {
+                                scaleX = -1f
+                                scaleY = -1f
+                            }
+                        }
                         it.surfaceProvider = previewView.surfaceProvider
                     }
 
