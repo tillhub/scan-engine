@@ -15,7 +15,7 @@ class CameraScanActivity : ComponentActivity() {
                         Intent().apply {
                             putExtra(DATA_KEY, barcode)
                             intent.getStringExtra(SCAN_KEY)?.let {
-                                putExtra(SCAN_KEY, barcode)
+                                putExtra(SCAN_KEY, it)
                             }
                         }
                     setResult(RESULT_OK, resultIntent)
