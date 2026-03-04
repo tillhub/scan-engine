@@ -1,16 +1,23 @@
 package de.tillhub.scanengine.camera.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -18,16 +25,18 @@ import androidx.compose.ui.unit.dp
 import de.tillhub.scanengine.camera.PermissionHandler
 import de.tillhub.scanengine.camera.getPermissionHandler
 import de.tillhub.scanengine.resources.Res
+import de.tillhub.scanengine.resources.camera_access_required
 import de.tillhub.scanengine.resources.camera_error
 import de.tillhub.scanengine.resources.camera_title
+import de.tillhub.scanengine.resources.ic_camera
 import de.tillhub.scanengine.resources.permission_camera_request
 import de.tillhub.scanengine.resources.permission_required_message
 import de.tillhub.scanengine.resources.permission_required_title
 import de.tillhub.scanengine.ui.components.BottomButton
 import de.tillhub.scanengine.ui.components.Toolbar
 import de.tillhub.scanengine.ui.theme.AppTheme
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * A Composable function that displays a camera screen for barcode scanning.
@@ -44,7 +53,6 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
  * @param onDismiss A callback function that is invoked when the user dismisses the screen
  *                  (e.g., by clicking the back button in the toolbar).
  */
-@Preview
 @Composable
 internal fun CameraScreen(
     permissions: PermissionHandler = getPermissionHandler(),
@@ -58,13 +66,15 @@ internal fun CameraScreen(
     AppTheme {
         Scaffold(
             modifier = Modifier,
+            containerColor = Color.White,
             topBar = {
+                val title = if (!hasPermission.value && !cameraError.value) {
+                    stringResource(Res.string.permission_required_title)
+                } else {
+                    stringResource(Res.string.camera_title)
+                }
                 Toolbar(
-                    title = if (hasPermission.value) {
-                        stringResource(Res.string.camera_title)
-                    } else {
-                        stringResource(Res.string.permission_required_title)
-                    },
+                    title = title,
                     onClick = { onDismiss() },
                 )
             },
@@ -96,7 +106,7 @@ internal fun CameraScreen(
                         .padding(top = 16.dp)
                         .semantics { contentDescription = "Camera preview" },
                     barcodeScanned = onResult,
-                    onCameraError = { error ->
+                    onCameraError = { _ ->
                         cameraError.value = true
                     },
                 )
@@ -111,18 +121,42 @@ internal fun CameraScreen(
                             .fillMaxHeight(),
                         verticalArrangement = Arrangement.SpaceBetween,
                     ) {
-                        Text(
-                            style = MaterialTheme.typography.labelLarge,
+                        Column(
                             modifier = Modifier
-                                .padding(
-                                    vertical = 16.dp,
-                                    horizontal = 16.dp,
-                                )
-                                .semantics { contentDescription = "Permission explanation" },
-                            text = stringResource(Res.string.permission_required_message),
-                        )
+                                .weight(1f)
+                                .fillMaxWidth()
+                                .padding(horizontal = 40.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                        ) {
+                            Image(
+                                painter = painterResource(Res.drawable.ic_camera),
+                                contentDescription = "Camera icon",
+                                modifier = Modifier.size(48.dp),
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = stringResource(Res.string.camera_access_required),
+                                style = MaterialTheme.typography.titleMedium,
+                                modifier = Modifier
+                                    .semantics {
+                                        contentDescription = "Permission title"
+                                    },
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = stringResource(Res.string.permission_required_message),
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier
+                                    .semantics {
+                                        contentDescription = "Permission explanation"
+                                    },
+                            )
+                        }
                         BottomButton(
-                            modifier = Modifier.testTag("submitButton"),
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp, vertical = 16.dp)
+                                .testTag("submitButton"),
                             text = stringResource(Res.string.permission_camera_request),
                             onClick = { askForPermission.value = true },
                         )

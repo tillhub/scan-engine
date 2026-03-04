@@ -5,11 +5,13 @@
 
     <string name="camera_title">Scan barcode</string>
     <string name="permission_required_title">Grant permissions</string>
-    <string name="permission_required_message">In order to use barcode reader you need to grant access by accepting the next permission dialog.\n\nWould you like to continue?</string>
+    <string name="camera_access_required">Camera access required</string>
+    <string name="permission_required_message">Allow camera access to scan barcodes and connect to your card reader. You'll be asked for permission in the next step.</string>
     <string name="permission_camera_request">Request camera permission</string>
 
     <string name="camera_error">There was an issue requesting a camera interface on your device.</string>
 
+    <string name="navigate_back">Navigate back</string>
     <string name="ok">OK</string>
     <string name="loading">Loading</string>
     <string name="pairing_title">Barcode pairing</string>

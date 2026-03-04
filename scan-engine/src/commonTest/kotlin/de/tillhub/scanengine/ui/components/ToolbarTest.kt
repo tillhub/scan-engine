@@ -30,7 +30,7 @@ class ToolbarTest {
             }
         }
 
-        onNodeWithContentDescription("close").assertExists()
+        onNodeWithContentDescription("Navigate back").assertExists()
         onNodeWithTag("toolbarTitle").assertTextEquals(testTitle)
 
         onNodeWithTag("toolbarIcon").performClick()
