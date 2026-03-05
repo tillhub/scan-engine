@@ -14,6 +14,9 @@ class CameraScanActivity : ComponentActivity() {
                     val resultIntent =
                         Intent().apply {
                             putExtra(DATA_KEY, barcode)
+                            intent.getStringExtra(SCAN_KEY)?.let {
+                                putExtra(SCAN_KEY, it)
+                            }
                         }
                     setResult(RESULT_OK, resultIntent)
                     finish()
@@ -28,5 +31,6 @@ class CameraScanActivity : ComponentActivity() {
 
     companion object {
         const val DATA_KEY = "scanned_data"
+        const val SCAN_KEY = "scan_key"
     }
 }
