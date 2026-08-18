@@ -118,7 +118,7 @@ The library uses Kotlin Multiplatform with the following source sets:
 
 ### Published Library
 - Available on Maven Central repository as `io.github.tillhub:scan-engine:x.x.x`
-- Current version: 2.0.4 (see `gradle/libs.versions.toml`)
+- Current version: 2.0.5 (see `gradle/libs.versions.toml`)
 - Namespace: `de.tillhub.scanengine`
 
 ### Framework Generation
